@@ -15,7 +15,8 @@ def make(instance, entries, all, vars):
         cal[m].setdefault(d, 0)
         cal[m][d] += 1
 
-    months = [muse.expand('calendar', m=m, days=d, **vars) for m, d in cal.items()]
+    months = [muse.expand('calendar', y=instance, m=month, days=days, **vars)
+        for month, days in cal.items()]
     sidebar = muse.expand('sidebar', entries=entries, all=all, **vars)
     footer = 'Footer'
     pagetitle = 'Year %s - %s' % (instance, vars['blogtitle'])
