@@ -4,10 +4,11 @@ __email__ = 'decklin@red-bean.com'
 __url__ = 'http://www.red-bean.com/~decklin/software/mnemosyne/'
 
 import os
-import time
 import mailbox
 import email
+import time
 import em
+import shutil
 from docutils.core import publish_string
 import mnemosyne.utils
 
@@ -92,13 +93,16 @@ class Muse:
         if not knowledge: knowledge = self.wisdom
         srcbase, srcleaf = os.path.split(src)
         destbase, destleaf = os.path.split(dest)
+        realsrc = self.getf('layout', src)
         if destleaf.startswith('__'):
             self.sing_instances(src, dest, what, knowledge)
-        elif os.path.isfile(self.getf('layout', src)):
+        elif os.path.isfile(realsrc):
             if srcleaf.endswith('.py'):
                 self.sing_file(src, dest[:-3], what, knowledge)
-        elif os.path.isdir(self.getf('layout', src)):
-            for f in os.listdir(self.getf('layout', src)):
+            else:
+                shutil.copyfile(realsrc, self.getf('output', dest))
+        elif os.path.isdir(realsrc):
+            for f in os.listdir(realsrc):
                 self.sing(os.path.join(src, f), os.path.join(dest, f),
                     what, knowledge)
 
