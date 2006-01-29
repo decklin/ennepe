@@ -1,0 +1,10 @@
+@%name        "Boring Subject"
+@%author      "Decklin Foster"
+@%email       "decklin@red-bean.com"
+@%description "Subject and link to an entry."
+@
+@{import time}@
+@
+<p>@(time.strftime('%a %d %b, %H:%M:%S', e.date)): @
+<a href="@base/@e._year/@e._month/@e._day/@(e._slug).html">@
+@(e.subject ? e.subject ! 'Entry')</a></p>
