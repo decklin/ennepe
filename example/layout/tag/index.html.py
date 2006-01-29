@@ -12,8 +12,7 @@ def make(instance, entries, all, vars):
     formatted = ['<p><a href="%s">%s</a></p>' % (_t, t)
         for t, _t in tags.items()]
     sidebar = muse.expand('sidebar', entries=[], all=[], **vars)
-    footer = 'Footer'
     pagetitle = vars['blogtitle']
 
     return muse.expand('page', layout=__name__, body="\n".join(formatted),
-        pagetitle=pagetitle, sidebar=sidebar, footer=footer, **vars)
+        pagetitle=pagetitle, sidebar=sidebar, **vars)

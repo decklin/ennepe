@@ -18,8 +18,7 @@ def make(instance, entries, all, vars):
     months = [muse.expand('calendar', y=instance, m=month, days=days, **vars)
         for month, days in cal.items()]
     sidebar = muse.expand('sidebar', entries=entries, all=all, **vars)
-    footer = 'Footer'
     pagetitle = 'Year %s - %s' % (instance, vars['blogtitle'])
 
     return muse.expand('page', layout=__name__, body="\n".join(months),
-        pagetitle=pagetitle, sidebar=sidebar, footer=footer, **vars)
+        pagetitle=pagetitle, sidebar=sidebar, **vars)
