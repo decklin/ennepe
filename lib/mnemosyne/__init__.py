@@ -99,6 +99,8 @@ class Muse:
         elif os.path.isfile(realsrc):
             if srcleaf.endswith('.py'):
                 self.sing_file(src, dest[:-3], what, knowledge)
+            elif srcleaf == '.svn':
+                pass
             else:
                 shutil.copyfile(realsrc, self.getf('output', dest))
         elif os.path.isdir(realsrc):
