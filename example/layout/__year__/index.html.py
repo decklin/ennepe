@@ -4,7 +4,7 @@ __description__ = "Calendar of all dates in a given year."
 
 import time
 
-def make(instance, entries, all, vars):
+def make(self, entries, vars):
     # we get all the entries for this year in ``entries``, in here we want to
     # build some monthly calendars to pass to the next bit
     cal = {}
@@ -15,9 +15,9 @@ def make(instance, entries, all, vars):
         cal[m].setdefault(d, 0)
         cal[m][d] += 1
 
-    months = [muse.expand('calendar', y=instance, m=month, days=days, **vars)
+    months = [self.expand('calendar', y=self.instances[-1], m=month, days=days, **vars)
         for month, days in cal.items()]
-    pagetitle = 'Year %s - %s' % (instance, vars['blogtitle'])
+    pagetitle = 'Year %s - %s' % (self.instances[-1], vars['blogtitle'])
 
-    return muse.expand('page', layout=__name__, body="\n".join(months),
+    return self.expand('page', layout=__name__, body="\n".join(months),
         pagetitle=pagetitle, **vars)

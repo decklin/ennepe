@@ -3,9 +3,9 @@ __author__ = "Decklin Foster"
 __email__ = "decklin@red-bean.com"
 __description__ = "List of all tags."
 
-def make(instance, entries, all, vars):
+def make(self, entries, vars):
     tags = {}
-    for e in all:
+    for e in self.wisdom:
         for t, _t in zip(e.tags, e._tag):
             tags.setdefault(t, _t)
 
@@ -13,5 +13,5 @@ def make(instance, entries, all, vars):
         for t, _t in tags.items()]
     pagetitle = vars['blogtitle']
 
-    return muse.expand('page', layout=__name__, body="\n".join(formatted),
+    return self.expand('page', layout=__name__, body="\n".join(formatted),
         pagetitle=pagetitle, **vars)

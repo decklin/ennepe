@@ -84,31 +84,35 @@ class Muse:
             for name, spell in self.spells.items():
                 setattr(e, '_' + name, spell(e))
 
+        self.instances = []
+
     def getf(self, dir, path):
         return os.path.join(self.config[dir+'_dir'], path)
 
-    def sing(self, src='', dest=None, what=None, knowledge=None):
+    def sing(self, src='', dest=None, knowledge=None):
         if not dest: dest = src
-        if not what: what = dest
         if not knowledge: knowledge = self.wisdom
-        srcbase, srcleaf = os.path.split(src)
-        destbase, destleaf = os.path.split(dest)
-        realsrc = self.getf('layout', src)
-        if srcleaf == '.svn': return
 
-        if destleaf.startswith('__'):
-            self.sing_instances(src, dest, what, knowledge)
-        elif os.path.isfile(realsrc):
-            if srcleaf.endswith('.py'):
-                self.sing_file(src, dest[:-3], what, knowledge)
+        # want these available in layout too
+        self.path, self.target = os.path.split(dest)
+        self.sourcepath, self.source = os.path.split(src)
+
+        if self.source == '.svn': return
+        srcpath = self.getf('layout', src)
+
+        if self.target.startswith('__'):
+            self.sing_instances(src, dest, knowledge)
+        elif os.path.isfile(srcpath):
+            if self.source.endswith('.py'):
+                self.sing_file(src, dest[:-3], knowledge)
             else:
-                shutil.copyfile(realsrc, self.getf('output', dest))
-        elif os.path.isdir(realsrc):
-            for f in os.listdir(realsrc):
+                shutil.copyfile(srcpath, self.getf('output', dest))
+        elif os.path.isdir(srcpath):
+            for f in os.listdir(srcpath):
                 self.sing(os.path.join(src, f), os.path.join(dest, f),
-                    what, knowledge)
+                    knowledge)
 
-    def sing_instances(self, src, dest, what, knowledge):
+    def sing_instances(self, src, dest, knowledge):
         srcbase, srcleaf = os.path.split(src)
         xxx = srcleaf[:srcleaf.rfind('__')+2]
         magic = xxx[2:-2]
@@ -126,21 +130,24 @@ class Muse:
         for k, v in instances.items():
             destbase, destleaf = os.path.split(dest)
             dest = os.path.join(destbase, srcleaf.replace(xxx, k))
-            self.sing(src, dest, k, v)
+            self.instances.append(k)
+            self.sing(src, dest, v)
+            self.instances.pop()
 
     def expand(self, style, **vars):
         stylefile = self.getf('style', '%s.empy' % style)
+        vars['self'] = self
         return em.expand(file(stylefile).read(), vars)
 
-    def sing_file(self, src, dest, what, knowledge):
+    def sing_file(self, src, dest, knowledge):
         srcfile = self.getf('layout', src)
         destfile = self.getf('output', dest)
 
-        layout = {'muse': self}
+        layout = {'utils': mnemosyne.utils}
         exec file(srcfile) in layout
         renderer = layout['make']
 
-        page = renderer(what, knowledge, self.wisdom, self.config['vars'])
+        page = renderer(self, knowledge, self.config['vars'])
         self.write(destfile, page)
 
     def write(self, outfile, data):
