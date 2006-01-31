@@ -7,6 +7,7 @@ import os
 import mailbox
 import email
 import time
+import stat
 import em
 import shutil
 from docutils.core import publish_string
@@ -101,8 +102,8 @@ class Muse:
         if self.target.startswith('__'):
             self.sing_instances(src, dest, knowledge)
         elif os.path.isfile(srcpath):
-            if srcpath.endswith('.py'):
-                self.sing_file(src, dest[:-3], knowledge)
+            if os.stat(srcpath).st_mode & stat.S_IRUSR:
+                self.sing_file(src, dest, knowledge)
             else:
                 shutil.copyfile(srcpath, self.getf('output', dest))
         elif os.path.isdir(srcpath):
