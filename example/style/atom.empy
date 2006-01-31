@@ -29,12 +29,12 @@ def rfc3339(date):
   </author>
   @[for e in entries]
   <entry>
-    <title type="text">@e.subject</title>
+    @[if e.subject]<title type="text">@e.subject</title>@[end if]
     <link rel="alternate" type="application/xhtml+xml"
       href="@base/@e._year/@e._month/@e._day/@e._slug" />
     <id>@e.id</id>
     <published>@rfc3339(e.date)</published>
-@#  <updated>@rfc3339(e.mtime)</updated>
+    <updated>@rfc3339(e.date)</updated>
     <content type="xhtml">
       <div xmlns="http://www.w3.org/1999/xhtml">
         @e.content
