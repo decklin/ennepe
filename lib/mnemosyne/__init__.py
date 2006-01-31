@@ -102,7 +102,7 @@ class Muse:
         if self.target.startswith('__'):
             self.sing_instances(src, dest, knowledge)
         elif os.path.isfile(srcpath):
-            if os.stat(srcpath).st_mode & stat.S_IRUSR:
+            if os.stat(srcpath).st_mode & stat.S_IXUSR:
                 self.sing_file(src, dest, knowledge)
             else:
                 shutil.copyfile(srcpath, self.getf('output', dest))
