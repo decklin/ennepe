@@ -8,7 +8,7 @@ import time
 import datetime
 
 def rfc3339(date):
-    date = datetime.datetime.fromtimestamp(time.gmtime(date))
+    date = datetime.datetime.fromtimestamp(time.mktime(date))
     return date.isoformat() + "Z"
 }@
 @
