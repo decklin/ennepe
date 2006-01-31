@@ -4,4 +4,5 @@ __description__ = "Feed of all entries."
 
 def make(instance, entries, all, vars):
     entries = entries[-10:] # XXX: if newer than 1 week
-    return muse.expand('atom', entries=entries, **vars)
+    entries.reverse()
+    return muse.expand('atom', all=all, entries=entries, **vars)

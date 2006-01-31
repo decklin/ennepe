@@ -2,3 +2,28 @@
 @%author      "Decklin Foster"
 @%email       "decklin@red-bean.com"
 @%description "Table of days in the given month, with links if applicable."
+@{
+import calendar
+cal = calendar.monthcalendar(int(y), int(m))
+}@
+@
+<h3>@calendar.month_name[int(m)]</h3>
+<table class="cal">
+@[for week in cal]@
+<tr class="week">
+@[for day in week]@
+<td class="day">@
+@[if day]@
+@[if days.has_key(str(day))]@
+<p><a href="@base/@y/@m/@day/">@day</a></p>@
+@[else]@
+<p>@day</p>@
+@[end if]@
+@[else]@
+<p></p>@
+@[end if]@
+</td>
+@[end for]@
+</tr>
+@[end for]@
+</table>

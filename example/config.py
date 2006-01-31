@@ -14,12 +14,7 @@
 # ``vars``: a dict of default local variables passed to all templates.
 #
 # This will contain the keys __version__, __url__, __author__, and __email__.
-
-vars['blogtitle'] = 'Changed Things'
-vars['blogauthor'] = 'Decklin Foster'
-vars['blogemail'] = 'decklin@red-bean.com'
-vars['base'] = 'file:///home/decklin/Mnemosyne/htdocs'
-
+#
 # You may also define functions here to add 'magic' attributes to each entry.
 # A function with a name of the form ``make_MAGIC`` (which takes a single
 # argument, the entry) will be used to create an attribute ``e._MAGIC`` for
