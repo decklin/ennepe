@@ -7,8 +7,9 @@
 import time
 import datetime
 
-def w3cstamp(date):
-    return datetime.datetime.fromtimestamp(time.mktime(date)).isoformat()
+def rfc3339(date):
+    date = datetime.datetime.fromtimestamp(time.gmtime(date))
+    return date.isoformat() + "Z"
 }@
 @
 <?xml version="1.0" encoding="utf-8"?>
@@ -17,7 +18,7 @@ def w3cstamp(date):
 @#<id>urn:uuid:</id>
   <link rel="self" type="application/atom+xml" href="@base/@self.path/@self.target" />
   <link rel="alternate" type="application/xhtml+xml" href="@base/" />
-  <updated>@w3cstamp(self.wisdom[-1].date)</updated>
+  <updated>@rfc3339(self.wisdom[-1].date)</updated>
   <generator uri="@__url__">
     Mnemosyne @__version__
   </generator>
@@ -32,8 +33,8 @@ def w3cstamp(date):
     <link rel="alternate" type="application/xhtml+xml"
       href="@base/@e._year/@e._month/@e._day/@e._slug" />
     <id>@e.id</id>
-    <published>@w3cstamp(e.date)</published>
-@#  <updated>@w3cstamp(e.mtime)</updated>
+    <published>@rfc3339(e.date)</published>
+@#  <updated>@rfc3339(e.mtime)</updated>
     <content type="xhtml">
       <div xmlns="http://www.w3.org/1999/xhtml">
         @e.content
