@@ -35,7 +35,7 @@ def rfc3339(date):
       href="@base/@e._year/@e._month/@e._day/@e._slug" />
     <id>@e.id</id>
     <published>@rfc3339(e.date)</published>
-    <updated>@rfc3339(e.date)</updated>
+    <updated>@rfc3339(e.mtime)</updated>
     <content type="xhtml">
       <div xmlns="http://www.w3.org/1999/xhtml">
         @e.content

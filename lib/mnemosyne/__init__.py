@@ -5,7 +5,6 @@ __url__ = 'http://www.red-bean.com/~decklin/software/mnemosyne/'
 
 import os
 import mailbox
-import email
 import time
 import stat
 import em
@@ -19,23 +18,26 @@ class Entry:
     RST_PREAMBLE = '.. role:: html(raw)\n   :format: html\n\n..\n\n'
     SIG_DELIM = '-- \n'
 
-    def __init__(self, source):
-        self.content = self.publish_html(source.get_payload())
-        self.date = self.parse_date(source['Date'])
-        self.id = self.make_id(source['Message-Id'])
-        self.author, self.email = email.Utils.parseaddr(source['From'])
-        self.subject = source.get('Subject', '')
+    def __init__(self, m):
+        def fixdate(d):
+            # For some bizarre reason, getdate doesn't set wday/yday/isdst...
+            return time.localtime(time.mktime(d))
+        def makeid(date, msgid):
+            k, host = msgid[1:-1].split('@')
+            return 'tag:%s,%s:%s' % (host, time.strftime('%Y-%m-%d', date), k)
+        def getstamp(maildirpath):
+            stamp, id, host = os.path.split(maildirpath)[1].split('.')
+            return int(stamp)
+
+        # This violates abstraction by poking at m.fp
+        self.content = self.publish_html(m.fp.read())
+        self.mtime = time.localtime(getstamp(m.fp.name))
+        self.date = fixdate(m.getdate('Date'))
+        self.id = makeid(self.date, m.get('Message-Id'))
+        self.author, self.email = m.getaddr('From')
+        self.subject = m.get('Subject', '') # XXX: no ''
         self.tags = [t.strip() for t in
-            source.get('X-Mnemosyne-Tags', '').split(',') if t]
-
-    def parse_date(self, s):
-        # For some bizarre reason, parsedate doesn't set wday/yday/isdst...
-        return time.localtime(time.mktime(email.Utils.parsedate(s)))
-
-    def make_id(self, id):
-        key, host = id[1:-1].split('@')
-        return 'tag:%s,%s:%s' % \
-            (host, time.strftime('%Y-%m-%d', self.date), key)
+            m.get('X-Mnemosyne-Tags', '').split(',') if t] # XXX: ditto?
 
     def publish_html(self, s):
         try: s = s[:s.rindex(self.SIG_DELIM)]
@@ -72,8 +74,7 @@ class Muse:
 
         exec file(configfile) in self.config
 
-        box = mailbox.Maildir(self.config['entry_dir'],
-            email.message_from_file)
+        box = mailbox.Maildir(self.config['entry_dir'])
         self.wisdom = [Entry(msg) for msg in box]
         self.wisdom.sort()
 
