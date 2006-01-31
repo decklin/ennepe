@@ -7,6 +7,7 @@
 
 <head>
 <title>@pagetitle</title>
+<link rel="alternate" type="application/atom+xml" title="Atom" href="@base/feed/atom.xml" />
 </head>
 
 <body>
