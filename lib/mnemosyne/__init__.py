@@ -94,13 +94,13 @@ class Muse:
         srcbase, srcleaf = os.path.split(src)
         destbase, destleaf = os.path.split(dest)
         realsrc = self.getf('layout', src)
+        if srcleaf == '.svn': return
+
         if destleaf.startswith('__'):
             self.sing_instances(src, dest, what, knowledge)
         elif os.path.isfile(realsrc):
             if srcleaf.endswith('.py'):
                 self.sing_file(src, dest[:-3], what, knowledge)
-            elif srcleaf == '.svn':
-                pass
             else:
                 shutil.copyfile(realsrc, self.getf('output', dest))
         elif os.path.isdir(realsrc):
