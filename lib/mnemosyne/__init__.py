@@ -93,17 +93,15 @@ class Muse:
         if not dest: dest = src
         if not knowledge: knowledge = self.wisdom
 
-        # want these available in layout too
         self.path, self.target = os.path.split(dest)
-        self.sourcepath, self.source = os.path.split(src)
-
-        if self.source == '.svn': return
         srcpath = self.getf('layout', src)
+
+        if os.path.split(src)[1] == '.svn': return
 
         if self.target.startswith('__'):
             self.sing_instances(src, dest, knowledge)
         elif os.path.isfile(srcpath):
-            if self.source.endswith('.py'):
+            if srcpath.endswith('.py'):
                 self.sing_file(src, dest[:-3], knowledge)
             else:
                 shutil.copyfile(srcpath, self.getf('output', dest))
