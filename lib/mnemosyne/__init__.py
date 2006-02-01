@@ -18,7 +18,7 @@ class Muse:
 
     def __init__(self, configfile):
         self.config = {
-            'MnemosyneEntry': entry.Entry,
+            'entry': entry,
             'entry_dir': os.path.join(self.DEF_BASE_DIR, 'entries'),
             'layout_dir': os.path.join(self.DEF_BASE_DIR, 'layout'),
             'style_dir': os.path.join(self.DEF_BASE_DIR, 'style'),
