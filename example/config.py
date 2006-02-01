@@ -26,6 +26,8 @@
 
 import time
 
+vars['blogname'] = 'Example Blog'
+
 def make_tag(e):
     return [utils.clean(t) for t in e.tags]
 

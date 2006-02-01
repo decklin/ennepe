@@ -6,14 +6,14 @@
 <html>
 
 <head>
-<title>@pagetitle</title>
-<link rel="alternate" type="application/atom+xml" title="Atom" href="@base/feed/atom.xml" />
+<title>@(title $ blogname)</title>
+<link rel="alternate" type="application/atom+xml" title="Atom"
+    href="@base/feed/atom.xml" />
 </head>
 
 <body>
 
-<h1><a href="@base/">@blogtitle</a></h1>
-<p>@layout</p>
+<h1><a href="@base/">@blogname</a></h1>
 
 @body
 

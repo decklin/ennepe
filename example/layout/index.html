@@ -4,10 +4,7 @@ __email__ = "decklin@red-bean.com"
 __description__ = "Contents of recent entries."
 
 def make(self, entries, vars):
-    entries = entries[-10:]
-    entries.reverse()
-    body = self.expand('entries-full', entries=entries, **vars)
-    pagetitle = vars['blogtitle']
-
-    return self.expand('page', layout=__name__, pagetitle=pagetitle,
-        body=body, **vars)
+    vars['entries'] = entries[-10:]
+    vars['entries'].reverse()
+    vars['body'] = self.expand('entries-full', **vars)
+    return self.expand('page', **vars)

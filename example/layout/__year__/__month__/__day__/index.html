@@ -3,8 +3,6 @@ __author__ = "Decklin Foster <decklin@red-bean.com>"
 __description__ = "Chronological list of all entries for a given day."
 
 def make(self, entries, vars):
-    pagetitle = 'Day %s - %s' % (self.where[-2], vars['blogtitle'])
-    body = self.expand('entries-full', entries=entries, **vars)
-
-    return self.expand('page', layout=__name__, pagetitle=pagetitle,
-        body=body, **vars)
+    vars['title'] = 'Day %s - %s' % (self.where[-2], vars['blogname'])
+    vars['body'] = self.expand('entries-full', entries=entries, **vars)
+    return self.expand('page', **vars)
