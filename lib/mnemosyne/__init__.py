@@ -34,13 +34,28 @@ class Muse:
 
         exec file(configfile) in self.config
 
+        class Proxy:
+            def __init__(self, obj, r):
+                self.object = obj
+                self.__repr__ = lambda: r
+            def __getattr__(self, a):
+                return getattr(self.object, a)
+            def __eq__(self, other):
+                return self.object == other.object
+
         UserMixin = self.config['EntryMixin']
         class Entry(entry.BaseEntry, entry.Mixin, UserMixin):
             def __getattr__(self, a):
                 for c in (UserMixin, entry.Mixin):
                     try:
                         method = getattr(c, 'get_'+a)
-                        return method(self)
+                        val, rep = method(self)
+                        if type(val) == list:
+                            self.__dict__[a] = [Proxy(v, r)
+                                for v, r in zip(val, rep)]
+                        else:
+                            self.__dict__[a] = Proxy(val, rep)
+                        return self.__dict__[a]
                     except AttributeError:
                         pass
                 return getattr(entry.BaseEntry, a)
@@ -83,15 +98,15 @@ class Muse:
 
         instances = {}
         for e in knowledge:
-            m_vals = getattr(e, magic[2:-2], [])
-            if type(m_vals) != list: m_vals = [m_vals]
-            for v in m_vals:
-                instances.setdefault(v, [])
-                instances[v].append(e)
+            mv = getattr(e, magic[2:-2], [])
+            if type(mv) != list: mv = [mv] # XXX: ugh
+            for v in mv:
+                instances.setdefault(repr(v), [])
+                instances[repr(v)].append(e)
 
-        for k, v in instances.items():
-            self.where.append(k)
-            self.sing(v, spath, dpath, (magic, k))
+        for key, entries in instances.items():
+            self.where.append(key)
+            self.sing(entries, spath, dpath, (what, what.replace(magic, key)))
             self.where.pop()
 
     def sing_file(self, knowledge, spath, dpath):

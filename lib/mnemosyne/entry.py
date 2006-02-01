@@ -3,10 +3,11 @@ import time
 from docutils.core import publish_string
 
 def clean(s, maxwords=None):
-    words = s.strip().lower().split()
-    if maxwords: words = words[:maxwords]
-    words = [''.join([c for c in w if c.isalnum()]) for w in words]
-    return '-'.join(words)
+    if s:
+        words = s.strip().lower().split()
+        if maxwords: words = words[:maxwords]
+        words = [''.join([c for c in w if c.isalnum()]) for w in words]
+        return '-'.join(words)
 
 u = {}
 def unique(namespace, k, id):
@@ -58,7 +59,7 @@ class BaseEntry:
         self.m = m
 
     def __repr__(self):
-        return '<Entry about "%s" dated %s>' % (self.subject,
+        return '<Entry "%s" dated %s>' % (self.subject,
             time.strftime('%Y-%m-%d %H:%M:%S', self.date))
 
     def __cmp__(self, other):
@@ -66,53 +67,42 @@ class BaseEntry:
 
 class Mixin:
     def get_author(self):
-        try:
-            return self.m.getaddr('From')[0]
-        except KeyError:
-            return ''
+        author = self.m.getaddr('From')[0]
+        return author, clean(author)
 
     def get_email(self):
-        try:
-            return self.m.getaddr('From')[1]
-        except KeyError:
-            return ''
+        email = self.m.getaddr('From')[1]
+        return email, clean(email)
 
     def get_id(self):
         try:
-            id, host =  self.m['Message-Id'][1:-1].split('@')
+            id = self.m['Message-Id']
+            lhs, host = id[1:-1].split('@')
             date = time.strftime('%Y-%m-%d', self.date)
-            return 'tag:%s,%s:%s' % (host, date, id)
+            return id, 'tag:%s,%s:%s' % (host, date, lhs)
         except KeyError:
-            return ''
+            return None, None
 
     def get_tags(self):
         try:
-            return self.m['X-Mnemosyne-Tags'].split(',')
+            tags = self.m['X-Mnemosyne-Tags'].split(',')
+            return tags, [clean(t) for t in tags]
         except KeyError:
-            return []
-
-    def get_tag(self):
-        return [clean(t) for t in self.tags]
-
-    def get_tagpairs(self):
-        for t, tt in zip(self.tags, self.tag):
-            yield t, tt
+            return [], []
 
     def get_subject(self):
         try:
-            return self.m['Subject']
+            subject = self.m['Subject']
         except KeyError:
-            return 'Entry'
-
-    def get_slug(self):
-        s = clean(self.subject, 3)
-        return unique(self.date[0:3], s, self.id)
+            subject = 'Entry'
+        cleaned = clean(subject, 3)
+        return subject, unique(self.date[0:3], cleaned, self.id)
 
     def get_year(self):
-        return time.strftime('%Y', self.date)
+        return self.date[0], time.strftime('%Y', self.date)
 
     def get_month(self):
-        return time.strftime('%m', self.date)
+        return self.date[1], time.strftime('%m', self.date)
 
     def get_day(self):
-        return time.strftime('%d', self.date)
+        return self.date[2], time.strftime('%d', self.date)

@@ -7,6 +7,6 @@
 @
 @[for e in entries]@
 <p>@(time.strftime('%a %d %b, %H:%M:%S', e.date)): @
-<a href="@base/@e.year/@e.month/@e.day/@(e.slug).html">@
-@(e.subject ? e.subject ! 'Entry')</a></p>
+<a href="@base/@`e.year`/@`e.month`/@`e.day`/@`e.subject`.html">@
+@e.subject</a></p>
 @[end for]@

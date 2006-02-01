@@ -6,9 +6,6 @@
 import calendar
 cal = calendar.monthcalendar(int(y), int(m))
 }@
-<!-- expanding @y, @m -->
-<!-- c: @repr(c) -->
-<!-- cal: @repr(cal) -->
 @
 <h3>@calendar.month_name[int(m)]</h3>
 <table class="cal">
