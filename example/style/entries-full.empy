@@ -5,6 +5,7 @@
 @
 @{import time}@
 @
+@[for e in entries]@
 <hr>
 
 <h2><a href="@base/@e._year/@e._month/@e._day/@(e._slug).html">@
@@ -23,3 +24,4 @@ Tags: @
 <a href="@base/tag/@_t/">@t</a>, @
 @[end for]@
 </p>
+@[end for]@

@@ -6,8 +6,8 @@ __description__ = "Contents of recent entries."
 def make(self, entries, vars):
     entries = entries[-10:]
     entries.reverse()
-    formatted = [self.expand('entry', e=e, **vars) for e in entries]
+    body = self.expand('entries-full', entries=entries, **vars)
     pagetitle = vars['blogtitle']
 
-    return self.expand('page', layout=__name__, body="\n".join(formatted),
-        pagetitle=pagetitle, **vars)
+    return self.expand('page', layout=__name__, pagetitle=pagetitle,
+        body=body, **vars)
