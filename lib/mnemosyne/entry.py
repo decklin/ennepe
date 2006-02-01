@@ -29,10 +29,6 @@ class BaseEntry:
         self.content = publish_html(m.fp.read())
         self.m = m
 
-    def __repr__(self):
-        return '<Entry "%s" dated %s>' % (self.subject,
-            time.strftime('%Y-%m-%d %H:%M:%S', self.date))
-
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
 
