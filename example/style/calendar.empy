@@ -6,6 +6,9 @@
 import calendar
 cal = calendar.monthcalendar(int(y), int(m))
 }@
+<!-- expanding @y, @m -->
+<!-- c: @repr(c) -->
+<!-- cal: @repr(cal) -->
 @
 <h3>@calendar.month_name[int(m)]</h3>
 <table class="cal">
@@ -14,7 +17,7 @@ cal = calendar.monthcalendar(int(y), int(m))
 @[for day in week]@
 <td class="day">@
 @[if day]@
-@[if days.has_key(str(day))]@
+@[if days.has_key(day)]@
 <p><a href="@base/@y/@m/@day/">@day</a></p>@
 @[else]@
 <p>@day</p>@

@@ -3,8 +3,8 @@ __author__ = "Decklin Foster"
 __email__ = "decklin@red-bean.com"
 __description__ = "Contents of recent entries."
 
-def make(self, entries, vars):
-    vars['entries'] = entries[-10:]
-    vars['entries'].reverse()
-    vars['body'] = self.expand('entries-full', **vars)
-    return self.expand('page', **vars)
+entries = entries[-10:]
+entries.reverse()
+body = expand('entries-full', locals())
+
+write(expand('page', locals()))

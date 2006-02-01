@@ -4,18 +4,15 @@ __description__ = "Calendar of all dates in a given year."
 
 import time
 
-def make(self, entries, vars):
-    cal = {}
-    for e in entries:
-        m = time.strftime('%m', e.date)
-        d = time.strftime('%d', e.date)
-        cal.setdefault(m, {})
-        cal[m].setdefault(d, 0)
-        cal[m][d] += 1
+c = {}
+for e in entries:
+    y, m, d = e.date[0:3]
+    c.setdefault(m, {})
+    c[m].setdefault(d, 0)
+    c[m][d] += 1
 
-    vars['title'] = 'Year %s - %s' % (self.where[-2], vars['blogname'])
-    vars['body'] = '\n'.join([self.expand('calendar',
-        y=self.where[-2], m=month, days=days, **vars)
-        for month, days in cal.items()])
+y = self.where[-2]
+title = 'Year %s - %s' % (y, blogname)
+body = '\n'.join([expand('calendar', locals()) for m, days in c.items()])
 
-    return self.expand('page', **vars)
+write(expand('page', locals()))

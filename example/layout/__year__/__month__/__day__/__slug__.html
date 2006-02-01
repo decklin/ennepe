@@ -2,7 +2,7 @@ __name__ = "Entry View"
 __author__ = "Decklin Foster <decklin@red-bean.com>"
 __description__ = "Permalinkable page for a single entry."
 
-def make(self, entries, vars):
-    vars['title'] = '%s - %s' % (entries[0].subject, vars['blogname'])
-    vars['body'] = self.expand('entries-full', entries=entries, **vars)
-    return self.expand('page', **vars)
+title = '%s - %s' % (entries[0].subject, blogname)
+body = expand('entries-full', locals())
+
+write(expand('page', locals()))

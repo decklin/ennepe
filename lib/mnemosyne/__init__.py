@@ -24,7 +24,7 @@ class Muse:
             'layout_dir': os.path.join(self.DEF_BASE_DIR, 'layout'),
             'style_dir': os.path.join(self.DEF_BASE_DIR, 'style'),
             'output_dir': os.path.join(self.DEF_BASE_DIR, 'htdocs'),
-            'vars': {
+            'locals': {
                 '__version__': __version__,
                 '__author__': __author__,
                 '__email__': __email__,
@@ -85,15 +85,20 @@ class Muse:
             self.sing(v, spath, dpath, (magic, k))
             self.where.pop()
 
-    def expand(self, style, **vars):
-        stylefile = os.path.join(self.config['style_dir'], '%s.empy' % style)
-        vars['self'] = self
-        return em.expand(file(stylefile).read(), vars)
-
     def sing_file(self, knowledge, spath, dpath):
-        layout = {'utils': utils}
-        exec file(spath) in layout
-        renderer = layout['make']
-        page = renderer(self, knowledge, self.config['vars'].copy())
-        file(dpath, 'w').write(page)
-        print 'Wrote %s' % dpath
+        def expand(style, localz):
+            stylefile = os.path.join(self.config['style_dir'],
+                '%s.empy' % style)
+            return em.expand(file(stylefile).read(), localz)
+        def write(data):
+            file(dpath, 'w').write(data)
+            print 'Wrote %s' % dpath
+
+        localz = self.config['locals'].copy()
+        localz['self'] = self
+        localz['utils'] = utils
+        localz['expand'] = expand
+        localz['write'] = write
+        localz['entries'] = knowledge
+
+        exec file(spath) in localz
