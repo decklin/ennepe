@@ -6,7 +6,7 @@ def make(self, entries, vars):
     entries = entries[-50:]
     entries.reverse()
     formatted = [self.expand('entry', e=e, **vars) for e in entries]
-    pagetitle = 'Tag "%s" - %s' % (self.instances[-1], vars['blogtitle'])
+    pagetitle = 'Tag "%s" - %s' % (self.where[-1], vars['blogtitle'])
 
     return self.expand('page', layout=__name__, body="\n".join(formatted),
         pagetitle=pagetitle, **vars)

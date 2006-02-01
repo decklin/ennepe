@@ -5,8 +5,6 @@ __description__ = "Calendar of all dates in a given year."
 import time
 
 def make(self, entries, vars):
-    # we get all the entries for this year in ``entries``, in here we want to
-    # build some monthly calendars to pass to the next bit
     cal = {}
     for e in entries:
         m = time.strftime('%m', e.date)
@@ -15,9 +13,10 @@ def make(self, entries, vars):
         cal[m].setdefault(d, 0)
         cal[m][d] += 1
 
-    months = [self.expand('calendar', y=self.instances[-1], m=month, days=days, **vars)
+    months = [self.expand('calendar',
+        y=self.where[-2], m=month, days=days, **vars)
         for month, days in cal.items()]
-    pagetitle = 'Year %s - %s' % (self.instances[-1], vars['blogtitle'])
+    pagetitle = 'Year %s - %s' % (self.where[-1], vars['blogtitle'])
 
     return self.expand('page', layout=__name__, body="\n".join(months),
         pagetitle=pagetitle, **vars)

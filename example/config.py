@@ -30,8 +30,11 @@ def make_tag(e):
     return [utils.clean(t) for t in e.tags]
 
 def make_slug(e):
-    cleaned = utils.clean(e.subject, 3) or 'entry'
-    return utils.unique(e, time.strftime('%Y-%m-%d', e.date), cleaned)
+    if e.subject:
+        slug = utils.clean(e.subject, 3)
+    else:
+        slug = 'entry'
+    return utils.unique(e, time.strftime('%Y-%m-%d', e.date), slug)
 
 def make_year(e):
     return time.strftime('%Y', e.date)

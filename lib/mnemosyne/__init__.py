@@ -59,6 +59,7 @@ class Entry:
 
 class Muse:
     DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
+    IGNORE = ('.svn', 'CVS')
 
     def __init__(self, configfile):
         self.config = {
@@ -89,40 +90,44 @@ class Muse:
             for name, spell in self.spells.items():
                 setattr(e, '_' + name, spell(e))
 
-        self.instances = []
+        self.where = []
 
     def getf(self, dir, path):
         return os.path.join(self.config[dir+'_dir'], path)
 
-    def sing(self, src='', dest=None, knowledge=None):
-        if not dest: dest = src
-        if not knowledge: knowledge = self.wisdom
+    def invoke(self):
+        self.sing(self.wisdom,
+            self.config['layout_dir'], self.config['output_dir'])
 
-        self.path, self.target = os.path.split(dest)
-        srcpath = self.getf('layout', src)
+    def sing(self, knowledge, spath, dpath, what=None):
+        if what:
+            source, dest = what
+            spath = os.path.join(spath, source)
+            dpath = os.path.join(dpath, dest)
+            if source not in self.IGNORE:
+                if os.path.isfile(spath):
+                    if os.stat(spath).st_mode & stat.S_IXUSR:
+                        self.sing_file(knowledge, spath, dpath)
+                    else:
+                        shutil.copyfile(spath, dpath)
+                elif os.path.isdir(spath):
+                    self.sing(knowledge, spath, dpath)
+        else:
+            if not os.path.isdir(dpath): os.makedirs(dpath)
+            for f in os.listdir(spath):
+                if f.startswith('__'):
+                    self.sing_instances(knowledge, spath, dpath, f)
+                else:
+                    self.where.append(f)
+                    self.sing(knowledge, spath, dpath, (f, f))
+                    self.where.pop()
 
-        if os.path.split(src)[1] == '.svn': return
-
-        if self.target.startswith('__'):
-            self.sing_instances(src, dest, knowledge)
-        elif os.path.isfile(srcpath):
-            if os.stat(srcpath).st_mode & stat.S_IXUSR:
-                self.sing_file(src, dest, knowledge)
-            else:
-                shutil.copyfile(srcpath, self.getf('output', dest))
-        elif os.path.isdir(srcpath):
-            for f in os.listdir(srcpath):
-                self.sing(os.path.join(src, f), os.path.join(dest, f),
-                    knowledge)
-
-    def sing_instances(self, src, dest, knowledge):
-        srcbase, srcleaf = os.path.split(src)
-        xxx = srcleaf[:srcleaf.rfind('__')+2]
-        magic = xxx[2:-2]
+    def sing_instances(self, knowledge, spath, dpath, what):
+        magic = what[:what.rfind('__')+2]
 
         instances = {}
         for e in knowledge:
-            m_vals = getattr(e, '_' + magic, [])
+            m_vals = getattr(e, '_' + magic[2:-2], [])
             if type(m_vals) != list: m_vals = [m_vals]
             for v in m_vals:
                 if instances.has_key(v):
@@ -131,30 +136,19 @@ class Muse:
                     instances[v] = [e]
 
         for k, v in instances.items():
-            destbase, destleaf = os.path.split(dest)
-            dest = os.path.join(destbase, srcleaf.replace(xxx, k))
-            self.instances.append(k)
-            self.sing(src, dest, v)
-            self.instances.pop()
+            self.where.append(k)
+            self.sing(v, spath, dpath, (magic, k))
+            self.where.pop()
 
     def expand(self, style, **vars):
         stylefile = self.getf('style', '%s.empy' % style)
         vars['self'] = self
         return em.expand(file(stylefile).read(), vars)
 
-    def sing_file(self, src, dest, knowledge):
-        srcfile = self.getf('layout', src)
-        destfile = self.getf('output', dest)
-
+    def sing_file(self, knowledge, spath, dpath):
         layout = {'utils': mnemosyne.utils}
-        exec file(srcfile) in layout
+        exec file(spath) in layout
         renderer = layout['make']
-
         page = renderer(self, knowledge, self.config['vars'])
-        self.write(destfile, page)
-
-    def write(self, outfile, data):
-        outbase, outleaf = os.path.split(outfile)
-        if not os.path.isdir(outbase): os.makedirs(outbase)
-        file(outfile, 'w').write(data)
-        print 'Wrote %s' % outfile
+        file(dpath, 'w').write(page)
+        print 'Wrote %s' % dpath
