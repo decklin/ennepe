@@ -58,7 +58,6 @@ class BaseEntry:
             ns[k] = id
         return k
 
-class Mixin:
     def get_author(self):
         author = self.m.getaddr('From')[0]
         return author, self.clean(author)

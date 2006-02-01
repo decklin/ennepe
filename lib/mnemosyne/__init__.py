@@ -10,7 +10,7 @@ import stat
 import em
 import shutil
 
-import entry
+from entry import BaseEntry
 
 class Muse:
     DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
@@ -18,7 +18,6 @@ class Muse:
 
     def __init__(self, configfile):
         self.config = {
-            'EntryMixin': object,
             'entry_dir': os.path.join(self.DEF_BASE_DIR, 'entries'),
             'layout_dir': os.path.join(self.DEF_BASE_DIR, 'layout'),
             'style_dir': os.path.join(self.DEF_BASE_DIR, 'style'),
@@ -42,10 +41,10 @@ class Muse:
             def __eq__(self, other):
                 return self.object == other.object
 
-        UserMixin = self.config['EntryMixin']
-        class Entry(entry.BaseEntry, entry.Mixin, UserMixin):
+        mixin = self.config.get('EntryMixin')
+        class Entry(BaseEntry):
             def __getattr__(self, a):
-                for c in (UserMixin, entry.Mixin):
+                for c in (mixin, BaseEntry):
                     try:
                         method = getattr(c, 'get_'+a)
                         val, rep = method(self)
@@ -57,7 +56,7 @@ class Muse:
                         return self.__dict__[a]
                     except AttributeError:
                         pass
-                return getattr(entry.BaseEntry, a)
+                return getattr(BaseEntry, a)
 
         box = mailbox.Maildir(self.config['entry_dir'])
         self.wisdom = [Entry(msg) for msg in box]
