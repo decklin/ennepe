@@ -19,12 +19,14 @@
 #   templates.
 #
 # If you wish to extend this class, you may define a new class ``EntryMixin``
-# here. Any methods with a name of the form ``get_ATTRIBUTE`` will be used to
-# provide e.ATTRIBUTE at runtime.
+# here, with methods of the form get_ATTRIBUTE. Such methods should return a
+# (value, repr) tuple, which will be used to provide e.ATTRIBUTE and
+# repr(e.ATTRIBUTE) to the templates.
 
 locals['blogname'] = 'Example Blog'
 locals['base'] = 'http://example.invalid'
 
 class EntryMixin:
     def get_organization(self):
-        return self.m.get('Organization')
+        org = self.m.get('Organization')
+        return org, self.clean(org)

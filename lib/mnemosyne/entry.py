@@ -2,35 +2,6 @@ import os
 import time
 from docutils.core import publish_string
 
-def clean(s, maxwords=None):
-    if s:
-        words = s.strip().lower().split()
-        if maxwords: words = words[:maxwords]
-        words = [''.join([c for c in w if c.isalnum()]) for w in words]
-        return '-'.join(words)
-
-u = {}
-def unique(namespace, k, id):
-    u.setdefault(namespace, {})
-    ns = u[namespace]
-
-    try:
-        assert ns[k] == id
-    except KeyError:
-        ns[k] = id
-    except AssertionError:
-        while ns.has_key(k):
-            components = k.split('-')
-            try:
-                serial = int(components[-1])
-                components[-1] = str(serial + 1)
-                k = '-'.join(components)
-            except ValueError:
-                k += '-1'
-        ns[k] = id
-
-    return k
-
 class BaseEntry:
     DOC_START = '<div class="document">'
     DOC_END = '</div>'
@@ -65,14 +36,40 @@ class BaseEntry:
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
 
+    def clean(self, s, maxwords=None):
+        if s:
+            words = s.strip().lower().split()
+            if maxwords: words = words[:maxwords]
+            words = [''.join([c for c in w if c.isalnum()]) for w in words]
+            return '-'.join(words)
+
+    namespaces = {}
+    def uniq(self, ns, k, id):
+        ns = self.namespaces.setdefault(ns, {})
+        try:
+            assert ns[k] == id
+        except KeyError:
+            ns[k] = id
+        except AssertionError:
+            while ns.has_key(k):
+                components = k.split('-')
+                try:
+                    serial = int(components[-1])
+                    components[-1] = str(serial + 1)
+                    k = '-'.join(components)
+                except ValueError:
+                    k += '-1'
+            ns[k] = id
+        return k
+
 class Mixin:
     def get_author(self):
         author = self.m.getaddr('From')[0]
-        return author, clean(author)
+        return author, self.clean(author)
 
     def get_email(self):
         email = self.m.getaddr('From')[1]
-        return email, clean(email)
+        return email, self.clean(email)
 
     def get_id(self):
         try:
@@ -86,7 +83,7 @@ class Mixin:
     def get_tags(self):
         try:
             tags = self.m['X-Mnemosyne-Tags'].split(',')
-            return tags, [clean(t) for t in tags]
+            return tags, [self.clean(t) for t in tags]
         except KeyError:
             return [], []
 
@@ -95,8 +92,10 @@ class Mixin:
             subject = self.m['Subject']
         except KeyError:
             subject = 'Entry'
-        cleaned = clean(subject, 3)
-        return subject, unique(self.date[0:3], cleaned, self.id)
+        cleaned = self.clean(subject, 3)
+        u = self.uniq(self.date[0:3], cleaned, self.id)
+        print subject, cleaned, u
+        return subject, u
 
     def get_year(self):
         return self.date[0], time.strftime('%Y', self.date)
