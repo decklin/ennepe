@@ -35,9 +35,12 @@ class Entry:
         self.date = fixdate(m.getdate('Date'))
         self.id = makeid(self.date, m.get('Message-Id'))
         self.author, self.email = m.getaddr('From')
-        self.subject = m.get('Subject', '') # XXX: no ''
-        self.tags = [t.strip() for t in
-            m.get('X-Mnemosyne-Tags', '').split(',') if t] # XXX: ditto?
+        self.subject = m.get('Subject')
+
+        try:
+            self.tags = map(str.strip, m.get('X-Mnemosyne-Tags').split(','))
+        except AttributeError:
+            self.tags = []
 
     def publish_html(self, s):
         try: s = s[:s.rindex(self.SIG_DELIM)]
