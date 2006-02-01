@@ -6,12 +6,12 @@ __description__ = "List of all tags."
 def make(self, entries, vars):
     tags = {}
     for e in self.wisdom:
-        for t, _t in zip(e.tags, e._tag):
-            tags.setdefault(t, _t)
+        for t, ts in zip(e.tags, e.tag):
+            tags.setdefault(t, ts)
 
     vars['title'] = 'Tags - %s' % vars['blogname']
     vars['body'] = '\n'.join([
-        '<p><a href="%s">%s</a></p>' % (_t, t)
-        for t, _t in tags.items()])
+        '<p><a href="%s">%s</a></p>' % (ts, t)
+        for t, ts in tags.items()])
 
     return self.expand('page', **vars)

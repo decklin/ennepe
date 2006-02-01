@@ -8,21 +8,21 @@
 @[for e in entries]@
 <hr>
 
-<h2><a href="@base/@e._year/@e._month/@e._day/@(e._slug).html">@
+<h2><a href="@base/@e.year/@e.month/@e.day/@(e.slug).html">@
 @e.subject</a></h2>
 
 @e.content
 
 <p>Posted at @
-<a href="@base/@e._year/">@(time.strftime('%Y', e.date))</a>-@
-<a href="@base/@e._year/@e._month/">@(time.strftime('%m', e.date))</a>-@
-<a href="@base/@e._year/@e._month/@e._day/">@(time.strftime('%d',
+<a href="@base/@e.year/">@(time.strftime('%Y', e.date))</a>-@
+<a href="@base/@e.year/@e.month/">@(time.strftime('%m', e.date))</a>-@
+<a href="@base/@e.year/@e.month/@e.day/">@(time.strftime('%d',
 e.date))</a> @(time.strftime('%H:%M:%S', e.date)) @
 by <a href="mailto:@e.email">@e.author</a><br>
 Tags: @
 @{comma = None}@
-@[for t, _t in zip(e.tags, e._tag)]@
-@comma<a href="@base/tag/@_t/">@t</a>@
+@[for t, ts in zip(e.tags, e.tag)]@
+@comma<a href="@base/tag/@ts/">@t</a>@
 @{comma = ', '}@
 @[end for]@
 </p>

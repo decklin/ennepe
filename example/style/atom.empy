@@ -33,7 +33,7 @@ def rfc3339(date):
   <entry>
     <title type="text">@(e.subject ? e.subject ! 'Entry')</title>
     <link rel="alternate" type="application/xhtml+xml"
-      href="@base/@e._year/@e._month/@e._day/@e._slug" />
+      href="@base/@e.year/@e.month/@e.day/@e.slug" />
     <id>@e.id</id>
     <published>@rfc3339(e.date)</published>
     <updated>@rfc3339(e.mtime)</updated>

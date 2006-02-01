@@ -38,14 +38,6 @@ class Muse:
         self.wisdom = [Entry(msg) for msg in box]
         self.wisdom.sort()
 
-        self.spells = {}
-        for k, v in self.config.items():
-            if k.startswith('make_'): self.spells[k[5:]] = v
-
-        for e in self.wisdom:
-            for name, spell in self.spells.items():
-                setattr(e, '_' + name, spell(e))
-
         self.where = []
 
     def invoke(self):
@@ -80,7 +72,7 @@ class Muse:
 
         instances = {}
         for e in knowledge:
-            m_vals = getattr(e, '_' + magic[2:-2], [])
+            m_vals = getattr(e, magic[2:-2], [])
             if type(m_vals) != list: m_vals = [m_vals]
             for v in m_vals:
                 if instances.has_key(v):

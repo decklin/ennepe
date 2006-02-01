@@ -5,23 +5,23 @@ def clean(s, maxwords=None):
     return '-'.join(words)
 
 u = {}
-def unique(e, ns, k):
-    if not u.has_key(ns): u[ns] = {}
-    ns = u[ns]
+def unique(namespace, k, id):
+    u.setdefault(namespace, {})
+    ns = u[namespace]
 
-    # XXX: aaaaaaaaaaaaaaaaaaagh MY EYES
-    while True:
-        if ns.has_key(k):
-            if ns[k] == e.id:
-                return k
-            else:
-                c = k.split('-')
-                try:
-                    serial = int(c[-1])
-                    c[-1] = str(serial + 1)
-                    k = '-'.join(c)
-                except ValueError:
-                    k += '-1'
-        else:
-            ns[k] = e.id
-            return k
+    try:
+        assert ns[k] == id
+    except KeyError:
+        ns[k] = id
+    except AssertionError:
+        while ns.has_key(k):
+            components = k.split('-')
+            try:
+                serial = int(components[-1])
+                components[-1] = str(serial + 1)
+                k = '-'.join(components)
+            except ValueError:
+                k += '-1'
+        ns[k] = id
+
+    return k
