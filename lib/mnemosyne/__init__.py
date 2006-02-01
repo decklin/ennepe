@@ -17,9 +17,8 @@ class Muse:
     IGNORE = ('.svn', 'CVS')
 
     def __init__(self, configfile):
-        class NoClass: pass
         self.config = {
-            'EntryMixin': NoClass,
+            'EntryMixin': object,
             'entry_dir': os.path.join(self.DEF_BASE_DIR, 'entries'),
             'layout_dir': os.path.join(self.DEF_BASE_DIR, 'layout'),
             'style_dir': os.path.join(self.DEF_BASE_DIR, 'style'),
