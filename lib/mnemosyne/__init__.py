@@ -92,9 +92,6 @@ class Muse:
 
         self.where = []
 
-    def getf(self, dir, path):
-        return os.path.join(self.config[dir+'_dir'], path)
-
     def invoke(self):
         self.sing(self.wisdom,
             self.config['layout_dir'], self.config['output_dir'])
@@ -141,7 +138,7 @@ class Muse:
             self.where.pop()
 
     def expand(self, style, **vars):
-        stylefile = self.getf('style', '%s.empy' % style)
+        stylefile = os.path.join(self.config['style_dir'], '%s.empy' % style)
         vars['self'] = self
         return em.expand(file(stylefile).read(), vars)
 
