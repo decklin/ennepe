@@ -6,6 +6,6 @@ import mnemosyne
 if __name__ == '__main__':
     try:
         muse = mnemosyne.Muse(sys.argv[1])
-        muse.invoke()
+        muse.sing()
     except IndexError:
         print >>sys.stderr, "usage: mnemosyne CONFIG"

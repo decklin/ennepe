@@ -44,11 +44,10 @@ class Muse:
 
         self.where = []
 
-    def invoke(self):
-        self.sing(self.wisdom,
-            self.config['layout_dir'], self.config['output_dir'])
+    def sing(self, knowledge, spath=None, dpath=None, what=None):
+        if not spath: spath = self.config['layout_dir']
+        if not dpath: dpath = self.config['output_dir']
 
-    def sing(self, knowledge, spath, dpath, what=None):
         if what:
             source, dest = what
             spath = os.path.join(spath, source)
