@@ -10,7 +10,6 @@ import stat
 import em
 import shutil
 
-import utils
 from entry import Entry
 
 class Muse:
@@ -19,7 +18,6 @@ class Muse:
 
     def __init__(self, configfile):
         self.config = {
-            'utils': utils,
             'entry_dir': os.path.join(self.DEF_BASE_DIR, 'entries'),
             'layout_dir': os.path.join(self.DEF_BASE_DIR, 'layout'),
             'style_dir': os.path.join(self.DEF_BASE_DIR, 'style'),
@@ -96,7 +94,6 @@ class Muse:
 
         localz = self.config['locals'].copy()
         localz['self'] = self
-        localz['utils'] = utils
         localz['expand'] = expand
         localz['write'] = write
         localz['entries'] = knowledge
