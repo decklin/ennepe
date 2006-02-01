@@ -10,7 +10,7 @@ import stat
 import em
 import shutil
 
-from entry import Entry
+import entry
 
 class Muse:
     DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
@@ -18,6 +18,7 @@ class Muse:
 
     def __init__(self, configfile):
         self.config = {
+            'MnemosyneEntry': entry.Entry,
             'entry_dir': os.path.join(self.DEF_BASE_DIR, 'entries'),
             'layout_dir': os.path.join(self.DEF_BASE_DIR, 'layout'),
             'style_dir': os.path.join(self.DEF_BASE_DIR, 'style'),
@@ -31,6 +32,11 @@ class Muse:
             }
 
         exec file(configfile) in self.config
+
+        try:
+            Entry = self.config['Entry']
+        except KeyError:
+            Entry = entry.Entry
 
         box = mailbox.Maildir(self.config['entry_dir'])
         self.wisdom = [Entry(msg) for msg in box]
