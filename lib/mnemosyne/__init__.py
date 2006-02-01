@@ -146,6 +146,6 @@ class Muse:
         layout = {'utils': mnemosyne.utils}
         exec file(spath) in layout
         renderer = layout['make']
-        page = renderer(self, knowledge, self.config['vars'])
+        page = renderer(self, knowledge, self.config['vars'].copy())
         file(dpath, 'w').write(page)
         print 'Wrote %s' % dpath
