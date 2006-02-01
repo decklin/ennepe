@@ -44,7 +44,8 @@ class Muse:
 
         self.where = []
 
-    def sing(self, knowledge, spath=None, dpath=None, what=None):
+    def sing(self, knowledge=None, spath=None, dpath=None, what=None):
+        if not knowledge: knowledge = self.wisdom
         if not spath: spath = self.config['layout_dir']
         if not dpath: dpath = self.config['output_dir']
 
@@ -78,10 +79,8 @@ class Muse:
             m_vals = getattr(e, magic[2:-2], [])
             if type(m_vals) != list: m_vals = [m_vals]
             for v in m_vals:
-                if instances.has_key(v):
-                    instances[v].append(e)
-                else:
-                    instances[v] = [e]
+                instances.setdefault(v, [])
+                instances[v].append(e)
 
         for k, v in instances.items():
             self.where.append(k)
