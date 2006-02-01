@@ -71,8 +71,6 @@ class Entry(object):
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
 
-    # And now attrs
-
     def get_author(self):
         try:
             return self.m.getaddr('From')[0]
@@ -103,8 +101,8 @@ class Entry(object):
         return [clean(t) for t in self.tags]
 
     def get_tagpairs(self):
-        for t in self.tags:
-            yield t, clean(t)
+        for t, tt in zip(self.tags, self.tag):
+            yield t, tt
 
     def get_subject(self):
         try:
