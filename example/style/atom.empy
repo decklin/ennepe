@@ -20,7 +20,7 @@ def rfc3339(date):
   <link rel="self" type="application/atom+xml"
     href="@base/@('/'.join(self.where))" />
   <link rel="alternate" type="application/xhtml+xml" href="@base/" />
-  <updated>@rfc3339(self.wisdom[-1].date)</updated>
+  <updated>@rfc3339(self.entries[-1].date)</updated>
   <generator uri="@__url__" version="@__version__">
     Mnemosyne
   </generator>

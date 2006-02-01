@@ -45,13 +45,13 @@ class Muse:
                 return getattr(BaseEntry, a)
 
         box = mailbox.Maildir(self.config['entry_dir'])
-        self.wisdom = [Entry(msg) for msg in box]
-        self.wisdom.sort()
+        self.entries = [Entry(msg) for msg in box]
+        self.entries.sort()
 
         self.where = []
 
-    def sing(self, knowledge=None, spath=None, dpath=None, what=None):
-        if not knowledge: knowledge = self.wisdom
+    def sing(self, entries=None, spath=None, dpath=None, what=None):
+        if not entries: entries = self.entries
         if not spath: spath = self.config['layout_dir']
         if not dpath: dpath = self.config['output_dir']
 
@@ -62,50 +62,50 @@ class Muse:
             if source not in self.IGNORE:
                 if os.path.isfile(spath):
                     if os.stat(spath).st_mode & stat.S_IXUSR:
-                        self.sing_file(knowledge, spath, dpath)
+                        self.sing_file(entries, spath, dpath)
                     else:
                         shutil.copyfile(spath, dpath)
                 elif os.path.isdir(spath):
-                    self.sing(knowledge, spath, dpath)
+                    self.sing(entries, spath, dpath)
         else:
             if not os.path.isdir(dpath): os.makedirs(dpath)
             for f in os.listdir(spath):
                 if f.startswith('__'):
-                    self.sing_instances(knowledge, spath, dpath, f)
+                    self.sing_instances(entries, spath, dpath, f)
                 else:
                     self.where.append(f)
-                    self.sing(knowledge, spath, dpath, (f, f))
+                    self.sing(entries, spath, dpath, (f, f))
                     self.where.pop()
 
-    def sing_instances(self, knowledge, spath, dpath, what):
+    def sing_instances(self, entries, spath, dpath, what):
         magic = what[:what.rfind('__')+2]
 
         instances = {}
-        for e in knowledge:
+        for e in entries:
             mv = getattr(e, magic[2:-2], [])
             if type(mv) != list: mv = [mv] # XXX: ugh
-            for v in mv:
-                instances.setdefault(repr(v), [])
-                instances[repr(v)].append(e)
+            for m in mv:
+                instances.setdefault(repr(m), [])
+                instances[repr(m)].append(e)
 
-        for key, entries in instances.items():
-            self.where.append(key)
-            self.sing(entries, spath, dpath, (what, what.replace(magic, key)))
+        for k, entries in instances.items():
+            self.where.append(k)
+            self.sing(entries, spath, dpath, (what, what.replace(magic, k)))
             self.where.pop()
 
-    def sing_file(self, knowledge, spath, dpath):
-        def expand(style, localz):
+    def sing_file(self, entries, spath, dpath):
+        def expand(style, locals):
             stylefile = os.path.join(self.config['style_dir'],
                 '%s.empy' % style)
-            return em.expand(file(stylefile).read(), localz)
+            return em.expand(file(stylefile).read(), locals)
         def write(data):
             file(dpath, 'w').write(data)
             print 'Wrote %s' % dpath
 
-        localz = self.config['locals'].copy()
-        localz['self'] = self
-        localz['expand'] = expand
-        localz['write'] = write
-        localz['entries'] = knowledge
+        locals = self.config['locals'].copy()
+        locals['self'] = self
+        locals['expand'] = expand
+        locals['write'] = write
+        locals['entries'] = entries
 
-        exec file(spath) in localz
+        exec file(spath) in locals

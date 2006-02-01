@@ -4,7 +4,7 @@ __email__ = "decklin@red-bean.com"
 __description__ = "List of all tags."
 
 tags = {}
-for e in self.wisdom:
+for e in self.entries:
     for t in e.tags:
         tags.setdefault(t, repr(t))
 
