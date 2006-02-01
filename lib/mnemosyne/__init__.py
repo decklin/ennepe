@@ -17,8 +17,9 @@ class Muse:
     IGNORE = ('.svn', 'CVS')
 
     def __init__(self, configfile):
+        class NoClass: pass
         self.config = {
-            'entry': entry,
+            'EntryMixin': NoClass,
             'entry_dir': os.path.join(self.DEF_BASE_DIR, 'entries'),
             'layout_dir': os.path.join(self.DEF_BASE_DIR, 'layout'),
             'style_dir': os.path.join(self.DEF_BASE_DIR, 'style'),
@@ -33,10 +34,16 @@ class Muse:
 
         exec file(configfile) in self.config
 
-        try:
-            Entry = self.config['Entry']
-        except KeyError:
-            Entry = entry.Entry
+        UserMixin = self.config['EntryMixin']
+        class Entry(entry.BaseEntry, entry.Mixin, UserMixin):
+            def __getattr__(self, a):
+                for c in (UserMixin, entry.Mixin):
+                    try:
+                        method = getattr(c, 'get_'+a)
+                        return method(self)
+                    except AttributeError:
+                        pass
+                return getattr(entry.BaseEntry, a)
 
         box = mailbox.Maildir(self.config['entry_dir'])
         self.wisdom = [Entry(msg) for msg in box]

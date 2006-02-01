@@ -30,7 +30,7 @@ def unique(namespace, k, id):
 
     return k
 
-class Entry(object):
+class BaseEntry:
     DOC_START = '<div class="document">'
     DOC_END = '</div>'
     RST_PREAMBLE = '.. role:: html(raw)\n   :format: html\n\n..\n\n'
@@ -57,13 +57,6 @@ class Entry(object):
         self.content = publish_html(m.fp.read())
         self.m = m
 
-    def __getattribute__(self, a):
-        try:
-            method = object.__getattribute__(self, 'get_'+a)
-            return method()
-        except AttributeError:
-            return object.__getattribute__(self, a)
-
     def __repr__(self):
         return '<Entry about "%s" dated %s>' % (self.subject,
             time.strftime('%Y-%m-%d %H:%M:%S', self.date))
@@ -71,6 +64,7 @@ class Entry(object):
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
 
+class Mixin:
     def get_author(self):
         try:
             return self.m.getaddr('From')[0]

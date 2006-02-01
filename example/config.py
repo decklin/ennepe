@@ -18,13 +18,13 @@
 # * ``MnemosyneEntry``: a class used to represent each entry passed to the
 #   templates.
 #
-# If you wish to extend this class, you may define a new class ``Entry`` here,
-# using ``entry.Entry`` as its base class. Any methods with a name of the form
-# ``get_ATTRIBUTE`` will be used to provide e.ATTRIBUTE at runtime.
+# If you wish to extend this class, you may define a new class ``EntryMixin``
+# here. Any methods with a name of the form ``get_ATTRIBUTE`` will be used to
+# provide e.ATTRIBUTE at runtime.
 
 locals['blogname'] = 'Example Blog'
 locals['base'] = 'http://example.invalid'
 
-class Entry(entry.Entry):
+class EntryMixin:
     def get_organization(self):
         return self.m.get('Organization')
