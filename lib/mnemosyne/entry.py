@@ -74,12 +74,16 @@ class Entry(object):
     # And now attrs
 
     def get_author(self):
-        author, email = self.m.getaddr('From')
-        return author
+        try:
+            return self.m.getaddr('From')[0]
+        except KeyError:
+            return ''
 
     def get_email(self):
-        author, email = self.m.getaddr('From')
-        return email
+        try:
+            return self.m.getaddr('From')[1]
+        except KeyError:
+            return ''
 
     def get_id(self):
         try:
@@ -87,7 +91,7 @@ class Entry(object):
             date = time.strftime('%Y-%m-%d', self.date)
             return 'tag:%s,%s:%s' % (host, date, id)
         except KeyError:
-            return 'invalid:'
+            return ''
 
     def get_tags(self):
         try:
@@ -96,10 +100,11 @@ class Entry(object):
             return []
 
     def get_tag(self):
-        # XXX: would prefer generator
-        #for t in self.tags:
-        #    yield clean(t)
         return [clean(t) for t in self.tags]
+
+    def get_tagpairs(self):
+        for t in self.tags:
+            yield t, clean(t)
 
     def get_subject(self):
         try:

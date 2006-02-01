@@ -21,8 +21,8 @@ e.date))</a> @(time.strftime('%H:%M:%S', e.date)) @
 by <a href="mailto:@e.email">@e.author</a><br>
 Tags: @
 @{comma = None}@
-@[for t, ts in zip(e.tags, e.tag)]@
-@comma<a href="@base/tag/@ts/">@t</a>@
+@[for t, tt in e.tagpairs]@
+@comma<a href="@base/tag/@tt/">@t</a>@
 @{comma = ', '}@
 @[end for]@
 </p>
