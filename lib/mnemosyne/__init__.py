@@ -32,27 +32,13 @@ class Muse:
 
         exec file(configfile) in self.config
 
-        class Proxy:
-            def __init__(self, obj, r):
-                self.object = obj
-                self.__repr__ = lambda: r
-            def __getattr__(self, a):
-                return getattr(self.object, a)
-            def __eq__(self, other):
-                return self.object == other.object
-
         mixin = self.config.get('EntryMixin')
         class Entry(BaseEntry):
             def __getattr__(self, a):
                 for c in (mixin, BaseEntry):
                     try:
                         method = getattr(c, 'get_'+a)
-                        val, rep = method(self)
-                        if type(val) == list:
-                            self.__dict__[a] = [Proxy(v, r)
-                                for v, r in zip(val, rep)]
-                        else:
-                            self.__dict__[a] = Proxy(val, rep)
+                        self.__dict__[a] = method(self)
                         return self.__dict__[a]
                     except AttributeError:
                         pass

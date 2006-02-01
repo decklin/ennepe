@@ -2,6 +2,15 @@ import os
 import time
 from docutils.core import publish_string
 
+class Magic:
+    def __init__(self, obj, r):
+        self.object = obj
+        self.__repr__ = lambda: r
+    def __getattr__(self, a):
+        return getattr(self.object, a)
+    def __eq__(self, other):
+        return self.object == other.object
+
 class BaseEntry:
     DOC_START = '<div class="document">'
     DOC_END = '</div>'
@@ -60,27 +69,27 @@ class BaseEntry:
 
     def get_author(self):
         author = self.m.getaddr('From')[0]
-        return author, self.clean(author)
+        return Magic(author, self.clean(author))
 
     def get_email(self):
         email = self.m.getaddr('From')[1]
-        return email, self.clean(email)
+        return Magic(email, self.clean(email))
 
     def get_id(self):
         try:
             id = self.m['Message-Id']
             lhs, host = id[1:-1].split('@')
             date = time.strftime('%Y-%m-%d', self.date)
-            return id, 'tag:%s,%s:%s' % (host, date, lhs)
+            return Magic(id, 'tag:%s,%s:%s' % (host, date, lhs))
         except KeyError:
-            return None, None
+            return None
 
     def get_tags(self):
         try:
             tags = self.m['X-Mnemosyne-Tags'].split(',')
-            return tags, [self.clean(t) for t in tags]
+            return [Magic(t, self.clean(t)) for t in tags]
         except KeyError:
-            return [], []
+            return []
 
     def get_subject(self):
         try:
@@ -89,14 +98,13 @@ class BaseEntry:
             subject = 'Entry'
         cleaned = self.clean(subject, 3)
         u = self.uniq(self.date[0:3], cleaned, self.id)
-        print subject, cleaned, u
-        return subject, u
+        return Magic(subject, u)
 
     def get_year(self):
-        return self.date[0], time.strftime('%Y', self.date)
+        return Magic(self.date[0], time.strftime('%Y', self.date))
 
     def get_month(self):
-        return self.date[1], time.strftime('%m', self.date)
+        return Magic(self.date[1], time.strftime('%m', self.date))
 
     def get_day(self):
-        return self.date[2], time.strftime('%d', self.date)
+        return Magic(self.date[2], time.strftime('%d', self.date))
