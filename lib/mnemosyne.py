@@ -25,15 +25,18 @@ def clean(s, maxwords=None):
         return '-'.join(words)
 
 namespaces = {}
-def uniq(ns, k, id):
+def uniq(ns, k, tag):
     ns = namespaces.setdefault(ns, {})
     ns.setdefault(k, [])
-    if id not in ns[k]: ns[k].append(id)
+    if tag not in ns[k]: ns[k].append(tag)
 
-    if ns[k].index(id) == 0:
+    ns[k].sort()
+    i = ns[k].index(tag)
+
+    if i == 0:
         return k
     else:
-        return '%s-%d' % (k, ns[k].index(id))
+        return '%s-%d' % (k, i)
 
 class BaseEntry:
     def __init__(self, m):
@@ -65,7 +68,7 @@ class BaseEntry:
         except KeyError:
             subject = ''
             cleaned = 'entry'
-        u = uniq(self.date[0:3], cleaned, self.id)
+        u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
         return magic_attr(subject, u)
 
     def get_id(self):
