@@ -10,7 +10,6 @@ for e in entries:
         tags[t] += 1
 
 title = 'Tags - %s' % blogname
-body = '\n'.join(['<p><a href="%s">%s</a></p>' % (repr(t), t) for t in
-    tags.keys()])
+body = '\n'.join(['<p><a href="%s">%s</a></p>' % t, repr(t) for t in tags]
 
 write(expand('page', locals()))
