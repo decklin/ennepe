@@ -48,3 +48,6 @@ class EntryMixin:
         org = self.m.get('Organization')
         clean = mnemosyne.clean(org, 3)
         return mnemosyne.magic_attr(org, clean)
+    #def get_content(self):
+    #    s = self.m.fp.read()
+    #    return magic_attr(pymarkdown.Markdown(s), s[:100])

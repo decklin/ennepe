@@ -11,6 +11,29 @@ import em
 import shutil
 from docutils.core import publish_string
 
+def rst_to_html(s):
+    RST_DELIM = '<!-- CUT -->\n'
+    RST_TEMPLATE = """\
+.. role:: html(raw)
+   :format: html
+
+.. CUT
+
+%s
+
+.. CUT
+"""
+
+    html = publish_string(RST_TEMPLATE % s, writer_name='html')
+    try:
+        start = html.index(RST_DELIM) + len(RST_DELIM)
+        end = html.rindex(RST_DELIM)
+        return html[start:end]
+    except ValueError:
+        # This will almost certainly cause whatever includes it to be invalid
+        # markup, but it's better than nothing I suppose.
+        return html
+
 def magic_attr(obj, rep):
     class Magic(type(obj)):
         def __repr__(self):
@@ -60,50 +83,11 @@ class BaseEntry:
         return cmp(time.mktime(self.date), time.mktime(other.date))
 
     def get_content(self):
-        SIG_DELIM = '-- \n'
-        RST_PREAMBLE = '.. role:: html(raw)\n   :format: html\n\n..\n\n'
-        DOC_START = '<div class="document">'
-        DOC_END = '</div>'
-
         s = self.m.fp.read()
-        try:
-            s = s[:s.rindex(SIG_DELIM)]
-        except ValueError:
-            pass
+        try: s = s[:s.rindex('-- \n')]
+        except ValueError: pass
 
-        html = publish_string(RST_PREAMBLE + s, writer_name='html')
-        try:
-            start = html.index(DOC_START) + len(DOC_START)
-            end = html.rindex(DOC_END)
-            html = html[start:end]
-        except ValueError:
-            pass
-
-        return magic_attr(html, html[100:])
-
-    def get_author(self):
-        author = self.m.getaddr('From')[0]
-        return magic_attr(author, clean(author))
-
-    def get_email(self):
-        email = self.m.getaddr('From')[1]
-        return magic_attr(email, clean(email))
-
-    def get_id(self):
-        try:
-            id = self.m['Message-Id']
-            lhs, host = id[1:-1].split('@')
-            date = time.strftime('%Y-%m-%d', self.date)
-            return magic_attr(id, 'tag:%s,%s:%s' % (host, date, lhs))
-        except KeyError:
-            return None
-
-    def get_tags(self):
-        try:
-            tags = [t.strip() for t in self.m['X-Mnemosyne-Tags'].split(',')]
-            return [magic_attr(t, clean(t)) for t in tags]
-        except KeyError:
-            return []
+        return magic_attr(rst_to_html(s), s[:100])
 
     def get_subject(self):
         try:
@@ -114,6 +98,30 @@ class BaseEntry:
             cleaned = 'entry'
         u = uniq(self.date[0:3], cleaned, self.id)
         return magic_attr(subject, u)
+
+    def get_id(self):
+        try:
+            id = self.m['Message-Id']
+            lhs, host = id[1:-1].split('@')
+            date = time.strftime('%Y-%m-%d', self.date)
+            return magic_attr(id, 'tag:%s,%s:%s' % (host, date, lhs))
+        except KeyError:
+            return None
+
+    def get_author(self):
+        author = self.m.getaddr('From')[0]
+        return magic_attr(author, clean(author))
+
+    def get_email(self):
+        email = self.m.getaddr('From')[1]
+        return magic_attr(email, clean(email))
+
+    def get_tags(self):
+        try:
+            tags = [t.strip() for t in self.m['X-Mnemosyne-Tags'].split(',')]
+            return [magic_attr(t, clean(t)) for t in tags]
+        except KeyError:
+            return []
 
     def get_year(self):
         return magic_attr(self.date[0], time.strftime('%Y', self.date))
