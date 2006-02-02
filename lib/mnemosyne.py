@@ -125,17 +125,18 @@ class BaseEntry:
         return magic_attr(self.date[2], time.strftime('%d', self.date))
 
 class Muse:
-    DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
-    IGNORE = ('.svn', 'CVS')
 
     def __init__(self, configfile, force):
-        self.force = force
+        DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
+        DEF_IGNORE = ('.svn', 'CVS')
 
+        self.force = force
         self.config = {
-            'entry_dir': os.path.join(self.DEF_BASE_DIR, 'entries'),
-            'layout_dir': os.path.join(self.DEF_BASE_DIR, 'layout'),
-            'style_dir': os.path.join(self.DEF_BASE_DIR, 'style'),
-            'output_dir': os.path.join(self.DEF_BASE_DIR, 'htdocs'),
+            'entry_dir': os.path.join(DEF_BASE_DIR, 'entries'),
+            'layout_dir': os.path.join(DEF_BASE_DIR, 'layout'),
+            'style_dir': os.path.join(DEF_BASE_DIR, 'style'),
+            'output_dir': os.path.join(DEF_BASE_DIR, 'htdocs'),
+            'ignore': DEF_IGNORE,
             'locals': {
                 '__version__': __version__,
                 '__author__': __author__,
@@ -174,7 +175,7 @@ class Muse:
             source, dest = what
             spath = os.path.join(spath, source)
             dpath = os.path.join(dpath, dest)
-            if source not in self.IGNORE:
+            if source not in self.config['ignore']:
                 if os.path.isfile(spath):
                     if os.stat(spath).st_mode & stat.S_IXUSR:
                         self.sing_file(entries, spath, dpath)
@@ -212,10 +213,9 @@ class Muse:
     def sing_file(self, entries, spath, dpath):
         if not self.force:
             if os.path.exists(dpath):
-                dest_mtime = time.localtime(os.stat(dpath).st_mtime)
-                e_mtimes = [e.mtime for e in entries]
-                e_mtimes.sort()
-                if dest_mtime > e_mtimes[-1]:
+                smtime = max([e.mtime for e in entries])
+                dmtime = time.localtime(os.stat(dpath).st_mtime)
+                if dmtime > smtime:
                     return
 
         def expand(style, locals):
