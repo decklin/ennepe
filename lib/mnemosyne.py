@@ -128,8 +128,10 @@ class Muse:
 
         exec file(config) in self.config
 
-        Mixin = self.config.get('EntryMixin', object)
-        class Entry(BaseEntry, Mixin):
+        class NoMixin: pass
+        Mixin = self.config.get('EntryMixin', NoMixin)
+
+        class Entry(Mixin, BaseEntry):
             def __getattr__(self, a):
                 for c in (Mixin, BaseEntry):
                     try:
