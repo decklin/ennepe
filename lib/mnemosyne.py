@@ -26,16 +26,13 @@ def clean(s, maxwords=None):
 
 namespaces = {}
 def uniq(ns, k, id):
-    import sys; print >>sys.stderr, 'uniq trace', ns, k, id
     ns = namespaces.setdefault(ns, {})
     ns.setdefault(k, [])
     if id not in ns[k]: ns[k].append(id)
 
     if ns[k].index(id) == 0:
-        print >>sys.stderr, 'got', k
         return k
     else:
-        print >>sys.stderr, 'got', '%s-%d' % (k, ns[k].index(id))
         return '%s-%d' % (k, ns[k].index(id))
 
 class BaseEntry:
