@@ -126,7 +126,7 @@ class BaseEntry:
 
 class Muse:
 
-    def __init__(self, configfile, force):
+    def __init__(self, config, force):
         DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
         DEF_IGNORE = ('.svn', 'CVS')
 
@@ -145,7 +145,7 @@ class Muse:
                 },
             }
 
-        exec file(configfile) in self.config
+        exec file(config) in self.config
 
         mixin = self.config.get('EntryMixin')
         class Entry(BaseEntry):
@@ -219,9 +219,8 @@ class Muse:
                     return
 
         def expand(style, locals):
-            stylefile = os.path.join(self.config['style_dir'],
-                '%s.empy' % style)
-            return em.expand(file(stylefile).read(), locals)
+            style = os.path.join(self.config['style_dir'], '%s.empy' % style)
+            return em.expand(file(style).read(), locals)
         def write(data):
             file(dpath, 'w').write(data)
             print 'Wrote %s' % dpath
