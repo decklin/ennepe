@@ -13,8 +13,7 @@ from rsthtml import publish_content
 
 def magic_attr(obj, rep):
     class Magic(type(obj)):
-        def __repr__(self):
-            return rep
+        def __repr__(self): return rep
     return Magic(obj)
 
 def clean(s, maxwords=None):
@@ -68,6 +67,7 @@ class BaseEntry:
         except KeyError:
             subject = ''
             cleaned = 'entry'
+
         u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
         return magic_attr(subject, u)
 
