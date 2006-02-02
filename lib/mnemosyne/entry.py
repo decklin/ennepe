@@ -2,14 +2,11 @@ import os
 import time
 from docutils.core import publish_string
 
-class Magic:
-    def __init__(self, obj, r):
-        self.object = obj
-        self.__repr__ = lambda: r
-    def __getattr__(self, a):
-        return getattr(self.object, a)
-    def __eq__(self, other):
-        return self.object == other.object
+def magic_attr(obj, rep):
+    class magic_attr(type(obj)):
+        def __repr__(self):
+            return rep
+    return magic_attr(obj)
 
 class BaseEntry:
     def __init__(self, m):
@@ -73,29 +70,29 @@ class BaseEntry:
         except ValueError:
             pass
 
-        return Magic(html, html[100:])
+        return magic_attr(html, html[100:])
 
     def get_author(self):
         author = self.m.getaddr('From')[0]
-        return Magic(author, self.clean(author))
+        return magic_attr(author, self.clean(author))
 
     def get_email(self):
         email = self.m.getaddr('From')[1]
-        return Magic(email, self.clean(email))
+        return magic_attr(email, self.clean(email))
 
     def get_id(self):
         try:
             id = self.m['Message-Id']
             lhs, host = id[1:-1].split('@')
             date = time.strftime('%Y-%m-%d', self.date)
-            return Magic(id, 'tag:%s,%s:%s' % (host, date, lhs))
+            return magic_attr(id, 'tag:%s,%s:%s' % (host, date, lhs))
         except KeyError:
             return None
 
     def get_tags(self):
         try:
             tags = [t.strip() for t in self.m['X-Mnemosyne-Tags'].split(',')]
-            return [Magic(t, self.clean(t)) for t in tags]
+            return [magic_attr(t, self.clean(t)) for t in tags]
         except KeyError:
             return []
 
@@ -106,13 +103,13 @@ class BaseEntry:
             subject = 'Entry'
         cleaned = self.clean(subject, 3)
         u = self.uniq(self.date[0:3], cleaned, self.id)
-        return Magic(subject, u)
+        return magic_attr(subject, u)
 
     def get_year(self):
-        return Magic(self.date[0], time.strftime('%Y', self.date))
+        return magic_attr(self.date[0], time.strftime('%Y', self.date))
 
     def get_month(self):
-        return Magic(self.date[1], time.strftime('%m', self.date))
+        return magic_attr(self.date[1], time.strftime('%m', self.date))
 
     def get_day(self):
-        return Magic(self.date[2], time.strftime('%d', self.date))
+        return magic_attr(self.date[2], time.strftime('%d', self.date))
