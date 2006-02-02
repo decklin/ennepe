@@ -1,7 +1,7 @@
-@%name        "Entry"
+@%name        "Entries (full)"
 @%author      "Decklin Foster"
 @%email       "decklin@red-bean.com"
-@%description "All content of an entry."
+@%description "Entries with full content."
 @
 @{import time}@
 @

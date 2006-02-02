@@ -1,7 +1,7 @@
-@%name        "Boring Subject"
+@%name        "Entries (subject)"
 @%author      "Decklin Foster"
 @%email       "decklin@red-bean.com"
-@%description "Subject and link to an entry."
+@%description "Entries as subject links."
 @
 @{import time}@
 @

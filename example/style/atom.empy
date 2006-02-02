@@ -1,7 +1,7 @@
 @%name        "Atom 1.0"
 @%author      "Decklin Foster"
 @%email       "decklin@red-bean.com"
-@%description "Render an Atom 1.0 feed for the supplied entries."
+@%description "Entries as an Atom feed."
 @
 @{
 import time
