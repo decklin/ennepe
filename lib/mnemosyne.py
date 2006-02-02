@@ -108,9 +108,10 @@ class BaseEntry:
     def get_subject(self):
         try:
             subject = self.m['Subject']
+            cleaned = self.clean(subject, 3)
         except KeyError:
-            subject = 'Entry'
-        cleaned = self.clean(subject, 3)
+            subject = ''
+            cleaned = 'entry'
         u = self.uniq(self.date[0:3], cleaned, self.id)
         return magic_attr(subject, u)
 
