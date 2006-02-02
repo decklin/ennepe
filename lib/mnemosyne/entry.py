@@ -12,11 +12,6 @@ class Magic:
         return self.object == other.object
 
 class BaseEntry:
-    DOC_START = '<div class="document">'
-    DOC_END = '</div>'
-    RST_PREAMBLE = '.. role:: html(raw)\n   :format: html\n\n..\n\n'
-    SIG_DELIM = '-- \n'
-
     def __init__(self, m):
         def fixdate(d):
             # For some bizarre reason, getdate doesn't set wday/yday/isdst...
@@ -24,19 +19,10 @@ class BaseEntry:
         def getstamp(maildirpath):
             stamp, id, host = os.path.split(maildirpath)[1].split('.')
             return int(stamp)
-        def publish_html(s):
-            try: s = s[:s.rindex(self.SIG_DELIM)]
-            except ValueError: pass
-            html = publish_string(self.RST_PREAMBLE + s, writer_name='html')
-            start = html.find(self.DOC_START) + len(self.DOC_START)
-            end = html.rfind(self.DOC_END)
-            return html[start:end]
 
-        # This violates abstraction by poking at m.fp
-        self.date = fixdate(m.getdate('Date'))
-        self.mtime = time.localtime(getstamp(m.fp.name))
-        self.content = publish_html(m.fp.read())
         self.m = m
+        self.date = fixdate(self.m.getdate('Date'))
+        self.mtime = time.localtime(getstamp(self.m.fp.name))
 
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
@@ -66,6 +52,28 @@ class BaseEntry:
                     k += '-1'
             ns[k] = id
         return k
+
+    def get_content(self):
+        SIG_DELIM = '-- \n'
+        RST_PREAMBLE = '.. role:: html(raw)\n   :format: html\n\n..\n\n'
+        DOC_START = '<div class="document">'
+        DOC_END = '</div>'
+
+        s = self.m.fp.read()
+        try:
+            s = s[:s.rindex(SIG_DELIM)]
+        except ValueError:
+            pass
+
+        html = publish_string(RST_PREAMBLE + s, writer_name='html')
+        try:
+            start = html.index(DOC_START) + len(DOC_START)
+            end = html.rindex(DOC_END)
+            html = html[start:end]
+        except ValueError:
+            pass
+
+        return Magic(html, html[100:])
 
     def get_author(self):
         author = self.m.getaddr('From')[0]

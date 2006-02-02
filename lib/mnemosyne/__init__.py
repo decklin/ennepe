@@ -42,7 +42,8 @@ class Muse:
                         return self.__dict__[a]
                     except AttributeError:
                         pass
-                return getattr(BaseEntry, a)
+                else:
+                    return getattr(BaseEntry, a)
 
         box = mailbox.Maildir(self.config['entry_dir'])
         self.entries = [Entry(msg) for msg in box]
