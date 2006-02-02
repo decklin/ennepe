@@ -1,11 +1,29 @@
 #!/usr/bin/python
 
 import sys
+import getopt
+
 import mnemosyne
 
 if __name__ == '__main__':
+    shortopts = 'f'
+    longopts = ['force']
+
     try:
-        muse = mnemosyne.Muse(sys.argv[1])
-        muse.sing()
+        opts, args = getopt.getopt(sys.argv[1:], shortopts, longopts)
+    except getopt.GetoptError, e:
+        print >>sys.stderr, 'error: %s' % e
+        sys.exit(1)
+
+    force=False
+    for opt, arg in opts:
+        if opt in ('--force', '-f'):
+            force = True
+
+    try:
+        config = args[0]
     except IndexError:
-        print >>sys.stderr, "usage: mnemosyne CONFIG"
+        print >>sys.stderr, 'error: no config file specified'
+
+    muse = mnemosyne.Muse(args[0], force)
+    muse.sing()

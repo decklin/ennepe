@@ -16,7 +16,9 @@ class Muse:
     DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
     IGNORE = ('.svn', 'CVS')
 
-    def __init__(self, configfile):
+    def __init__(self, configfile, force):
+        self.force = force
+
         self.config = {
             'entry_dir': os.path.join(self.DEF_BASE_DIR, 'entries'),
             'layout_dir': os.path.join(self.DEF_BASE_DIR, 'layout'),
@@ -96,12 +98,13 @@ class Muse:
             self.where.pop()
 
     def sing_file(self, entries, spath, dpath):
-        if os.path.exists(dpath):
-            dest_mtime = time.localtime(os.stat(dpath).st_mtime)
-            e_mtimes = [e.mtime for e in entries]
-            e_mtimes.sort()
-            if dest_mtime > e_mtimes[-1]:
-                return
+        if not self.force:
+            if os.path.exists(dpath):
+                dest_mtime = time.localtime(os.stat(dpath).st_mtime)
+                e_mtimes = [e.mtime for e in entries]
+                e_mtimes.sort()
+                if dest_mtime > e_mtimes[-1]:
+                    return
 
         def expand(style, locals):
             stylefile = os.path.join(self.config['style_dir'],
