@@ -96,6 +96,13 @@ class Muse:
             self.where.pop()
 
     def sing_file(self, entries, spath, dpath):
+        if os.path.exists(dpath):
+            dest_mtime = time.localtime(os.stat(dpath).st_mtime)
+            e_mtimes = [e.mtime for e in entries]
+            e_mtimes.sort()
+            if dest_mtime > e_mtimes[-1]:
+                return
+
         def expand(style, locals):
             stylefile = os.path.join(self.config['style_dir'],
                 '%s.empy' % style)
