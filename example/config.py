@@ -13,15 +13,15 @@
 # * ``locals``: a dict of default local variables passed to all templates.
 #
 # This initially contains the keys __version__, __url__, __author__, and
-# __email__ from Mnemosyne itself. You can of course add other keys for *your*
-# name, email, etc, and any other information you want to use in your
-# templates.
+# __email__ from Mnemosyne itself. You can of course add keys for your
+# own name, email, etc, and any other information you want to use in
+# your templates. The example templates use ``blogname`` and ``base``.
 #
 # You can also define a class ``EntryMixin`` here. Any methods named
 # ``get_ATTRIBUTE`` will be used to provide ``e.ATTRIBUTE`` for each entry
 # ``e``. (``ATTRIBUTE``, of course, can be whatever you want).
 #
-# The convention used in the default templates is that the repr() of each
+# The convention used in the example templates is that the repr() of each
 # attribute is used when putting it in a URL. For example, if you had a tag
 # called 'My Tag', you would return that value, but add a ``__repr__`` method
 # that returned 'my-tag', so that you could use it in a link such as ``<a
@@ -34,14 +34,14 @@
 # a new class and overriding its ``__repr__`` method for you. Of course, if
 # you do not need to define a special repr(), this is not required.
 
+import mnemosyne
+
 locals['blogname'] = 'Example Blog'
 locals['base'] = 'http://example.invalid'
 
-import mnemosyne
-
 class EntryMixin:
-    # Pull anything you want out of the message (self.m, a rfc822.Message
-    # object, and use it to provide a new attribute
+    # Pull anything you want out of the message (self.m, an rfc822.Message
+    # object), and use it to provide a new attribute
 
     def get_foobar(self):
         foobar = self.m.get('X-Foobar')
