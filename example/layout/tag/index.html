@@ -1,15 +1,16 @@
-__yname__ = "Tag List"
+__name__ = "Tag List"
 __author__ = "Decklin Foster"
 __email__ = "decklin@red-bean.com"
 __description__ = "List of all tags."
 
 tags = {}
-for e in self.entries:
+for e in entries:
     for t in e.tags:
-        tags.setdefault(t, repr(t))
+        tags.setdefault(t, 0)
+        tags[t] += 1
 
 title = 'Tags - %s' % blogname
-body = '\n'.join([
-    '<p><a href="%s">%s</a></p>' % (r, t) for t, r in tags.items()])
+body = '\n'.join(['<p><a href="%s">%s</a></p>' % (repr(t), t) for t in
+    tags.keys()])
 
 write(expand('page', locals()))

@@ -86,12 +86,13 @@ class Muse:
             mv = getattr(e, magic[2:-2], [])
             if type(mv) != list: mv = [mv] # XXX: ugh
             for m in mv:
-                instances.setdefault(repr(m), [])
-                instances[repr(m)].append(e)
+                instances.setdefault(m, [])
+                instances[m].append(e)
 
         for k, entries in instances.items():
             self.where.append(k)
-            self.sing(entries, spath, dpath, (what, what.replace(magic, k)))
+            self.sing(entries, spath, dpath,
+                (what, what.replace(magic, repr(k))))
             self.where.pop()
 
     def sing_file(self, entries, spath, dpath):

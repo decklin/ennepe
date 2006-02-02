@@ -4,10 +4,23 @@
 @%description "Table of days in the given month, with links if applicable."
 @{
 import calendar
-cal = calendar.monthcalendar(int(y), int(m))
+
+months = {}
+for e in entries:
+    # ugh make these back into plain types ugh ugh
+    m = int(e.month)
+    d = int(e.day)
+    months.setdefault(m, {})
+    months[m].setdefault(d, [])
+    months[m][d].append(e)
 }@
 @
+@[for m, days in months.items()]@
+@{cal = calendar.monthcalendar(int(y), int(m))}
 <h3>@calendar.month_name[int(m)]</h3>
+
+<!-- cal @cal, months @months, y @y -->
+
 <table class="cal">
 @[for week in cal]@
 <tr class="week">
@@ -15,7 +28,8 @@ cal = calendar.monthcalendar(int(y), int(m))
 <td class="day">@
 @[if day]@
 @[if days.has_key(day)]@
-<p><a href="@base/@y/@m/@day/">@day</a></p>@
+@{e = days[day][0]}
+<p><a href="@base/@`e.year`/@`e.month`/@`e.day`/">@day</a></p>@
 @[else]@
 <p>@day</p>@
 @[end if]@
@@ -27,3 +41,4 @@ cal = calendar.monthcalendar(int(y), int(m))
 </tr>
 @[end for]@
 </table>
+@[end for]@
