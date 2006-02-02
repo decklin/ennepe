@@ -83,11 +83,11 @@ class BaseEntry:
 
     def get_author(self):
         author = self.m.getaddr('From')[0]
-        return magic_attr(author, self.clean(author))
+        return magic_attr(author, clean(author))
 
     def get_email(self):
         email = self.m.getaddr('From')[1]
-        return magic_attr(email, self.clean(email))
+        return magic_attr(email, clean(email))
 
     def get_id(self):
         try:
@@ -101,18 +101,18 @@ class BaseEntry:
     def get_tags(self):
         try:
             tags = [t.strip() for t in self.m['X-Mnemosyne-Tags'].split(',')]
-            return [magic_attr(t, self.clean(t)) for t in tags]
+            return [magic_attr(t, clean(t)) for t in tags]
         except KeyError:
             return []
 
     def get_subject(self):
         try:
             subject = self.m['Subject']
-            cleaned = self.clean(subject, 3)
+            cleaned = clean(subject, 3)
         except KeyError:
             subject = ''
             cleaned = 'entry'
-        u = self.uniq(self.date[0:3], cleaned, self.id)
+        u = uniq(self.date[0:3], cleaned, self.id)
         return magic_attr(subject, u)
 
     def get_year(self):
