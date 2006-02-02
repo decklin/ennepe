@@ -15,7 +15,7 @@ def magic_attr(obj, rep):
     class Magic(type(obj)):
         def __repr__(self):
             return rep
-    return magic_attr(obj)
+    return Magic(obj)
 
 class BaseEntry:
     def __init__(self, m):
