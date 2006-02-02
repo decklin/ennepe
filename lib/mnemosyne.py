@@ -26,22 +26,17 @@ def clean(s, maxwords=None):
 
 namespaces = {}
 def uniq(ns, k, id):
+    import sys; print >>sys.stderr, 'uniq trace', ns, k, id
     ns = namespaces.setdefault(ns, {})
-    try:
-        assert ns[k] == id
-    except KeyError:
-        ns[k] = id
-    except AssertionError:
-        while ns.has_key(k):
-            components = k.split('-')
-            try:
-                serial = int(components[-1])
-                components[-1] = str(serial + 1)
-                k = '-'.join(components)
-            except ValueError:
-                k += '-1'
-        ns[k] = id
-    return k
+    ns.setdefault(k, [])
+    if id not in ns[k]: ns[k].append(id)
+
+    if ns[k].index(id) == 0:
+        print >>sys.stderr, 'got', k
+        return k
+    else:
+        print >>sys.stderr, 'got', '%s-%d' % (k, ns[k].index(id))
+        return '%s-%d' % (k, ns[k].index(id))
 
 class BaseEntry:
     def __init__(self, m):
@@ -186,13 +181,12 @@ class Muse:
             mv = getattr(e, magic[2:-2], [])
             if type(mv) != list: mv = [mv] # XXX: ugh
             for m in mv:
-                instances.setdefault(m, [])
-                instances[m].append(e)
+                instances.setdefault(repr(m), [])
+                instances[repr(m)].append(e)
 
         for k, entries in instances.items():
             self.where.append(k)
-            self.sing(entries, spath, dpath,
-                (what, what.replace(magic, repr(k))))
+            self.sing(entries, spath, dpath, (what, what.replace(magic, k)))
             self.where.pop()
 
     def sing_file(self, entries, spath, dpath):
