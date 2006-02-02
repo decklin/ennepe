@@ -124,10 +124,10 @@ class Muse:
 
         exec file(config) in self.config
 
-        mixin = self.config.get('EntryMixin')
-        class Entry(BaseEntry):
+        Mixin = self.config.get('EntryMixin', object)
+        class Entry(Mixin, BaseEntry):
             def __getattr__(self, a):
-                for c in (mixin, BaseEntry):
+                for c in (Mixin, BaseEntry):
                     try:
                         method = getattr(c, 'get_'+a)
                         self.__dict__[a] = method(self)
