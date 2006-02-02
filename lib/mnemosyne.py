@@ -200,6 +200,10 @@ class Muse:
             self.sing(entries, spath, dpath, (what, what.replace(magic, k)))
             self.where.pop()
 
+    def expand(self, style, locals):
+        style = os.path.join(self.config['style_dir'], '%s.empy' % style)
+        return em.expand(file(style).read(), locals)
+
     def sing_file(self, entries, spath, dpath):
         if not self.force:
             if os.path.exists(dpath):
@@ -208,16 +212,12 @@ class Muse:
                 if dmtime > smtime:
                     return
 
-        def expand(style, locals):
-            style = os.path.join(self.config['style_dir'], '%s.empy' % style)
-            return em.expand(file(style).read(), locals)
         def write(data):
             file(dpath, 'w').write(data)
             print 'Wrote %s' % dpath
 
         locals = self.config['locals'].copy()
-        locals['self'] = self
-        locals['expand'] = expand
+        locals['muse'] = self
         locals['write'] = write
         locals['entries'] = entries
 

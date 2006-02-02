@@ -12,4 +12,4 @@ for e in entries:
 title = 'Tags - %s' % blogname
 body = '\n'.join(['<p><a href="%s">%s</a></p>' % (repr(t), t) for t in tags])
 
-write(expand('page', locals()))
+write(muse.expand('page', locals()))

@@ -4,7 +4,7 @@ __layoutdescription__ = "Contents of entries matching a given tag."
 
 entries = entries[-50:]
 entries.reverse()
-title = 'Tag "%s" - %s' % (self.where[-2], blogname)
-body = expand('entries-full', locals())
+title = 'Tag "%s" - %s' % (muse.where[-2], blogname)
+body = muse.expand('entries-full', locals())
 
-write(expand('page', locals()))
+write(muse.expand('page', locals()))

@@ -5,6 +5,6 @@ __layoutdescription__ = "Contents of recent entries."
 
 entries = entries[-10:]
 entries.reverse()
-body = expand('entries-full', locals())
+body = muse.expand('entries-full', locals())
 
-write(expand('page', locals()))
+write(muse.expand('page', locals()))

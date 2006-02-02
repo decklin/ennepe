@@ -3,6 +3,6 @@ __layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
 __layoutdescription__ = "Permalinkable page for a single entry."
 
 title = '%s - %s' % (entries[0].subject, blogname)
-body = expand('entries-full', locals())
+body = muse.expand('entries-full', locals())
 
-write(expand('page', locals()))
+write(muse.expand('page', locals()))

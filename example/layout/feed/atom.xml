@@ -5,4 +5,4 @@ __layoutdescription__ = "Feed of all entries."
 entries = entries[-10:] # XXX: if newer than 1 week
 entries.reverse()
 
-write(expand('atom', locals()))
+write(muse.expand('atom', locals()))

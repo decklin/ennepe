@@ -2,7 +2,7 @@ __layoutname__ = "Month View"
 __layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
 __layoutdescription__ = "Subjects of all entries from a given month."
 
-title = 'Month %s - %s' % (self.where[-2], blogname)
-body = expand('entries-subj', locals())
+title = 'Month %s - %s' % (muse.where[-2], blogname)
+body = muse.expand('entries-subj', locals())
 
-write(expand('page', locals()))
+write(muse.expand('page', locals()))
