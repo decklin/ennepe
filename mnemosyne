@@ -2,7 +2,6 @@
 
 import sys
 import getopt
-
 import mnemosyne
 
 if __name__ == '__main__':

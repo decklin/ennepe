@@ -9,30 +9,7 @@ import time
 import stat
 import em
 import shutil
-from docutils.core import publish_string
-
-def rst_to_html(s):
-    RST_DELIM = '<!-- CUT -->\n'
-    RST_TEMPLATE = """\
-.. role:: html(raw)
-   :format: html
-
-.. CUT
-
-%s
-
-.. CUT
-"""
-
-    html = publish_string(RST_TEMPLATE % s, writer_name='html')
-    try:
-        start = html.index(RST_DELIM) + len(RST_DELIM)
-        end = html.rindex(RST_DELIM)
-        return html[start:end]
-    except ValueError:
-        # This will almost certainly cause whatever includes it to be invalid
-        # markup, but it's better than nothing I suppose.
-        return html
+from rsthtml import publish_content
 
 def magic_attr(obj, rep):
     class Magic(type(obj)):
@@ -87,7 +64,7 @@ class BaseEntry:
         try: s = s[:s.rindex('-- \n')]
         except ValueError: pass
 
-        return magic_attr(rst_to_html(s), s[:100])
+        return magic_attr(publish_content(s), s[:100])
 
     def get_subject(self):
         try:
