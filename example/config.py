@@ -26,7 +26,9 @@
 locals['blogname'] = 'Example Blog'
 locals['base'] = 'http://example.invalid'
 
+import mnemosyne
+
 class EntryMixin:
     def get_organization(self):
-        org = self.m.get('Organization')
-        return org, self.clean(org)
+        organization = self.m.get('Organization')
+        return mnemosyne.magic_attr(organization)

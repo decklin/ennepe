@@ -17,6 +17,32 @@ def magic_attr(obj, rep):
             return rep
     return Magic(obj)
 
+def clean(s, maxwords=None):
+    if s:
+        words = s.strip().lower().split()
+        if maxwords: words = words[:maxwords]
+        words = [''.join([c for c in w if c.isalnum()]) for w in words]
+        return '-'.join(words)
+
+namespaces = {}
+def uniq(ns, k, id):
+    ns = namespaces.setdefault(ns, {})
+    try:
+        assert ns[k] == id
+    except KeyError:
+        ns[k] = id
+    except AssertionError:
+        while ns.has_key(k):
+            components = k.split('-')
+            try:
+                serial = int(components[-1])
+                components[-1] = str(serial + 1)
+                k = '-'.join(components)
+            except ValueError:
+                k += '-1'
+        ns[k] = id
+    return k
+
 class BaseEntry:
     def __init__(self, m):
         def fixdate(d):
@@ -32,32 +58,6 @@ class BaseEntry:
 
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
-
-    def clean(self, s, maxwords=None):
-        if s:
-            words = s.strip().lower().split()
-            if maxwords: words = words[:maxwords]
-            words = [''.join([c for c in w if c.isalnum()]) for w in words]
-            return '-'.join(words)
-
-    namespaces = {}
-    def uniq(self, ns, k, id):
-        ns = self.namespaces.setdefault(ns, {})
-        try:
-            assert ns[k] == id
-        except KeyError:
-            ns[k] = id
-        except AssertionError:
-            while ns.has_key(k):
-                components = k.split('-')
-                try:
-                    serial = int(components[-1])
-                    components[-1] = str(serial + 1)
-                    k = '-'.join(components)
-                except ValueError:
-                    k += '-1'
-            ns[k] = id
-        return k
 
     def get_content(self):
         SIG_DELIM = '-- \n'
