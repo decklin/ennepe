@@ -94,7 +94,7 @@ class BaseEntry:
 
     def get_tags(self):
         try:
-            tags = self.m['X-Mnemosyne-Tags'].split(',')
+            tags = [t.strip() for t in self.m['X-Mnemosyne-Tags'].split(',')]
             return [Magic(t, self.clean(t)) for t in tags]
         except KeyError:
             return []
