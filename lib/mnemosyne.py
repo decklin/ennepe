@@ -86,7 +86,8 @@ class BaseEntry:
 
     def get_email(self):
         email = self.m.getaddr('From')[1]
-        return magic_attr(email, clean(email))
+        cleaned = email.replace('@', ' at ').replace('.', ' dot ')
+        return magic_attr(email, cleaned)
 
     def get_tags(self):
         try:
