@@ -176,16 +176,24 @@ class Muse:
 
     def sing_instances(self, entries, spath, dpath, what):
         magic = what[:what.rfind('__')+2]
+        name = magic[2:-2]
 
-        instances = {}
+        def cheapiter(x):
+            try:
+                assert not isinstance((x), (str, unicode))
+                for e in x: return iter(x)
+                else: return iter(())
+            except (AssertionError, TypeError):
+                if x: return iter((x,))
+                else: return iter(())
+
+        inst = {}
         for e in entries:
-            mv = getattr(e, magic[2:-2], [])
-            if type(mv) != list: mv = [mv] # XXX: ugh
-            for m in mv:
-                instances.setdefault(repr(m), [])
-                instances[repr(m)].append(e)
+            mv = getattr(e, name, None)
+            for m in cheapiter(mv):
+                inst.setdefault(repr(m), []).append(e)
 
-        for k, entries in instances.items():
+        for k, entries in inst.items():
             self.where.append(k)
             self.sing(entries, spath, dpath, (what, what.replace(magic, k)))
             self.where.pop()
