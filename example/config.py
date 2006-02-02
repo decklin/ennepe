@@ -22,21 +22,17 @@
 # ``e``. (``ATTRIBUTE``, of course, can be whatever you want).
 #
 # The convention used in the default templates is that the repr() of each
-# attribute is used to create its URL. For example, if you had a tag called
-# 'My Tag', you would return that value, but add a ``__repr__`` method that
-# returned 'my-tag', so that you could use it in a link such as
-# ``<a href="http://blog/tag/my-tag/">My Tag</a>``. Empy has a nice syntax for
-# this, like so: ``<a href="http://blog/tag/@`tag`">@tag</a>``.
+# attribute is used when putting it in a URL. For example, if you had a tag
+# called 'My Tag', you would return that value, but add a ``__repr__`` method
+# that returned 'my-tag', so that you could use it in a link such as ``<a
+# href="http://blog/tag/my-tag/">My Tag</a>``. Empy has a nice syntax for
+# using repr, which is: ``<a href="http://blog/tag/@`tag`/">@tag</a>``.
 #
 # To easily create objects that work like this, the ``mnemosyne`` module
 # includes a function ``magic_attr`` which takes two arguments: the value
 # itself, and the value to use for its repr(). It then takes care of defining
-# a new class with a ``__repr__`` method for you.
-#
-# To easily convert 'My Tag' to 'my-tag', there is also a function ``clean``
-# which turns uppercase into lowercase and spaces into dashes, and also allows
-# you to limit the number of words included so that URLs do not get too
-# unwieldly.
+# a new class and overriding its ``__repr__`` method for you. Of course, if
+# you do not need to define a special repr(), this is not required.
 
 locals['blogname'] = 'Example Blog'
 locals['base'] = 'http://example.invalid'
@@ -44,10 +40,19 @@ locals['base'] = 'http://example.invalid'
 import mnemosyne
 
 class EntryMixin:
-    def get_organization(self):
-        org = self.m.get('Organization')
-        clean = mnemosyne.clean(org, 3)
-        return mnemosyne.magic_attr(org, clean)
+    # Pull anything you want out of the message (self.m, a rfc822.Message
+    # object, and use it to provide a new attribute
+
+    def get_foobar(self):
+        foobar = self.m.get('X-Foobar')
+        cleaned = mnemosyne.clean(foobar, 3)
+        return mnemosyne.magic_attr(foobar, cleaned)
+
+    ## You could use Markdown instead of ReST to write entries; I'll comment
+    ## this out since you need to install it from http://err.no/pymarkdown/
+    #
     #def get_content(self):
     #    s = self.m.fp.read()
+    #    try: s = s[:s.rindex('-- \n')]
+    #    except ValueError: pass
     #    return magic_attr(pymarkdown.Markdown(s), s[:100])
