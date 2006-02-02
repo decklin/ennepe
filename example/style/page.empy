@@ -1,7 +1,7 @@
-@%name        "Page"
-@%author      "Decklin Foster"
-@%email       "decklin@red-bean.com"
-@%description "Basic HTML page."
+@%stylename        "Page"
+@%styleauthor      "Decklin Foster"
+@%styleemail       "decklin@red-bean.com"
+@%styledescription "Basic HTML page."
 @
 <html>
 

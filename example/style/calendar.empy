@@ -1,7 +1,7 @@
-@%name        "Calendar"
-@%author      "Decklin Foster"
-@%email       "decklin@red-bean.com"
-@%description "Table of days in the given month, with links if applicable."
+@%stylename        "Calendar"
+@%styleauthor      "Decklin Foster"
+@%styleemail       "decklin@red-bean.com"
+@%styledescription "Table of days in the given month, with links if applicable."
 @{
 import calendar
 

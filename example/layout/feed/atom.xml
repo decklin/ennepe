@@ -1,6 +1,6 @@
-__name__ = "Everything Feed"
-__author__ = "Decklin Foster <decklin@red-bean.com>"
-__description__ = "Feed of all entries."
+__layoutname__ = "Everything Feed"
+__layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
+__layoutdescription__ = "Feed of all entries."
 
 entries = entries[-10:] # XXX: if newer than 1 week
 entries.reverse()

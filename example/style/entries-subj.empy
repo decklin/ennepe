@@ -1,7 +1,7 @@
-@%name        "Entries (subject)"
-@%author      "Decklin Foster"
-@%email       "decklin@red-bean.com"
-@%description "Entries as subject links."
+@%stylename        "Entries (subject)"
+@%styleauthor      "Decklin Foster"
+@%styleemail       "decklin@red-bean.com"
+@%styledescription "Entries as subject links."
 @
 @{import time}@
 @
