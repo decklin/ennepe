@@ -91,7 +91,7 @@ class BaseEntry:
 
     def get_tags(self):
         try:
-            tags = [t.strip() for t in self.m['X-Mnemosyne-Tags'].split(',')]
+            tags = [t.strip() for t in self.m['X-Tags'].split(',')]
             return [magic_attr(t, clean(t)) for t in tags]
         except KeyError:
             return []
@@ -195,7 +195,7 @@ class Muse:
             for m in cheapiter(mv):
                 inst.setdefault(repr(m), []).append(e)
 
-        for k, entries in inst.items():
+        for k, entries in inst.iteritems():
             self.where.append(k)
             self.sing(entries, spath, dpath, (what, what.replace(magic, k)))
             self.where.pop()
