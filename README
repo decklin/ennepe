@@ -23,25 +23,25 @@ Requirements
 * EmPy, available at http://www.alcyone.com/pyos/empy/.
 
 * Something that will allow you to create, add to and edit your Maildir.
-  I use procmail and mutt.
+  I use procmail and Mutt.
 
 Configuration
 =============
 
 A Mnemosyne blog starts with a configuration file, which is a Python
-script. The example provided in example/config.py explains what it can
-do and what variables can be set. By default, Mnemosyne looks for this
-file in ~/Mnemosyne/config.py.
+script. The example provided in ``example/config.py`` explains what it
+can do and what variables can be set. By default, Mnemosyne looks for
+this file in ``~/Mnemosyne/config.py``.
 
 Layout
 ======
 
 Layout scripts are also written in Python. Apart from any local
-variables defined in a blog's configuration, they will be given the
+variables defined in the blog's configuration, they will be given the
 following:
 
-* ``muse``: a mnemosyne.Muse object, the thing that generates the blog.
-  This contains many useful attributes, most importantly:
+* ``muse``: a ``mnemosyne.Muse`` object, the thing that generates the
+  blog. This contains many useful attributes, most importantly:
 
   - ``muse.entries``: the list of all entries in the blog.
 
@@ -56,43 +56,45 @@ following:
   the entries in that particular year, week, or whatever.
 
 * ``write(s)``: Another callback function, which will take the provided
-  data (a string) and actually write it out the the file being
-  generated. Generally, this will be the last thing you call once you
-  put the rest of the page together.
+  data (a string) and actually write it out to the file being generated.
+  Generally, this will be the last thing you call once you put the rest
+  of the page together.
 
 Files in the top level directory of your layout will be evaluated with
 all the entries in the blog. However, you can create files or
-directories with a name like __year__, and it will create files (or, in
-this case, directories) named 2006, 2007, etc, which will be evaluated
-with only the entries for that year.
+directories with a name like ``__year__``, and it will create files (or,
+in this case, directories) named ``2006``, ``2007``, etc, which will be
+evaluated with only the entries for that year.
 
 You can do the same thing for attributes which have multiple values, as
-well: for example, a directory named __tags__ will be evaluated for each
+well: for example, a directory named ``__tags__`` will be evaluated for each
 tag that appears on an entry, even if the tags are stored as a list.
 
 The values for all these expansions come from the attributes of
-mnemosyne's Entry class. Several useful ones, such as subject and tags,
-are provided by default: if you wish to define more, you may add a mixin
-class to your configuration, with some specially-named methods.
-Attributes may be calculated at initialization or only when needed. When
-generating file or directory names, the attributes' repr() is used, so
-that dates, subject lines, and so on may be appropriately formatted.
+mnemosyne's Entry class. Several useful ones, such as ``subject`` and
+``tags``, are provided by default: if you wish to define more, you may
+add a mixin class to your configuration, with some specially-named
+methods. Attributes may be calculated at initialization or only when
+needed. When generating file or directory names, the attributes' repr()
+is used, so that dates, subject lines, and so on may be appropriately
+formatted.
 
-Please refer to example/layout to see how this might all come together.
+Please refer to ``example/layout`` to see how this might all come
+together.
 
 Styles
 ======
 
 It would be quite cumbersome for layout scripts to generate an entire
-page by themselves, so mnemosyne.Muse's expand method allows you to use
-styles to do the hard work. Styles are EmPy templates; to get an idea of
-what you can do with them (which is far beyond the scope of this
-document), refer to EmPy's documentation or look in example/style.
+page by themselves, so ``mnemosyne.Muse``'s ``expand`` method allows you
+to use styles to do the hard work. Styles are EmPy templates; to get an
+idea of what you can do with them (which is far beyond the scope of this
+document), refer to EmPy's documentation or look in ``example/style``.
 
 Writing Layouts and Styles
 ==========================
 
-For each entry e, the following attributes (plus any you define) are
+For each entry ``e``, the following attributes (plus any you define) are
 available:
 
 * ``m``: the message that the entry was created from. Initially, only
@@ -117,7 +119,7 @@ available:
   order so that they are always the same.
 
 * ``id``: The Message-Id: header. Its repr is a tag: URL suitable for an
-  atom feed, as described in
+  Atom feed, as described in
   http://diveintomark.org/archives/2004/05/28/howto-atom-id.
 
 * ``author``: Name from the From: header. Its repr() is the URL-cleaned
@@ -131,7 +133,7 @@ available:
   commas. URL-cleaned repr()s for tag categorization.
 
 * ``year``, ``month``, ``day``: What the names imply. The values are
-  ints; the repr()s are formatted with time.strftime.
+  ints; the repr()s are formatted with ``time.strftime``.
 
 Usage
 =====
@@ -147,10 +149,10 @@ change part of your layout or styles.)
 Caveats
 =======
 
-Mnemosyne pokes at bits of rfc822.Message and calendar which may or may
-not be intended to be public, and depends on the Maildir really being a
-Maildir. I will probably write an SQLite backend once someone complains
-that it takes too long to load their 10,000 entries.
+Mnemosyne pokes at bits of ``rfc822.Message`` and ``calendar`` which may
+or may not be intended to be public, and depends on the Maildir really
+being a Maildir. I intend to write an SQLite backend once someone
+complains that it takes too long to load their 10,000 entries.
 
 Mnemosyne also uses some deep magic which may or may not be good Python
 style. Comments and suggestions are welcome.
