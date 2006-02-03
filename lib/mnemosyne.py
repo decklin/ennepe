@@ -60,7 +60,7 @@ class BaseEntry:
 
         return magic_attr(publish_content(s), s[:100])
 
-    def get_subject(self):
+    def make_subject(self):
         try:
             subject = self.m['Subject']
             cleaned = clean(subject, 3)
@@ -111,6 +111,7 @@ class Muse:
         DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
         DEF_IGNORE = ('.svn', 'CVS')
 
+        self.where = []
         self.force = force
         self.config = {
             'entry_dir': os.path.join(DEF_BASE_DIR, 'entries'),
@@ -131,6 +132,7 @@ class Muse:
         class NoMixin: pass
         Mixin = self.config.get('EntryMixin', NoMixin)
 
+        # get_* is evaluated on demand
         class Entry(Mixin, BaseEntry):
             def __getattr__(self, a):
                 for c in (Mixin, BaseEntry):
@@ -143,11 +145,17 @@ class Muse:
                 else:
                     return getattr(BaseEntry, a)
 
+        # have to do this after we define Entry but before we iter it
         box = mailbox.Maildir(self.config['entry_dir'])
         self.entries = [Entry(msg) for msg in box]
         self.entries.sort()
 
-        self.where = []
+        # make_* is evaluated now
+        for c in (Mixin, BaseEntry):
+            for n, m in c.__dict__.iteritems():
+                if n.startswith('make_'):
+                    for e in self.entries:
+                        setattr(e, n[5:], m(e))
 
     def sing(self, entries=None, spath=None, dpath=None, what=None):
         if not entries: entries = self.entries
