@@ -106,7 +106,6 @@ class BaseEntry:
         return magic_attr(self.date[2], time.strftime('%d', self.date))
 
 class Muse:
-
     def __init__(self, config, force):
         DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
         DEF_IGNORE = ('.svn', 'CVS')
