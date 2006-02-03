@@ -26,16 +26,16 @@ def clean(s, maxwords=None):
 namespaces = {}
 def uniq(ns, k, tag):
     ns = namespaces.setdefault(ns, {})
-    ns.setdefault(k, [])
-    if tag not in ns[k]: ns[k].append(tag)
+    ns.setdefault(k, {})
 
-    ns[k].sort()
-    i = ns[k].index(tag)
+    def qual(s, n):
+        if n == 0: return s
+        else: return '%s-%d' % (s, n)
 
-    if i == 0:
-        return k
-    else:
-        return '%s-%d' % (k, i)
+    if tag not in ns[k].keys():
+        ns[k][tag] = qual(k, len(ns[k].keys()))
+
+    return ns[k][tag]
 
 class BaseEntry:
     def __init__(self, m):
