@@ -33,7 +33,7 @@ def clean(s, maxwords=None):
 
 namespaces = {}
 def uniq(ns, k, tag):
-    """For the given key k, which may come from a list of many keys with the
+    """For the given key k, which may come from a group of many keys with the
     same value 'foo', return a string like 'foo', 'foo-1', 'foo-2', etc,
     based on the provided namespace ns (must be a valid dict index) and unique
     identifer tag."""
