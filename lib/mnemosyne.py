@@ -12,11 +12,19 @@ import shutil
 from rsthtml import publish_content
 
 def magic_attr(obj, rep):
+    """Return a subclassed version of obj with its repr() overridden to return
+    rep."""
+
     class Magic(type(obj)):
         def __repr__(self): return rep
     return Magic(obj)
 
 def clean(s, maxwords=None):
+    """Split the given string into words, lowercase and strip all
+    non-alphanumerics from them, and join them with '-'. If maxwords is given,
+    limit the returned string to that many words. If the string is None,
+    return None."""
+
     if s:
         words = s.strip().lower().split()
         if maxwords: words = words[:maxwords]
@@ -25,6 +33,11 @@ def clean(s, maxwords=None):
 
 namespaces = {}
 def uniq(ns, k, tag):
+    """For the given key k, which may come from a list of many keys with the
+    same value 'foo', return a string like 'foo', 'foo-1', 'foo-2', etc,
+    based on the provided namespace ns (must be a valid dict index) and unique
+    identifer tag."""
+
     ns = namespaces.setdefault(ns, {})
     ns.setdefault(k, {})
 
@@ -38,6 +51,11 @@ def uniq(ns, k, tag):
     return ns[k][tag]
 
 class BaseEntry:
+    """Base class for an entry, initialized from an rfc822.Message object
+    contained in a mailbox.Maildir. Provides date and mtime attributes, and
+    some simple get_* and make_* methods for the derived Entry class to
+    call."""
+
     def __init__(self, m):
         def fixdate(d):
             # For some bizarre reason, getdate doesn't set wday/yday/isdst...
@@ -54,6 +72,9 @@ class BaseEntry:
         return cmp(time.mktime(self.date), time.mktime(other.date))
 
     def get_content(self):
+        """Read in the message's body, strip any signature, and format using
+        reStructedText."""
+
         s = self.m.fp.read()
         try: s = s[:s.rindex('-- \n')]
         except ValueError: pass
@@ -61,6 +82,9 @@ class BaseEntry:
         return magic_attr(publish_content(s), s[:100])
 
     def make_subject(self):
+        """Provide the contents of the Subject: header and a cleaned, uniq'd
+        version of same."""
+
         try:
             subject = self.m['Subject']
             cleaned = clean(subject, 3)
@@ -72,6 +96,9 @@ class BaseEntry:
         return magic_attr(subject, u)
 
     def get_id(self):
+        """Provide the Message-ID and a globally unique tag: URL based on it,
+        for use in feeds."""
+
         try:
             id = self.m['Message-Id']
             lhs, host = id[1:-1].split('@')
@@ -85,11 +112,14 @@ class BaseEntry:
         return magic_attr(author, clean(author))
 
     def get_email(self):
+        """Provide the author's email address and a trivially spam-protected
+        version of same."""
         email = self.m.getaddr('From')[1]
         cleaned = email.replace('@', ' at ').replace('.', ' dot ')
         return magic_attr(email, cleaned)
 
     def get_tags(self):
+        """Provide a list of tags from the comma-delimited X-Tags: header."""
         try:
             tags = [t.strip() for t in self.m['X-Tags'].split(',')]
             return [magic_attr(t, clean(t)) for t in tags]
@@ -133,6 +163,12 @@ class Muse:
 
         # get_* is evaluated on demand
         class Entry(Mixin, BaseEntry):
+            """Actual entry class. Will search the user-provided mixin class
+            and then BaseEntry for methods of the form make_*, and set the
+            appropriate attribute on initialization, and also search for
+            methods of the form get_* to provide lazily-evaluated attributes
+            at runtime."""
+
             def __getattr__(self, a):
                 for c in (Mixin, BaseEntry):
                     try:
@@ -157,6 +193,14 @@ class Muse:
                         setattr(e, n[5:], m(e))
 
     def sing(self, entries=None, spath=None, dpath=None, what=None):
+        """From the contents of spath, build output in dpath, based on the
+        provided entries. For each entry in spath, will be called recursively
+        with a tuple what representing the source and dest file. For any
+        source files starting with __attr___ will recur several times based on
+        which entries match each value of that attribute. For regularly named
+        files, evaluate them as layout scripts if they are executable and
+        simply copy them if they are not."""
+
         if not entries: entries = self.entries
         if not spath: spath = self.config['layout_dir']
         if not dpath: dpath = self.config['output_dir']
@@ -184,10 +228,22 @@ class Muse:
                     self.where.pop()
 
     def sing_instances(self, entries, spath, dpath, what):
+        """Given a source and dest file in the tuple what, where the source
+        starts with __attr__, group the provided entries by the values of that
+        attribute over all the provided entries. For an entry e and attribute
+        attr, e.attr may be an atomic value or a sequence of values. For each
+        value so encountered, evaluate the source file given all entries in
+        entries that match that value."""
+
         magic = what[:what.rfind('__')+2]
         name = magic[2:-2]
 
         def cheapiter(x):
+            """DWIM-style iterator which, if given a sequence, will iterate
+            over that sequence, unless it is a string type. For a string or
+            any other atomic type, create an iterator which will return the
+            given value once and then stop. This is a horrible kludge."""
+
             try:
                 assert not isinstance((x), (str, unicode))
                 for e in x: return iter(x)
@@ -208,10 +264,17 @@ class Muse:
             self.where.pop()
 
     def expand(self, style, locals):
+        """Open an empy file in the configuration's style directory, and
+        evaluate it with the given locals."""
         style = os.path.join(self.config['style_dir'], '%s.empy' % style)
         return em.expand(file(style).read(), locals)
 
     def sing_file(self, entries, spath, dpath):
+        """Given an actual source and dest file, where the source is a layout
+        script, evaluate it given the locals from config plus muse (ourself),
+        write (a callback which actually writes the file), and entries (the
+        given entries)."""
+
         if not self.force and os.path.exists(dpath):
             smtime = max([e.mtime for e in entries])
             dmtime = time.localtime(os.stat(dpath).st_mtime)
