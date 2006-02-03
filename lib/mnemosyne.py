@@ -1,4 +1,4 @@
-__version__ = '0.1'
+__version__ = '0.2'
 __author__ = 'Decklin Foster'
 __email__ = 'decklin@red-bean.com'
 __url__ = 'http://www.red-bean.com/~decklin/software/mnemosyne/'
