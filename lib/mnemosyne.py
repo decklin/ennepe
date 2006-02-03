@@ -72,6 +72,8 @@ class BaseEntry:
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
 
+    # Remember, get_* is lazy, make_* is not
+
     def get_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
@@ -116,7 +118,9 @@ class BaseEntry:
         """Provide the author's email address and a trivially spam-protected
         version of same."""
         email = self.m.getaddr('From')[1]
-        cleaned = email.replace('@', ' at ').replace('.', ' dot ')
+        cleaned = email.replace('@', ' at ')
+        cleaned = cleaned.replace('.', ' dot ')
+        cleaned = cleaned.replace('-', ' dash ')
         return magic_attr(email, cleaned)
 
     def get_tags(self):
@@ -172,7 +176,6 @@ class Muse:
         class NoMixin: pass
         Mixin = self.conf.get('EntryMixin', NoMixin)
 
-        # get_* is evaluated on demand
         class Entry(Mixin, BaseEntry):
             """Actual entry class. Will search the user-provided mixin class
             and then BaseEntry for methods of the form make_*, and set the
@@ -181,6 +184,7 @@ class Muse:
             at runtime."""
 
             def __getattr__(self, a):
+                # get_* is evaluated on demand
                 for c in (Mixin, BaseEntry):
                     try:
                         method = getattr(c, 'get_'+a)
