@@ -6,9 +6,9 @@ provide it with some entries, which are stored in an ordinary Maildir, a
 layout, which is a directory tree indicating where these entries should
 go, and some styles, which are EmPy templates.
 
-The layout tree may contain ordinary files, such as images and
-stylesheets, and constant pages, and Python scripts, which will be used
-to generate variable pages, XML feeds, or anything else you wish.
+The layout tree may contain ordinary files, such as images, stylesheets,
+or constant pages, and Python scripts, which will be used to generate
+variable pages, XML feeds, or anything else you wish.
 
 Requirements
 ============
