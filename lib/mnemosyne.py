@@ -229,6 +229,7 @@ class Muse:
                     if os.stat(spath).st_mode & stat.S_IXUSR:
                         self.sing_file(entries, spath, dpath)
                     else:
+                        print 'Copied %s' % dpath
                         shutil.copyfile(spath, dpath)
                 elif os.path.isdir(spath):
                     self.sing(entries, spath, dpath)
