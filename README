@@ -96,6 +96,17 @@ evaluated; you can override this and do the entire blog with the
 ``--force`` option. (At the moment, this is your only recourse if you
 change part of your layout or styles.)
 
+Caveats
+=======
+
+Mnemosyne pokes at bits of rfc822.Message and calendar which may or may
+not be intended to be public, and depends on the Maildir really being a
+Maildir. I will probably write an SQLite backend once someone complains
+that it takes too long to load their 10,000 entries.
+
+Mnemosyne also uses some deep magic which may or may not be good Python
+style. Comments and suggestions are welcome.
+
 About the Name
 ==============
 
