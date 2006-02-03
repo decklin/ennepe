@@ -1,8 +1,13 @@
-__layoutname__ = "Everything Feed"
+__layoutname__ = "Feed"
 __layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
-__layoutdescription__ = "Feed of all entries."
+__layoutdescription__ = "Feed of all entries in the last week."
 
-entries = entries[-10:] # XXX: if newer than 1 week
+import time
+
+def newer(e, ago):
+    return time.mktime(e.date) > (time.time() - ago)
+
+entries = [e for e in entries if newer(e, 86400*7)][-10:]
 entries.reverse()
 
 write(muse.expand('atom', locals()))
