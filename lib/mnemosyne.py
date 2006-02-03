@@ -288,6 +288,12 @@ class Muse:
         except Exception, e:
             raise RuntimeError("Error running style %s: %s" % (style, e))
 
+    def escape(self, s):
+        s = s.replace('&', '&amp;')
+        s = s.replace('<', '&lt;')
+        s = s.replace('>', '&gt;')
+        return s
+
     def sing_file(self, entries, spath, dpath):
         """Given an actual source and dest file, where the source is a layout
         script, evaluate it given the locals from config plus muse (ourself),

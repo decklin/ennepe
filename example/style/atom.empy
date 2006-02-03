@@ -19,7 +19,7 @@ def rfc3339(date):
   <id>@base/</id>
   <link rel="self" type="application/atom+xml"
     href="@base/@('/'.join(muse.where))" />
-  <link rel="alternate" type="application/xhtml+xml" href="@base/" />
+  <link rel="alternate" type="text/html" href="@base/" />
   <updated>@rfc3339(muse.entries[-1].date)</updated>
   <generator uri="@__url__" version="@__version__">
     Mnemosyne
@@ -32,15 +32,13 @@ def rfc3339(date):
   @[for e in entries]
   <entry>
     <title type="text">@(e.subject ? e.subject ! 'Entry')</title>
-    <link rel="alternate" type="application/xhtml+xml"
+    <link rel="alternate" type="text/html"
       href="@base/@`e.year`/@`e.month`/@`e.day`/@`e.subject`.html" />
     <id>@`e.id`</id>
     <published>@rfc3339(e.date)</published>
     <updated>@rfc3339(e.mtime)</updated>
-    <content type="xhtml">
-      <div xmlns="http://www.w3.org/1999/xhtml">
-        @e.content
-      </div>
+    <content type="html">
+      @muse.escape(e.content)
     </content>
   </entry>
   @[end for]

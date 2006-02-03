@@ -44,8 +44,12 @@ following:
   This contains many useful attributes, most importantly:
 
   - ``muse.entries``: the list of all entries in the blog.
+
   - ``muse.expand(style, locals)``: a callback function which opens an
     EmPy style and expands it with the provided local variables.
+
+  - ``muse.escape``: a callback function which escapes HTML characters,
+    for use in RSS or non-XHTML Atom feeds.
 
 * ``entries``: the subset of entries that apply to the particular file
   being generated. In an archive page, for example, this would be only
