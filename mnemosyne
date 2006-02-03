@@ -6,8 +6,8 @@ import getopt
 import mnemosyne
 
 if __name__ == '__main__':
-    shortopts = 'f'
-    longopts = ['force']
+    shortopts = 'fh'
+    longopts = ['force', 'help']
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], shortopts, longopts)
@@ -19,11 +19,18 @@ if __name__ == '__main__':
     for opt, arg in opts:
         if opt in ('--force', '-f'):
             force = True
+        if opt in ('--help', '-h'):
+            print "usage: mnemosyne [--force] [configfile]"
+            sys.exit(0)
 
     try:
         config = args[0]
     except IndexError:
         config = os.path.join(os.environ['HOME'], 'Mnemosyne', 'config.py')
 
-    muse = mnemosyne.Muse(config, force)
-    muse.sing()
+    try:
+        muse = mnemosyne.Muse(config, force)
+        muse.sing()
+    except RuntimeError, e:
+        print >>sys.stderr, e
+        sys.exit(1)

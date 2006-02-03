@@ -143,7 +143,7 @@ class Muse:
 
         self.where = []
         self.force = force
-        self.config = {
+        self.conf = {
             'entry_dir': os.path.join(DEF_BASE_DIR, 'entries'),
             'layout_dir': os.path.join(DEF_BASE_DIR, 'layout'),
             'style_dir': os.path.join(DEF_BASE_DIR, 'style'),
@@ -157,10 +157,20 @@ class Muse:
                 },
             }
 
-        exec file(config) in self.config
+        if not os.path.exists(config):
+            raise RuntimeError("config %s does not exist")
+
+        try:
+            exec file(config) in self.conf
+        except Exception, e:
+            raise RuntimeError("Error running config: %s" % e)
+
+        for d in ('entry_dir', 'layout_dir', 'style_dir', 'output_dir'):
+            if not os.path.exists(self.conf[d]):
+                raise RuntimeError("%s %s does not exist" % (d, self.conf[d]))
 
         class NoMixin: pass
-        Mixin = self.config.get('EntryMixin', NoMixin)
+        Mixin = self.conf.get('EntryMixin', NoMixin)
 
         # get_* is evaluated on demand
         class Entry(Mixin, BaseEntry):
@@ -182,7 +192,7 @@ class Muse:
                     return getattr(BaseEntry, a)
 
         # have to do this after we define Entry but before we iter it
-        box = mailbox.Maildir(self.config['entry_dir'])
+        box = mailbox.Maildir(self.conf['entry_dir'])
         self.entries = [Entry(msg) for msg in box]
         self.entries.sort()
 
@@ -203,14 +213,14 @@ class Muse:
         simply copy them if they are not."""
 
         if not entries: entries = self.entries
-        if not spath: spath = self.config['layout_dir']
-        if not dpath: dpath = self.config['output_dir']
+        if not spath: spath = self.conf['layout_dir']
+        if not dpath: dpath = self.conf['output_dir']
 
         if what:
             source, dest = what
             spath = os.path.join(spath, source)
             dpath = os.path.join(dpath, dest)
-            if source not in self.config['ignore']:
+            if source not in self.conf['ignore']:
                 if os.path.isfile(spath):
                     if os.stat(spath).st_mode & stat.S_IXUSR:
                         self.sing_file(entries, spath, dpath)
@@ -267,8 +277,11 @@ class Muse:
     def expand(self, style, locals):
         """Open an EmPy file in the configuration's style directory, and
         evaluate it with the given locals."""
-        style = os.path.join(self.config['style_dir'], '%s.empy' % style)
-        return em.expand(file(style).read(), locals)
+        style = os.path.join(self.conf['style_dir'], '%s.empy' % style)
+        try:
+            return em.expand(file(style).read(), locals)
+        except Exception, e:
+            raise RuntimeError("Error running style %s: %s" % (style, e))
 
     def sing_file(self, entries, spath, dpath):
         """Given an actual source and dest file, where the source is a layout
@@ -285,9 +298,12 @@ class Muse:
             file(dpath, 'w').write(data)
             print 'Wrote %s' % dpath
 
-        locals = self.config['locals'].copy()
+        locals = self.conf['locals'].copy()
         locals['muse'] = self
         locals['write'] = write
         locals['entries'] = entries
 
-        exec file(spath) in locals
+        try:
+            exec file(spath) in locals
+        except Exception, e:
+            raise RuntimeError("Error running layout %s: %s" % (spath, e))

@@ -17,6 +17,10 @@
 # own name, email, etc, and any other information you want to use in
 # your layout. The example layout's styles use ``blogname`` and ``base``.
 #
+# * ``ignore``: a list of file names in the layout tree to ignore.
+#
+# This defaults to ('.svn', 'CVS').
+#
 # You can also define a class ``EntryMixin`` here. Any methods named
 # ``get_ATTRIBUTE`` will be used to provide ``e.ATTRIBUTE`` for each entry
 # ``e``. (``ATTRIBUTE``, of course, can be whatever you want).
