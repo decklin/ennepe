@@ -264,7 +264,7 @@ class Muse:
             self.where.pop()
 
     def expand(self, style, locals):
-        """Open an empy file in the configuration's style directory, and
+        """Open an EmPy file in the configuration's style directory, and
         evaluate it with the given locals."""
         style = os.path.join(self.config['style_dir'], '%s.empy' % style)
         return em.expand(file(style).read(), locals)

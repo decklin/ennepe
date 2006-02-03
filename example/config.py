@@ -5,7 +5,7 @@
 #
 # * ``entries_dir``: a Maildir containing all the blog entries.
 # * ``layout_dir``: the blog's layout, as a skeleton directory tree.
-# * ``style_dir``: empy styles used for filling layout templates.
+# * ``style_dir``: EmPy templates used for filling the layouts.
 # * ``output_dir``: location where we will write the generated pages.
 #
 # These default to $HOME/Mnemosyne/{entries,layout,style,htdocs} respectively.
@@ -15,17 +15,17 @@
 # This initially contains the keys __version__, __url__, __author__, and
 # __email__ from Mnemosyne itself. You can of course add keys for your
 # own name, email, etc, and any other information you want to use in
-# your templates. The example templates use ``blogname`` and ``base``.
+# your layout. The example layout's styles use ``blogname`` and ``base``.
 #
 # You can also define a class ``EntryMixin`` here. Any methods named
 # ``get_ATTRIBUTE`` will be used to provide ``e.ATTRIBUTE`` for each entry
 # ``e``. (``ATTRIBUTE``, of course, can be whatever you want).
 #
-# The convention used in the example templates is that the repr() of each
-# attribute is used when putting it in a URL. For example, if you had a tag
-# called 'My Tag', you would return that value, but add a ``__repr__`` method
-# that returned 'my-tag', so that you could use it in a link such as ``<a
-# href="http://blog/tag/my-tag/">My Tag</a>``. Empy has a nice syntax for
+# The convention used in the example layout and styles is that the repr() of
+# each attribute is used when putting it in a URL. For example, if you had a
+# tag called 'My Tag', you would return that value, but add a ``__repr__``
+# method that returned 'my-tag', so that you could use it in a link such as
+# ``<a href="http://blog/tag/my-tag/">My Tag</a>``. EmPy has a nice syntax for
 # using repr, which is: ``<a href="http://blog/tag/@`tag`/">@tag</a>``.
 #
 # To easily create objects that work like this, the ``mnemosyne`` module

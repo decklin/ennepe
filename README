@@ -1,3 +1,113 @@
+Introduction
+============
+
+Mnemosyne is a simple blogging system which generates static files. You
+provide it with some entries, which are stored in an ordinary Maildir, a
+layout, which is a directory tree indicating where these entries should
+go, and some styles, which are EmPy templates.
+
+The layout tree may contain ordinary files, such as images and
+stylesheets, and constant pages, and Python scripts, which will be used
+to generate variable pages, XML feeds, or anything else you wish.
+
+Requirements
+============
+
+* Python, probably at least version 2.3. I suspect 2.2 would work, but I
+  have not tried it.
+
+* If you wish to use reStructuredText to format entries as HTML, as the
+  default configuration does, docutils. You could also replace this with
+  PyMarkdown, PyTextile, or nothing at all.
+
+* EmPy, available at http://www.alcyone.com/pyos/empy/.
+
+* Something that will allow you to create, add to and edit your Maildir.
+  I use procmail and mutt.
+
+Configuration
+=============
+
+A Mnemosyne blog starts with a configuration file, which is a Python
+script. The example provided in example/config.py explains what it can
+do and what variables can be set. By default, Mnemosyne looks for this
+file in ~/Mnemosyne/config.py.
+
+Layout
+======
+
+Layout scripts are also written in Python. Apart from any local
+variables defined in a blog's configuration, they will be given the
+following:
+
+* ``muse``: a mnemosyne.Muse object, the thing that generates the blog.
+  This contains many useful attributes, most importantly:
+
+  - ``muse.entries``: the list of all entries in the blog.
+  - ``muse.expand(style, locals)``: a callback function which opens an
+    EmPy style and expands it with the provided local variables.
+
+* ``entries``: the subset of entries that apply to the particular file
+  being generated. In an archive page, for example, this would be only
+  the entries in that particular year, week, or whatever.
+
+* ``write(s)``: Another callback function, which will take the provided
+  data (a string) and actually write it out the the file being
+  generated. Generally, this will be the last thing you call once you
+  put the rest of the page together.
+
+Files in the top level directory of your layout will be evaluated with
+all the entries in the blog. However, you can create files or
+directories with a name like __year__, and it will create files (or, in
+this case, directories) named 2006, 2007, etc, which will be evaluated
+with only the entries for that year.
+
+You can do the same thing for attributes which have multiple values, as
+well: for example, a directory named __tags__ will be evaluated for each
+tag that appears on an entry, even if the tags are stored as a list.
+
+The values for all these expansions come from the attributes of
+mnemosyne's Entry class. Several useful ones, such as subject and tags,
+are provided by default: if you wish to define more, you may add a mixin
+class to your configuration, with some specially-named methods.
+Attributes may be calculated at initialization or only when needed. When
+generating file or directory names, the attributes' repr() is used, so
+that dates, subject lines, and so on may be appropriately formatted.
+
+Please refer to example/layout to see how this might all come together.
+
+Styles
+======
+
+It would be quite cumbersome for layout scripts to generate an entire
+page by themselves, so mnemosyne.Muse's expand method allows you to use
+styles to do the hard work. Styles are EmPy templates; to get an idea of
+what you can do with them (which is far beyond the scope of this
+document), refer to EmPy's documentation or look in example/style.
+
+Usage
+=====
+
+To regenerate your blog, simply run ``mnemosyne``, or, if your
+configuration lives in a different location, ``mnemosyne
+path/to/config.py``. By default, only pages for which some entries have
+been added or modified since the page was last written will be
+evaluated; you can override this and do the entire blog with the
+``--force`` option. (At the moment, this is your only recourse if you
+change part of your layout or styles.)
+
+About the Name
+==============
+
+Mnemosyne, in Greek mythology, is the personification of memory and
+mother of the muses, goddesses whom poets would invoke to help them tell
+a story. The metaphor, hopefully, should be obvious.
+
+Author and Copyright
+====================
+
+Copyright © 2006 Decklin Foster <decklin@red-bean.com>.
+
 License
 =======
 
