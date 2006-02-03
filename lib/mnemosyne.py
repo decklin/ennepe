@@ -25,11 +25,12 @@ def clean(s, maxwords=None):
     limit the returned string to that many words. If the string is None,
     return None."""
 
-    if s:
-        words = s.strip().lower().split()
-        if maxwords: words = words[:maxwords]
+    try:
+        words = s.strip().lower().split()[:maxwords]
         words = [''.join([c for c in w if c.isalnum()]) for w in words]
         return '-'.join(words)
+    except AttributeError:
+        return None
 
 namespaces = {}
 def uniq(ns, k, tag):
@@ -235,7 +236,7 @@ class Muse:
         value so encountered, evaluate the source file given all entries in
         entries that match that value."""
 
-        magic = what[:what.rfind('__')+2]
+        magic = what[:what.rindex('__')+2]
         name = magic[2:-2]
 
         def cheapiter(x):
