@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import sys
+import os
 import getopt
 import mnemosyne
 
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     try:
         config = args[0]
     except IndexError:
-        print >>sys.stderr, 'error: no config file specified'
+        config = os.path.join(os.environ['HOME'], 'Mnemosyne', 'config.py')
 
-    muse = mnemosyne.Muse(args[0], force)
+    muse = mnemosyne.Muse(config, force)
     muse.sing()

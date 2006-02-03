@@ -212,12 +212,10 @@ class Muse:
         return em.expand(file(style).read(), locals)
 
     def sing_file(self, entries, spath, dpath):
-        if not self.force:
-            if os.path.exists(dpath):
-                smtime = max([e.mtime for e in entries])
-                dmtime = time.localtime(os.stat(dpath).st_mtime)
-                if dmtime > smtime:
-                    return
+        if not self.force and os.path.exists(dpath):
+            smtime = max([e.mtime for e in entries])
+            dmtime = time.localtime(os.stat(dpath).st_mtime)
+            if dmtime > smtime: return
 
         def write(data):
             file(dpath, 'w').write(data)
