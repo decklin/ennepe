@@ -312,11 +312,3 @@ def uniq(ns, k, tag):
         ns[k][tag] = qual(k, len(ns[k].keys()))
 
     return ns[k][tag]
-
-def escape(s):
-    """Escape HTML/XML-special characters, for use in certain types of feeds,
-    or including plain text in a page, etc."""
-    s = s.replace('&', '&amp;')
-    s = s.replace('<', '&lt;')
-    s = s.replace('>', '&gt;')
-    return s

@@ -4,10 +4,8 @@
 0.3 (2006-02-03):
 =================
 
-* Make the default Atom style provide content as HTML rather than XHTML
-  (since the rest of the example layout is HTML), and add an escape()
-  method in Muse to make this possible. This could also be used for
-  text-summary or RSS feeds.
+* Make the default Atom style mark content as HTML rather than XHTML
+  (since the rest of the example layout is HTML).
 
 0.2 (2006-02-03):
 =================
