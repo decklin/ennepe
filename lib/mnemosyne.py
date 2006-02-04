@@ -12,129 +12,6 @@ import em
 import shutil
 from rsthtml import publish_content
 
-def magic_attr(obj, rep):
-    """Return a subclassed version of obj with its repr() overridden to return
-    rep."""
-
-    class Magic(type(obj)):
-        def __repr__(self): return rep
-    return Magic(obj)
-
-def clean(s, maxwords=None):
-    """Split the given string into words, lowercase and strip all
-    non-alphanumerics from them, and join them with '-'. If maxwords is given,
-    limit the returned string to that many words. If the string is None,
-    return None."""
-
-    try:
-        words = s.strip().lower().split()[:maxwords]
-        words = [''.join([c for c in w if c.isalnum()]) for w in words]
-        return '-'.join(words)
-    except AttributeError:
-        return None
-
-namespaces = {}
-def uniq(ns, k, tag):
-    """For the given key k, which may come from a group of many keys with the
-    same value 'foo', return a string like 'foo', 'foo-1', 'foo-2', etc,
-    based on the provided namespace ns (must be a valid dict index) and unique
-    identifer tag."""
-
-    ns = namespaces.setdefault(ns, {})
-    ns.setdefault(k, {})
-
-    def qual(s, n):
-        if n == 0: return s
-        else: return '%s-%d' % (s, n)
-
-    if tag not in ns[k].keys():
-        ns[k][tag] = qual(k, len(ns[k].keys()))
-
-    return ns[k][tag]
-
-class BaseEntry:
-    """Base class for all entries. Initialized with an open file object, so it
-    may be passed to maildir.Maildir as a factory class. Parses the file's
-    contents as an email.Message object, setting a date attribute from the
-    parsed date and an mtime attribute from the Maildir filename."""
-
-    def __init__(self, fp):
-        def fixdate(d):
-            # For some bizarre reason, getdate doesn't set wday/yday/isdst...
-            return time.localtime(time.mktime(d))
-        def getstamp(mpath):
-            stamp, id, host = os.path.split(mpath)[1].split('.')
-            return int(stamp)
-
-        self.msg = email.message_from_file(fp)
-        self.date = fixdate(email.Utils.parsedate(self.msg['Date']))
-        self.mtime = time.localtime(getstamp(fp.name))
-
-    def __cmp__(self, other):
-        return cmp(time.mktime(self.date), time.mktime(other.date))
-
-    # Remember, get_* are lazy, make_* are not
-
-    def get_content(self):
-        """Read in the message's body, strip any signature, and format using
-        reStructedText."""
-
-        s = self.msg.get_payload(decode=True)
-        try: s = s[:s.rindex('-- \n')]
-        except ValueError: pass
-
-        return magic_attr(publish_content(s), s[:100])
-
-    def make_subject(self):
-        """Provide the contents of the Subject: header and a cleaned, uniq'd
-        version of same."""
-
-        subject = self.msg.get('Subject', '')
-        if subject: cleaned = clean(subject, 3)
-        else: cleaned = 'entry'
-
-        u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
-        return magic_attr(subject, u)
-
-    def get_id(self):
-        """Provide the Message-ID and a globally unique tag: URL based on it,
-        for use in feeds."""
-
-        try:
-            id = self.msg.get('Message-Id')
-            lhs, host = id[1:-1].split('@')
-            date = time.strftime('%Y-%m-%d', self.date)
-            return magic_attr(id, 'tag:%s,%s:%s' % (host, date, lhs))
-        except TypeError, ValueError:
-            return None
-
-    def get_author(self):
-        author, addr = email.Utils.parseaddr(self.msg.get('From'))
-        return magic_attr(author, clean(author))
-
-    def get_email(self):
-        """Provide the author's email address and a trivially spam-protected
-        version of same."""
-        author, addr = email.Utils.parseaddr(self.msg.get('From'))
-        cleaned = addr.replace('@', ' at ')
-        cleaned = cleaned.replace('.', ' dot ')
-        cleaned = cleaned.replace('-', ' dash ')
-        return magic_attr(addr, cleaned)
-
-    def get_tags(self):
-        """Provide a list of tags from the comma-delimited X-Tags: header."""
-        tags = [t.strip() for t in self.msg.get('X-Tags', '').split(',')]
-        return [magic_attr(t, clean(t)) for t in tags]
-
-    def get_year(self):
-        return magic_attr(self.date[0], time.strftime('%Y', self.date))
-
-    def get_month(self):
-        return magic_attr(self.date[1], time.strftime('%m', self.date))
-
-    def get_day(self):
-        return magic_attr(self.date[2], time.strftime('%d', self.date))
-
 class Muse:
     def __init__(self, config, force):
         DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
@@ -318,3 +195,126 @@ class Muse:
             exec file(spath) in locals
         except Exception, e:
             raise RuntimeError("Error running layout %s: %s" % (spath, e))
+
+class BaseEntry:
+    """Base class for all entries. Initialized with an open file object, so it
+    may be passed to maildir.Maildir as a factory class. Parses the file's
+    contents as an email.Message object, setting a date attribute from the
+    parsed date and an mtime attribute from the Maildir filename."""
+
+    def __init__(self, fp):
+        def fixdate(d):
+            # For some bizarre reason, getdate doesn't set wday/yday/isdst...
+            return time.localtime(time.mktime(d))
+        def getstamp(mpath):
+            stamp, id, host = os.path.split(mpath)[1].split('.')
+            return int(stamp)
+
+        self.msg = email.message_from_file(fp)
+        self.date = fixdate(email.Utils.parsedate(self.msg['Date']))
+        self.mtime = time.localtime(getstamp(fp.name))
+
+    def __cmp__(self, other):
+        return cmp(time.mktime(self.date), time.mktime(other.date))
+
+    # Remember, get_* are lazy, make_* are not
+
+    def get_content(self):
+        """Read in the message's body, strip any signature, and format using
+        reStructedText."""
+
+        s = self.msg.get_payload(decode=True)
+        try: s = s[:s.rindex('-- \n')]
+        except ValueError: pass
+
+        return magic_attr(publish_content(s), s[:100])
+
+    def make_subject(self):
+        """Provide the contents of the Subject: header and a cleaned, uniq'd
+        version of same."""
+
+        subject = self.msg.get('Subject', '')
+        if subject: cleaned = clean(subject, 3)
+        else: cleaned = 'entry'
+
+        u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
+        return magic_attr(subject, u)
+
+    def get_id(self):
+        """Provide the Message-ID and a globally unique tag: URL based on it,
+        for use in feeds."""
+
+        try:
+            id = self.msg.get('Message-Id')
+            lhs, host = id[1:-1].split('@')
+            date = time.strftime('%Y-%m-%d', self.date)
+            return magic_attr(id, 'tag:%s,%s:%s' % (host, date, lhs))
+        except TypeError, ValueError:
+            return None
+
+    def get_author(self):
+        author, addr = email.Utils.parseaddr(self.msg.get('From'))
+        return magic_attr(author, clean(author))
+
+    def get_email(self):
+        """Provide the author's email address and a trivially spam-protected
+        version of same."""
+        author, addr = email.Utils.parseaddr(self.msg.get('From'))
+        cleaned = addr.replace('@', ' at ')
+        cleaned = cleaned.replace('.', ' dot ')
+        cleaned = cleaned.replace('-', ' dash ')
+        return magic_attr(addr, cleaned)
+
+    def get_tags(self):
+        """Provide a list of tags from the comma-delimited X-Tags: header."""
+        tags = [t.strip() for t in self.msg.get('X-Tags', '').split(',')]
+        return [magic_attr(t, clean(t)) for t in tags]
+
+    def get_year(self):
+        return magic_attr(self.date[0], time.strftime('%Y', self.date))
+
+    def get_month(self):
+        return magic_attr(self.date[1], time.strftime('%m', self.date))
+
+    def get_day(self):
+        return magic_attr(self.date[2], time.strftime('%d', self.date))
+
+def magic_attr(obj, rep):
+    """Return a subclassed version of obj with its repr() overridden to return
+    rep."""
+
+    class Magic(type(obj)):
+        def __repr__(self): return rep
+    return Magic(obj)
+
+def clean(s, maxwords=None):
+    """Split the given string into words, lowercase and strip all
+    non-alphanumerics from them, and join them with '-'. If maxwords is given,
+    limit the returned string to that many words. If the string is None,
+    return None."""
+
+    try:
+        words = s.strip().lower().split()[:maxwords]
+        words = [''.join([c for c in w if c.isalnum()]) for w in words]
+        return '-'.join(words)
+    except AttributeError:
+        return None
+
+namespaces = {}
+def uniq(ns, k, tag):
+    """For the given key k, which may come from a group of many keys with the
+    same value 'foo', return a string like 'foo', 'foo-1', 'foo-2', etc,
+    based on the provided namespace ns (must be a valid dict index) and unique
+    identifer tag."""
+
+    ns = namespaces.setdefault(ns, {})
+    ns.setdefault(k, {})
+
+    def qual(s, n):
+        if n == 0: return s
+        else: return '%s-%d' % (s, n)
+
+    if tag not in ns[k].keys():
+        ns[k][tag] = qual(k, len(ns[k].keys()))
+
+    return ns[k][tag]
