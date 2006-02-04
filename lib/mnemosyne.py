@@ -178,8 +178,17 @@ class Muse:
             methods of the form get_* to provide lazily-evaluated attributes
             at runtime."""
 
+            def __init__(self, fp):
+                for c in (Mixin, BaseEntry):
+                    try:
+                        c.__init__(self, fp)
+                    except AttributeError:
+                        pass
+                    for n, method in c.__dict__.iteritems():
+                        if n.startswith('make_'):
+                            setattr(self, n[5:], method(self))
+
             def __getattr__(self, a):
-                # get_* is evaluated on demand
                 for c in (Mixin, BaseEntry):
                     try:
                         method = getattr(c, 'get_'+a)
@@ -194,13 +203,6 @@ class Muse:
         box = mailbox.Maildir(self.conf['entry_dir'], lambda fp: fp)
         self.entries = [Entry(fp) for fp in box]
         self.entries.sort()
-
-        # make_* is evaluated now
-        for c in (Mixin, BaseEntry):
-            for n, m in c.__dict__.iteritems():
-                if n.startswith('make_'):
-                    for e in self.entries:
-                        setattr(e, n[5:], m(e))
 
     def sing(self, entries=None, spath=None, dpath=None, what=None):
         """From the contents of spath, build output in dpath, based on the
