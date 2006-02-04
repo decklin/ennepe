@@ -41,4 +41,5 @@ cal = calendar.monthcalendar(year, m)
 </tr>
 @[end for]@
 </table>
+
 @[end for]@

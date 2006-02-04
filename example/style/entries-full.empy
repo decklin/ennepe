@@ -11,7 +11,7 @@
 <h2><a href="@base/@`e.year`/@`e.month`/@`e.day`/@`e.subject`.html">@
 @e.subject</a></h2>
 
-@e.content
+@e.content@
 
 <p>Posted at @
 <a href="@base/@`e.year`/">@`e.year`</a>-@
@@ -19,11 +19,13 @@
 <a href="@base/@`e.year`/@`e.month`/@`e.day`/">@`e.day`</a> @
 @(time.strftime('%H:%M:%S', e.date)) @
 by <a href="mailto:@e.email">@e.author</a><br>
-Tags: @
+Tags:@
 @{comma = None}@
 @[for t in e.tags]@
-@comma<a href="@base/tag/@`t`/">@t</a>@
-@{comma = ', '}@
+@comma
+<a href="@base/tag/@`t`/">@t</a>@
+@{comma = ','}@
 @[end for]@
 </p>
+
 @[end for]@
