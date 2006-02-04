@@ -33,6 +33,16 @@ script. The example provided in ``example/config.py`` explains what it
 can do and what variables can be set. By default, Mnemosyne looks for
 this file in ``~/Mnemosyne/config.py``.
 
+Usage
+=====
+
+To regenerate your blog, simply run ``mnemosyne``, or, if your config
+lives in a different location, ``mnemosyne path/to/config.py``. By
+default, only pages for which the applicable entries or layout have been
+changed since the page was last written will be evaluated; you can
+override this and rebuild the entire blog with the ``--force`` option.
+(At the moment, this is your only recourse if you change your styles.)
+
 Layout
 ======
 
@@ -134,16 +144,6 @@ available:
 
 * ``year``, ``month``, ``day``: What the names imply. The values are
   ints; the repr()s are formatted with ``time.strftime``.
-
-Usage
-=====
-
-To regenerate your blog, simply run ``mnemosyne``, or, if your config
-lives in a different location, ``mnemosyne path/to/config.py``. By
-default, only pages for which the applicable entries or layout have been
-changed since the page was last written will be evaluated; you can
-override this and rebuild the entire blog with the ``--force`` option.
-(At the moment, this is your only recourse if you change your styles.)
 
 Future and Caveats
 ==================
