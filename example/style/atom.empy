@@ -35,7 +35,7 @@ def escape(s):
     <email>@blogemail</email>
     <uri>@bloghome</uri>
   </author>
-  @[for e in entries]
+@[for e in entries]@
   <entry>
     <title type="text">@(e.subject ? e.subject ! 'Entry')</title>
     <link rel="alternate" type="text/html"
@@ -47,5 +47,5 @@ def escape(s):
       @escape(e.content)
     </content>
   </entry>
-  @[end for]
+@[end for]@
 </feed>
