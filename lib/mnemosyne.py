@@ -94,25 +94,32 @@ class Muse:
         if not spath: spath = self.conf['layout_dir']
         if not dpath: dpath = self.conf['output_dir']
 
-        def stale(spath, dpath):
+        def stale(dpath, spath, entries=None):
+            """Test if the file named by dpath is nonexistent or older than
+            either the file named by spath or any entry in the given list of
+            entries. If --force has been turned on, always return True."""
+
             if self.force or not os.path.exists(dpath):
                 return True
             else:
-                smtime = max([e.mtime for e in entries])
-                dmtime = time.localtime(os.stat(dpath).st_mtime)
-                return smtime > dmtime
+                dmtime = os.path.getmtime(dpath)
+                smtimes = [os.path.getmtime(spath)]
+                if entries: smtimes += [time.mktime(e.mtime) for e in entries]
+                return dmtime < max(smtimes)
 
         if what:
             source, dest = what
             spath = os.path.join(spath, source)
             dpath = os.path.join(dpath, dest)
             if source not in self.conf['ignore']:
-                if os.path.isfile(spath) and stale(spath, dpath):
+                if os.path.isfile(spath):
                     if os.stat(spath).st_mode & stat.S_IXUSR:
-                        self.sing_file(entries, spath, dpath)
+                        if stale(dpath, spath, entries):
+                            self.sing_file(entries, spath, dpath)
                     else:
-                        print 'Copied %s' % dpath
-                        shutil.copyfile(spath, dpath)
+                        if stale(dpath, spath):
+                            print 'Copied %s' % dpath
+                            shutil.copyfile(spath, dpath)
                 elif os.path.isdir(spath):
                     self.sing(entries, spath, dpath)
         else:

@@ -1,5 +1,5 @@
-* Don't copy ordinary files from layout to output unless they have been
-  modified.
+* Don't copy ordinary files from layout unless they have been modified.
+  Do update variable files if their layouts have been modified.
 
 0.3 (2006-02-03):
 =================
