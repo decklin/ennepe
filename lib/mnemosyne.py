@@ -220,12 +220,20 @@ class Muse:
         if not spath: spath = self.conf['layout_dir']
         if not dpath: dpath = self.conf['output_dir']
 
+        def stale(spath, dpath):
+            if self.force or not os.path.exists(dpath):
+                return True
+            else:
+                smtime = max([e.mtime for e in entries])
+                dmtime = time.localtime(os.stat(dpath).st_mtime)
+                return smtime > dmtime
+
         if what:
             source, dest = what
             spath = os.path.join(spath, source)
             dpath = os.path.join(dpath, dest)
             if source not in self.conf['ignore']:
-                if os.path.isfile(spath):
+                if os.path.isfile(spath) and stale(spath, dpath):
                     if os.stat(spath).st_mode & stat.S_IXUSR:
                         self.sing_file(entries, spath, dpath)
                     else:
@@ -299,11 +307,6 @@ class Muse:
         script, evaluate it given the locals from config plus muse (ourself),
         write (a callback which actually writes the file), and entries (the
         given entries)."""
-
-        if not self.force and os.path.exists(dpath):
-            smtime = max([e.mtime for e in entries])
-            dmtime = time.localtime(os.stat(dpath).st_mtime)
-            if dmtime > smtime: return
 
         def write(data):
             file(dpath, 'w').write(data)
