@@ -19,7 +19,8 @@ def escape(s):
 }@
 @
 <?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet href="http://www.atomenabled.org/css/atom.css" type="text/css"?>
+<?xml-stylesheet href="http://www.atomenabled.org/css/atom.css"
+  type="text/css"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>@blogname</title>
   <id>@base/</id>
@@ -37,7 +38,7 @@ def escape(s):
   </author>
 @[for e in entries]@
   <entry>
-    <title type="text">@(e.subject ? e.subject ! 'Entry')</title>
+    <title type="text">@(e.subject ? e.subject ! 'No Subject')</title>
     <link rel="alternate" type="text/html"
       href="@base/@`e.year`/@`e.month`/@`e.day`/@`e.subject`.html" />
     <id>@`e.id`</id>
