@@ -2,8 +2,6 @@ __layoutname__ = "Year View"
 __layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
 __layoutdescription__ = "Calendar of all dates in a given year."
 
-import time
-
 title = 'Year %s - %s' % (muse.where[-2], blogname)
 body = muse.expand('calendar', locals())
 
