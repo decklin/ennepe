@@ -170,12 +170,6 @@ class Muse:
         except Exception, e:
             raise RuntimeError("Error running style %s: %s" % (style, e))
 
-    def escape(self, s):
-        s = s.replace('&', '&amp;')
-        s = s.replace('<', '&lt;')
-        s = s.replace('>', '&gt;')
-        return s
-
     def sing_file(self, entries, spath, dpath):
         """Given an actual source and dest file, where the source is a layout
         script, evaluate it given the locals from config plus muse (ourself),
@@ -318,3 +312,11 @@ def uniq(ns, k, tag):
         ns[k][tag] = qual(k, len(ns[k].keys()))
 
     return ns[k][tag]
+
+def escape(s):
+    """Escape HTML/XML-special characters, for use in certain types of feeds,
+    or including plain text in a page, etc."""
+    s = s.replace('&', '&amp;')
+    s = s.replace('<', '&lt;')
+    s = s.replace('>', '&gt;')
+    return s
