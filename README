@@ -138,24 +138,25 @@ available:
 Usage
 =====
 
-To regenerate your blog, simply run ``mnemosyne``, or, if your
-configuration lives in a different location, ``mnemosyne
-path/to/config.py``. By default, only pages for which some entries have
-been added or modified since the page was last written will be
-evaluated; you can override this and do the entire blog with the
-``--force`` option. (At the moment, this is your only recourse if you
-change part of your layout or styles.)
+To regenerate your blog, simply run ``mnemosyne``, or, if your config
+lives in a different location, ``mnemosyne path/to/config.py``. By
+default, only pages for which the applicable entries or layout have been
+changed since the page was last written will be evaluated; you can
+override this and rebuild the entire blog with the ``--force`` option.
+(At the moment, this is your only recourse if you change your styles.)
 
-Caveats
-=======
+Future and Caveats
+==================
 
-Mnemosyne pokes at bits of ``rfc822.Message`` and ``calendar`` which may
-or may not be intended to be public, and depends on the Maildir really
-being a Maildir. I intend to write an SQLite backend once someone
-complains that it takes too long to load their 10,000 entries.
+I fully intend to write an SQLite backend once someone complains that it
+takes too long to load their 100,000 entries. Be loquacious. At the
+moment, however, Mnemosyne depends on the Maildir really being a Maildir
+(for reliable modification times) and the standard ``email`` and
+``mailbox`` modules, which could stand to be a little more generic.
 
-Mnemosyne also uses some deep magic which may or may not be good Python
-style. Comments and suggestions are welcome.
+All of the custom-lazy-attribute, underscored-directories, and
+DWIM-key-inversion deep magic may or may not be good Python style.
+Comments and suggestions are welcome.
 
 About the Name
 ==============
