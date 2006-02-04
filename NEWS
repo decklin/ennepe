@@ -1,3 +1,5 @@
+* Added contrib directory with automnemosyne.
+
 * Don't copy ordinary files from layout unless they have been modified.
   Do update variable files if their layouts have been modified.
 

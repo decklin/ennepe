@@ -1,0 +1,30 @@
+#!/usr/bin/python
+
+import sys
+import os
+import email
+import time
+
+# automnemosyne -- Decklin Foster <decklin@red-bean.com>
+#
+# If you deliver messages to your entry_dir via procmail, use a carbon copy
+# recipe for the Maildir and a pipe to this program as the final destination.
+# Your blog will then be updated automatically. Be sure to redirect output to
+# a suitable log file.
+
+def fmt_time():
+    return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+
+if __name__ == '__main__':
+    m = email.message_from_file(sys.stdin)
+
+    print "Automatically rebuilding at %s" % fmt_time()
+    print "on receipt of '%s' from %s:" % (m['Subject'], m['From'])
+    print; sys.stdout.flush()
+
+    argv = ['mnemosyne'] + sys.argv[1:]
+    status = os.spawnvp(os.P_WAIT, argv[0], argv)
+
+    print
+    print "Finished at %s with status %d" % (fmt_time(), status)
+    print
