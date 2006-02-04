@@ -1,25 +1,25 @@
 @%stylename        "Calendar"
 @%styleauthor      "Decklin Foster"
 @%styleemail       "decklin@red-bean.com"
-@%styledescription "Table of days in the given month, with links if applicable."
+@%styledescription "Table of days in each month, with links if applicable."
 @{
+import time
 import calendar
 
+year = entries[0].date[0]
 months = {}
 for e in entries:
-    # ugh make these back into plain types ugh ugh
-    m = int(e.month)
-    d = int(e.day)
-    months.setdefault(m, {})
-    months[m].setdefault(d, [])
-    months[m][d].append(e)
+    months.setdefault(e.month, {})
+    months[e.month].setdefault(e.day, [])
+    months[e.month][e.day].append(e)
 }@
 @
-@[for m, days in months.items()]@
-@{cal = calendar.monthcalendar(int(y), int(m))}
-<h3>@calendar.month_name[int(m)]</h3>
-
-<!-- cal @cal, months @months, y @y -->
+@[for m, days in months.iteritems()]@
+@{
+monthname = time.strftime('%B', days.values()[0][0].date)
+cal = calendar.monthcalendar(year, m)
+}@
+<h3>@monthname</h3>
 
 <table class="cal">
 @[for week in cal]@

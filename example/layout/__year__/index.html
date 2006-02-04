@@ -4,8 +4,7 @@ __layoutdescription__ = "Calendar of all dates in a given year."
 
 import time
 
-y = muse.where[-2]
-title = 'Year %s - %s' % (y, blogname)
+title = 'Year %s - %s' % (muse.where[-2], blogname)
 body = muse.expand('calendar', locals())
 
 write(muse.expand('page', locals()))
