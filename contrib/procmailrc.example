@@ -1,0 +1,24 @@
+# Here is an example of how to receive blog entries via a public email
+# address, and automatically update the blog on receipt of a valid signed
+# message. First, mime-gpg-decode verifies and discards the signature. If it
+# succeeds, the message is copied to the entry_dir and then delivered to
+# automnemosyne. If it fails, the message is sent to /dev/null.
+
+:0
+* ^TO_blog@example.invalid
+{
+    :0fW
+    | mime-gpg-decode
+
+    :0a
+    {
+        :0c
+        $HOME/Mnemosyne/entries/
+
+        :0
+        | automnemosyne >>$HOME/Mnemosyne/automnemosyne.log
+    }
+
+    :0E
+    /dev/null
+}

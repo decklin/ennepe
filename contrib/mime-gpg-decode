@@ -1,0 +1,62 @@
+#!/usr/bin/python
+
+import sys
+import os
+import email
+import tempfile
+
+# mime-gpg-decode -- Decklin Foster <decklin@red-bean.com>
+#
+# If you send your entries by mail to a public address, you will want to check
+# on the receiving end that messages are not spam or malicious before
+# delivering them. This filter will take a multipart/signed mail, run it
+# through gpg --verify, and discard the signature part. The exit status can
+# then be used to deliver valid signed messages to one destination and invalid
+# or unsigned messages to another.
+
+def validate(msg):
+    try:
+        parent, body, sig = [part for part in msg.walk()]
+    except ValueError:
+        raise RuntimeError('message must have exactly two body parts')
+
+    try:
+        assert parent.get_content_type() == 'multipart/signed'
+        assert parent.get_param('protocol') == 'application/pgp-signature'
+        assert parent.get_param('micalg') in ('pgp-sha1') # XXX: or...?
+        assert sig.get_content_type() == 'application/pgp-signature'
+    except AssertionError:
+        raise RuntimeError('message must be PGP-SHA1 multipart/signed')
+
+    return parent, body, sig
+
+def writetmp(s):
+    tmpf = tempfile.NamedTemporaryFile()
+    tmpf.write(s)
+    tmpf.flush()
+    return tmpf
+
+if __name__ == '__main__':
+    msg = email.message_from_file(sys.stdin)
+    try:
+        parent, body, sig = validate(msg)
+    except RuntimeError, e:
+        print >>sys.stderr, 'error: %s' % e
+        sys.exit(1)
+
+    bodylines = str(body).split('\n')[1:]
+    bodyfile = writetmp('\015\012'.join(bodylines))
+
+    sigfile = writetmp(sig.get_payload())
+
+    status = os.system('gpg --verify %s %s >/dev/null 2>&1' %
+        (sigfile.name, bodyfile.name))
+
+    # we'll be cheap and reuse parent
+    parent.set_payload(body.get_payload(), body.get_charset())
+    for k, v in body.items():
+        del parent[k]
+        parent[k] = v
+
+    print str(parent),
+    sys.exit(os.WEXITSTATUS(status))
