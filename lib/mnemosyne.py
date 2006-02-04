@@ -5,6 +5,7 @@ __url__ = 'http://www.red-bean.com/~decklin/software/mnemosyne/'
 
 import os
 import mailbox
+import email
 import time
 import stat
 import em
@@ -52,33 +53,33 @@ def uniq(ns, k, tag):
     return ns[k][tag]
 
 class BaseEntry:
-    """Base class for an entry, initialized from an rfc822.Message object
-    contained in a mailbox.Maildir. Provides date and mtime attributes, and
-    some simple get_* and make_* methods for the derived Entry class to
-    call."""
+    """Base class for all entries. Initialized with an open file object, so it
+    may be passed to maildir.Maildir as a factory class. Parses the file's
+    contents as an email.Message object, setting a date attribute from the
+    parsed date and an mtime attribute from the Maildir filename."""
 
-    def __init__(self, m):
+    def __init__(self, fp):
         def fixdate(d):
             # For some bizarre reason, getdate doesn't set wday/yday/isdst...
             return time.localtime(time.mktime(d))
-        def getstamp(maildirpath):
-            stamp, id, host = os.path.split(maildirpath)[1].split('.')
+        def getstamp(mpath):
+            stamp, id, host = os.path.split(mpath)[1].split('.')
             return int(stamp)
 
-        self.m = m
-        self.date = fixdate(self.m.getdate('Date'))
-        self.mtime = time.localtime(getstamp(self.m.fp.name))
+        self.msg = email.message_from_file(fp)
+        self.date = fixdate(email.Utils.parsedate(self.msg['Date']))
+        self.mtime = time.localtime(getstamp(fp.name))
 
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
 
-    # Remember, get_* is lazy, make_* is not
+    # Remember, get_* are lazy, make_* are not
 
     def get_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
-        s = self.m.fp.read()
+        s = self.msg.get_payload(decode=True)
         try: s = s[:s.rindex('-- \n')]
         except ValueError: pass
 
@@ -88,12 +89,9 @@ class BaseEntry:
         """Provide the contents of the Subject: header and a cleaned, uniq'd
         version of same."""
 
-        try:
-            subject = self.m['Subject']
-            cleaned = clean(subject, 3)
-        except KeyError:
-            subject = ''
-            cleaned = 'entry'
+        subject = self.msg.get('Subject', '')
+        if subject: cleaned = clean(subject, 3)
+        else: cleaned = 'entry'
 
         u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
         return magic_attr(subject, u)
@@ -103,33 +101,30 @@ class BaseEntry:
         for use in feeds."""
 
         try:
-            id = self.m['Message-Id']
+            id = self.msg.get('Message-Id')
             lhs, host = id[1:-1].split('@')
             date = time.strftime('%Y-%m-%d', self.date)
             return magic_attr(id, 'tag:%s,%s:%s' % (host, date, lhs))
-        except KeyError:
+        except TypeError, ValueError:
             return None
 
     def get_author(self):
-        author = self.m.getaddr('From')[0]
+        author, addr = email.Utils.parseaddr(self.msg.get('From'))
         return magic_attr(author, clean(author))
 
     def get_email(self):
         """Provide the author's email address and a trivially spam-protected
         version of same."""
-        email = self.m.getaddr('From')[1]
-        cleaned = email.replace('@', ' at ')
+        author, addr = email.Utils.parseaddr(self.msg.get('From'))
+        cleaned = addr.replace('@', ' at ')
         cleaned = cleaned.replace('.', ' dot ')
         cleaned = cleaned.replace('-', ' dash ')
-        return magic_attr(email, cleaned)
+        return magic_attr(addr, cleaned)
 
     def get_tags(self):
         """Provide a list of tags from the comma-delimited X-Tags: header."""
-        try:
-            tags = [t.strip() for t in self.m['X-Tags'].split(',')]
-            return [magic_attr(t, clean(t)) for t in tags]
-        except KeyError:
-            return []
+        tags = [t.strip() for t in self.msg.get('X-Tags', '').split(',')]
+        return [magic_attr(t, clean(t)) for t in tags]
 
     def get_year(self):
         return magic_attr(self.date[0], time.strftime('%Y', self.date))
@@ -162,7 +157,7 @@ class Muse:
             }
 
         if not os.path.exists(config):
-            raise RuntimeError("config %s does not exist")
+            raise RuntimeError("config %s does not exist" % config)
 
         try:
             exec file(config) in self.conf
@@ -195,9 +190,9 @@ class Muse:
                 else:
                     return getattr(BaseEntry, a)
 
-        # have to do this after we define Entry but before we iter it
-        box = mailbox.Maildir(self.conf['entry_dir'])
-        self.entries = [Entry(msg) for msg in box]
+        # XXX: Should just pass in Entry as the factory; doesn't work
+        box = mailbox.Maildir(self.conf['entry_dir'], lambda fp: fp)
+        self.entries = [Entry(fp) for fp in box]
         self.entries.sort()
 
         # make_* is evaluated now

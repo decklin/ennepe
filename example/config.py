@@ -44,19 +44,20 @@ locals['blogname'] = 'Example Blog'
 locals['base'] = 'http://example.invalid'
 
 class EntryMixin:
-    # Pull anything you want out of the message (self.m, an rfc822.Message
+    # Pull anything you want out of the message (self.msg, an email.Message
     # object), and use it to provide a new attribute
 
     def get_foobar(self):
-        foobar = self.m.get('X-Foobar')
+        foobar = self.msg['X-Foobar']
         cleaned = mnemosyne.clean(foobar, 3)
         return mnemosyne.magic_attr(foobar, cleaned)
 
     ## You could use Markdown instead of ReST to write entries; I'll comment
-    ## this out since you need to install it from http://err.no/pymarkdown/
+    ## this out since you'd need to install it from http://err.no/pymarkdown/
+    ## and import pymarkdown
     #
     #def get_content(self):
-    #    s = self.m.fp.read()
+    #    s = self.msg.get_payload(decode=True)
     #    try: s = s[:s.rindex('-- \n')]
     #    except ValueError: pass
     #    return magic_attr(pymarkdown.Markdown(s), s[:100])
