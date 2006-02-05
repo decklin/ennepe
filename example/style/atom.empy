@@ -45,7 +45,7 @@ def escape(s):
     <published>@rfc3339(e.date)</published>
     <updated>@rfc3339(e.mtime)</updated>
     <content type="html">
-      @escape(e.content)
+      @escape(e.content)@
     </content>
   </entry>
 @[end for]@
