@@ -22,6 +22,10 @@ if __name__ == '__main__':
     print "on receipt of '%s' from %s:" % (m['Subject'], m['From'])
     print; sys.stdout.flush()
 
+    # If we were invoked from procmail, then our umask is probably 077. This
+    # would be a bad idea, as we want all output files to be world-readable.
+    os.umask(022)
+
     argv = ['mnemosyne'] + sys.argv[1:]
     status = os.spawnvp(os.P_WAIT, argv[0], argv)
 
