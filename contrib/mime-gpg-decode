@@ -53,10 +53,13 @@ if __name__ == '__main__':
         (sigfile.name, bodyfile.name))
 
     # we'll be cheap and reuse parent
-    parent.set_payload(body.get_payload(), body.get_charset())
-    for k, v in body.items():
-        del parent[k]
-        parent[k] = v
+    del parent['Content-Type']
+    del parent['Content-Disposition']
+    del parent['Content-Transfer-Encoding']
+
+    parent.set_payload(body.get_payload(decode=True), body.get_charset())
+    parent['Content-Type'] = body['Content-Type']
+    parent['Content-Disposition'] = body['Content-Disposition']
 
     print str(parent),
     sys.exit(os.WEXITSTATUS(status))
