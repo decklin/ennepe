@@ -113,8 +113,10 @@ available:
 
 * ``date``: a time-tuple indicating the date on the Date: header.
 
-* ``mtime``: a time-tuple indicating when the actual file containing the
-  message was modified.
+* ``mtime``: a time-tuple indicating when the message's Maildir file was
+  created. This is not the mtime of the file itself! Messing with
+  Maildirs by hand is not recommended. To edit an entry, open the
+  Maildir in mutt and hit the "e" key on its message.
 
 * ``content``: the body of the entry, processed with reStructuredText.
   Its repr() is the first 100 characters of the unprocessed body
