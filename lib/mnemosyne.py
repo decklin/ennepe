@@ -205,15 +205,12 @@ class BaseEntry:
 
     def __init__(self, fp):
         def fixdate(d):
-            # For some bizarre reason, getdate doesn't set wday/yday/isdst...
+            # For some bizarre reason, parsedate doesn't set wday/yday/isdst
             return time.localtime(time.mktime(d))
-        def getstamp(mpath):
-            stamp, id, host = os.path.split(mpath)[1].split('.')
-            return int(stamp)
 
         self.msg = email.message_from_file(fp)
         self.date = fixdate(email.Utils.parsedate(self.msg['Date']))
-        self.mtime = time.localtime(getstamp(fp.name))
+        self.mtime = time.localtime(os.path.getmtime(fp.name))
 
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
