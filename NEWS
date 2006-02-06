@@ -1,3 +1,6 @@
+* Make mime-gpg-decode actually decode quoted-printable, not just the
+  multipart/signed stuff.
+
 0.4 (2006-02-04):
 =================
 
