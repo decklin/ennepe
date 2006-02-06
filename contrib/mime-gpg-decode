@@ -52,11 +52,14 @@ if __name__ == '__main__':
     status = os.system('gpg --verify %s %s >/dev/null 2>&1' %
         (sigfile.name, bodyfile.name))
 
-    # we'll be cheap and reuse parent
-    parent.set_payload(body.get_payload(), body.get_charset())
-    for k, v in body.items():
-        del parent[k]
-        parent[k] = v
+    # email.Message.__setitem__ can bite me
+    def set_header(msg, k, v):
+        del msg[k]; msg[k] = v
+
+    # We'll be cheap and reuse parent
+    for k, v in body.items(): set_header(parent, k, v)
+    set_header(parent, 'Content-Transfer-Encoding', '8bit')
+    parent.set_payload(body.get_payload(decode=True), body.get_charset())
 
     print str(parent),
     sys.exit(os.WEXITSTATUS(status))
