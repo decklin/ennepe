@@ -209,6 +209,8 @@ class BaseEntry:
             return self.pub_cache[self.id]
         except KeyError:
             s = self.msg.get_payload(decode=True)
+            if not s: return ''
+
             try: s = s[:s.rindex('-- \n')]
             except ValueError: pass
 
@@ -240,7 +242,7 @@ class BaseEntry:
             date = time.strftime('%Y-%m-%d', self.date)
             return self.magic(id, 'tag:%s,%s:%s' % (host, date, local))
         except KeyError, ValueError:
-            return None
+            return ''
 
     def _init_author(self):
         author, addr = email.Utils.parseaddr(self.msg.get('From'))
@@ -256,7 +258,7 @@ class BaseEntry:
             cleaned = cleaned.replace('-', ' dash ')
             return self.magic(addr, cleaned)
         except KeyError:
-            return None
+            return ''
 
     def _init_tags(self):
         """Provide a list of tags from the comma-delimited X-Tags: header."""
