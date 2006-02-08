@@ -3,21 +3,25 @@
 #
 # This file is a Python script. You can set the following variables here:
 #
-# * ``entries_dir``: a Maildir containing all the blog entries.
-# * ``layout_dir``: the blog's layout, as a skeleton directory tree.
-# * ``style_dir``: EmPy templates used for filling the layouts.
-# * ``output_dir``: location where we will write the generated pages.
+#   * ``entries_dir``: a Maildir containing all the blog entries.
+#   * ``layout_dir``: the blog's layout, as a skeleton directory tree.
+#   * ``style_dir``: EmPy templates used for filling the layouts.
+#   * ``output_dir``: location where we will write the generated pages.
 #
 # These default to $HOME/Mnemosyne/{entries,layout,style,htdocs} respectively.
 #
-# * ``locals``: a dict of default local variables passed to all templates.
+#   * ``locals``: a dict of default local variables passed to all templates.
 #
 # This initially contains the keys __version__, __url__, __author__, and
 # __email__ from Mnemosyne itself. You can of course add keys for your
 # own name, email, etc, and any other information you want to use in
 # your layout. The example layout's styles use ``blogname`` and ``base``.
 #
-# * ``ignore``: a list of file names in the layout tree to ignore.
+#   * ``charset``: the encoding to write generated files in.
+#
+# This defaults to whatever your locale uses.
+#
+#   * ``ignore``: a list of file names in the layout tree to ignore.
 #
 # This defaults to ('.svn', 'CVS').
 #
@@ -47,16 +51,16 @@ class EntryMixin:
     # Pull anything you want out of the message (self.msg, an email.Message
     # object), and use it to provide a new attribute
 
-    def get_foobar(self):
+    def _prop_foobar(self):
         foobar = self.msg['X-Foobar']
         cleaned = mnemosyne.clean(foobar, 3)
-        return mnemosyne.magic_attr(foobar, cleaned)
+        return mnemosyne.magic(foobar, cleaned)
 
     ## You could use Markdown instead of ReST to write entries; I'll comment
     ## this out since you'd need to install it from http://err.no/pymarkdown/
-    ## and import pymarkdown
+    ## and ``import pymarkdown``.
     #
-    #def get_content(self):
+    #def _init_content(self):
     #    s = self.msg.get_payload(decode=True)
     #    try: s = s[:s.rindex('-- \n')]
     #    except ValueError: pass

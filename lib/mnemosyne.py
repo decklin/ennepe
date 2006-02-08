@@ -4,27 +4,28 @@ __email__ = 'decklin@red-bean.com'
 __url__ = 'http://www.red-bean.com/~decklin/software/mnemosyne/'
 
 import os
+import locale
 import mailbox
 import email, email.Message, email.Header
 import time
 import stat
-import em
 import shutil
+import em
 from rsthtml import publish_content
 
 class Muse:
     def __init__(self, config, force):
-        DEF_BASE_DIR = os.path.join(os.environ['HOME'], 'Mnemosyne')
-        DEF_IGNORE = ('.svn', 'CVS')
-
-        self.where = []
         self.force = force
+        self.where = []
+
+        default_dir = os.path.join(os.environ['HOME'], 'Mnemosyne')
         self.conf = {
-            'entry_dir': os.path.join(DEF_BASE_DIR, 'entries'),
-            'layout_dir': os.path.join(DEF_BASE_DIR, 'layout'),
-            'style_dir': os.path.join(DEF_BASE_DIR, 'style'),
-            'output_dir': os.path.join(DEF_BASE_DIR, 'htdocs'),
-            'ignore': DEF_IGNORE,
+            'entry_dir': os.path.join(default_dir, 'entries'),
+            'layout_dir': os.path.join(default_dir, 'layout'),
+            'style_dir': os.path.join(default_dir, 'style'),
+            'output_dir': os.path.join(default_dir, 'htdocs'),
+            'ignore': ('.svn', 'CVS'),
+            'charset': None,
             'locals': {
                 '__version__': __version__,
                 '__author__': __author__,
@@ -42,17 +43,18 @@ class Muse:
         except Exception, e:
             raise RuntimeError("Error running config: %s" % e)
 
-        try:
-            Entry.__bases__ += (self.conf['EntryMixin'],)
-        except KeyError:
-            pass
+        try: Entry.__bases__ += (self.conf['EntryMixin'],)
+        except KeyError: pass
 
         # It would be nice if the factory could decide whether it needs to
         # open the file or not. All we need to do here is sort by mtime, and
         # all we need for that is the filename/inode itself. But either way we
         # need to grab everything from the iterator up front.
 
-        self.box = mailbox.Maildir(self.conf['entry_dir'], Entry)
+        def factory(fp):
+            return Entry(fp, self.conf['charset'])
+
+        self.box = mailbox.Maildir(self.conf['entry_dir'], factory)
         self.entries = [e for e in self.box]
         self.entries.sort()
 
@@ -178,7 +180,7 @@ class BaseEntry:
     contents as a Message object, setting a date attribute from the parsed
     date and an mtime attribute from the Maildir filename."""
 
-    def __init__(self, fp):
+    def __init__(self, fp, enc):
         def fixdate(d):
             # For some bizarre reason, parsedate doesn't set wday/yday/isdst.
             return time.localtime(time.mktime(d))
@@ -190,6 +192,7 @@ class BaseEntry:
         self.msg = email.message_from_file(fp, Message)
         self.date = fixdate(email.Utils.parsedate(self.msg['Date']))
         self.mtime = time.localtime(getstamp(fp.name))
+        self.magic = lambda obj, rep: magic(obj, rep, enc)
 
     def __cmp__(self, other):
         if other:
@@ -205,7 +208,7 @@ class BaseEntry:
         try: s = s[:s.rindex('-- \n')]
         except ValueError: pass
 
-        return magic_attr(publish_content(s), s[:100])
+        return self.magic(publish_content(s), s[:100])
 
     def _prop_subject(self):
         """Provide the contents of the Subject: header and a cleaned, uniq'd
@@ -219,7 +222,7 @@ class BaseEntry:
             cleaned = 'entry'
 
         u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
-        return magic_attr(subject, u)
+        return self.magic(subject, u)
 
     def _prop_id(self):
         """Provide the Message-ID and a globally unique tag: URL based on it,
@@ -228,13 +231,13 @@ class BaseEntry:
         try:
             id, host = self.msg['Message-Id'][1:-1].split('@')
             date = time.strftime('%Y-%m-%d', self.date)
-            return magic_attr(id, 'tag:%s,%s:%s' % (host, date, id))
+            return self.magic(id, 'tag:%s,%s:%s' % (host, date, id))
         except KeyError, ValueError:
             return None
 
     def _prop_author(self):
         author, addr = email.Utils.parseaddr(self.msg.get('From'))
-        return magic_attr(author, clean(author))
+        return self.magic(author, clean(author))
 
     def _prop_email(self):
         """Provide the author's email address and a trivially spam-protected
@@ -244,7 +247,7 @@ class BaseEntry:
             cleaned = addr.replace('@', ' at ')
             cleaned = cleaned.replace('.', ' dot ')
             cleaned = cleaned.replace('-', ' dash ')
-            return magic_attr(addr, cleaned)
+            return self.magic(addr, cleaned)
         except KeyError:
             return None
 
@@ -252,18 +255,18 @@ class BaseEntry:
         """Provide a list of tags from the comma-delimited X-Tags: header."""
         try:
             tags = [t.strip() for t in self.msg['X-Tags'].split(',')]
-            return [magic_attr(t, clean(t)) for t in tags]
+            return [self.magic(t, clean(t)) for t in tags]
         except KeyError:
             return []
 
     def _prop_year(self):
-        return magic_attr(self.date[0], time.strftime('%Y', self.date))
+        return self.magic(self.date[0], time.strftime('%Y', self.date))
 
     def _prop_month(self):
-        return magic_attr(self.date[1], time.strftime('%m', self.date))
+        return self.magic(self.date[1], time.strftime('%m', self.date))
 
     def _prop_day(self):
-        return magic_attr(self.date[2], time.strftime('%d', self.date))
+        return self.magic(self.date[2], time.strftime('%d', self.date))
 
 class Entry(BaseEntry):
     """Actual entry class. Will search the user-provided mixin class
@@ -272,9 +275,9 @@ class Entry(BaseEntry):
     methods of the form _prop_* to provide properties to be evaluated on
     demand."""
 
-    def __init__(self, fp):
+    def __init__(self, fp, enc):
         for _class in self.__class__.__bases__:
-            try: _class.__init__(self, fp)
+            try: _class.__init__(self, fp, enc)
             except AttributeError: pass
 
             for k, v in _class.__dict__.iteritems():
@@ -302,7 +305,7 @@ class Message(email.Message.Message):
         else:
             raise KeyError
 
-def magic_attr(obj, rep):
+def magic(obj, rep, enc=None):
     """Make obj into something suitable for passing to a layout. Returns an
     object exactly like obj, except its repr() is rep and both are encoded if
     they were unicode (layouts must serialize as a str, so giving them unicode
@@ -310,8 +313,9 @@ def magic_attr(obj, rep):
     unicode string, and do not care about using its repr() in your layout, you
     are not required to use this function."""
 
-    if type(obj) is unicode: obj = obj.encode('utf-8')
-    if type(rep) is unicode: rep = rep.encode('utf-8')
+    if not enc: enc = locale.getpreferredencoding()
+    if type(obj) is unicode: obj = obj.encode(enc)
+    if type(rep) is unicode: rep = rep.encode(enc)
 
     _class = type("Magic", (type(obj),), {'__repr__': lambda self: rep})
     return _class(obj)
