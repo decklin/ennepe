@@ -9,7 +9,7 @@ import datetime
 
 def rfc3339(date):
     date = datetime.datetime.fromtimestamp(time.mktime(date))
-    return date.isoformat() + "Z"
+    return date.isoformat() + 'Z'
 
 def escape(s):
     s = s.replace('&', '&amp;')

@@ -5,7 +5,7 @@ __url__ = 'http://www.red-bean.com/~decklin/software/mnemosyne/'
 
 import os
 import mailbox
-import email
+import email, email.Message, email.Header
 import time
 import stat
 import em
@@ -77,6 +77,7 @@ class Muse:
                     return getattr(BaseEntry, a)
 
         # XXX: Should just pass in Entry as the factory; doesn't work
+        # XXX: still?
         box = mailbox.Maildir(self.conf['entry_dir'], lambda fp: fp)
         self.entries = [Entry(fp) for fp in box]
         self.entries.sort()
@@ -212,7 +213,7 @@ class BaseEntry:
             stamp, id, host = os.path.split(mpath)[1].split('.')
             return int(stamp)
 
-        self.msg = email.message_from_file(fp)
+        self.msg = email.message_from_file(fp, Message)
         self.date = fixdate(email.Utils.parsedate(self.msg['Date']))
         self.mtime = time.localtime(getstamp(fp.name))
 
@@ -235,9 +236,12 @@ class BaseEntry:
         """Provide the contents of the Subject: header and a cleaned, uniq'd
         version of same."""
 
-        subject = self.msg.get('Subject', '')
-        if subject: cleaned = clean(subject, 3)
-        else: cleaned = 'entry'
+        try:
+            subject = self.msg['Subject']
+            cleaned = clean(subject, 3)
+        except KeyError:
+            subject = ''
+            cleaned = 'entry'
 
         u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
         return magic_attr(subject, u)
@@ -247,11 +251,10 @@ class BaseEntry:
         for use in feeds."""
 
         try:
-            id = self.msg.get('Message-Id')
-            lhs, host = id[1:-1].split('@')
+            id, host = self.msg['Message-Id'][1:-1].split('@')
             date = time.strftime('%Y-%m-%d', self.date)
-            return magic_attr(id, 'tag:%s,%s:%s' % (host, date, lhs))
-        except TypeError, ValueError:
+            return magic_attr(id, 'tag:%s,%s:%s' % (host, date, id))
+        except KeyError, ValueError:
             return None
 
     def get_author(self):
@@ -261,16 +264,22 @@ class BaseEntry:
     def get_email(self):
         """Provide the author's email address and a trivially spam-protected
         version of same."""
-        author, addr = email.Utils.parseaddr(self.msg.get('From'))
-        cleaned = addr.replace('@', ' at ')
-        cleaned = cleaned.replace('.', ' dot ')
-        cleaned = cleaned.replace('-', ' dash ')
-        return magic_attr(addr, cleaned)
+        try:
+            author, addr = email.Utils.parseaddr(self.msg['From'])
+            cleaned = addr.replace('@', ' at ')
+            cleaned = cleaned.replace('.', ' dot ')
+            cleaned = cleaned.replace('-', ' dash ')
+            return magic_attr(addr, cleaned)
+        except KeyError:
+            return None
 
     def get_tags(self):
         """Provide a list of tags from the comma-delimited X-Tags: header."""
-        tags = [t.strip() for t in self.msg.get('X-Tags', '').split(',')]
-        return [magic_attr(t, clean(t)) for t in tags]
+        try:
+            tags = [t.strip() for t in self.msg['X-Tags'].split(',')]
+            return [magic_attr(t, clean(t)) for t in tags]
+        except KeyError:
+            return []
 
     def get_year(self):
         return magic_attr(self.date[0], time.strftime('%Y', self.date))
@@ -281,13 +290,34 @@ class BaseEntry:
     def get_day(self):
         return magic_attr(self.date[2], time.strftime('%d', self.date))
 
+class Message(email.Message.Message):
+    """Non-broken version of email's Message class. Returns unicode headers
+    when necessary and raises KeyError."""
+
+    def __getitem__(self, item):
+        header = email.Message.Message.__getitem__(self, item)
+        if header:
+            # worst. interface. ever.
+            parts = email.Header.decode_header(header)
+            decoded = []
+            for p, enc in parts:
+                if enc:
+                    decoded.append(unicode(p, enc))
+                else:
+                    decoded.append(p)
+            return ' '.join(decoded)
+        else:
+            raise KeyError
+
 def magic_attr(obj, rep):
     """Return a subclassed version of obj with its repr() overridden to return
     rep."""
 
-    class Magic(type(obj)):
-        def __repr__(self): return rep
-    return Magic(obj)
+    if type(obj) is unicode: obj = obj.encode('utf-8')
+    if type(rep) is unicode: rep = rep.encode('utf-8')
+
+    c = type("Magic", (type(obj),), {'__repr__': lambda self: rep})
+    return c(obj)
 
 def clean(s, maxwords=None):
     """Split the given string into words, lowercase and strip all
