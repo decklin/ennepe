@@ -174,7 +174,7 @@ class Muse:
         except Exception, e:
             raise RuntimeError("Error running layout %s: %s" % (spath, e))
 
-class Disambigifier(dict):
+class SingletonMemoizer(dict):
     def __getitem__(self, k):
         k, i = dict.__getitem__(self, k)
         if i: return '%s-%d' % (k, i)
@@ -217,15 +217,15 @@ class BaseEntry:
         else:
             return 1
 
-    ucache = {}
-    def umem(self, k):
-        return self.ucache.setdefault(k, Disambigifier())
+    caches = {}
+    def getmem(self, k):
+        return self.caches.setdefault(k, Disambigifier())
 
     def _prop_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
-        cache = self.umem(self._id)
+        cache = self.getmem(self._id)
 
         try:
             return cache['rst']
@@ -250,7 +250,7 @@ class BaseEntry:
             subject = ''
             cleaned = 'entry'
 
-        day = self.umem(self.date[0:3])
+        day = self.getmem(self.date[0:3])
         slug = day.setdefault(self._id, cleaned)
         return self.magic(subject, slug)
 
