@@ -200,15 +200,21 @@ class BaseEntry:
         else:
             return 1
 
-    def _get_content(self):
+    pub_cache = {}
+    def _prop_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
-        s = self.msg.get_payload(decode=True)
-        try: s = s[:s.rindex('-- \n')]
-        except ValueError: pass
+        try:
+            return self.pub_cache[self.id]
+        except KeyError:
+            s = self.msg.get_payload(decode=True)
+            try: s = s[:s.rindex('-- \n')]
+            except ValueError: pass
 
-        return self.magic(publish_content(s), s[:100])
+            pub = self.magic(publish_content(s), s[:100])
+            if self.id: self.pub_cache.setdefault(self.id, pub)
+            return pub
 
     def _init_subject(self):
         """Provide the contents of the Subject: header and a cleaned, uniq'd
@@ -229,9 +235,10 @@ class BaseEntry:
         for use in feeds."""
 
         try:
-            id, host = self.msg['Message-Id'][1:-1].split('@')
+            id = self.msg['Message-Id'][1:-1]
+            local, host = id.split('@')
             date = time.strftime('%Y-%m-%d', self.date)
-            return self.magic(id, 'tag:%s,%s:%s' % (host, date, id))
+            return self.magic(id, 'tag:%s,%s:%s' % (host, date, local))
         except KeyError, ValueError:
             return None
 
