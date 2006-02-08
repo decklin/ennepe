@@ -204,22 +204,6 @@ class Muse:
         except Exception, e:
             raise RuntimeError("Error running layout %s: %s" % (spath, e))
 
-class SingletonMemoizer(dict):
-    def __getitem__(self, k):
-        k, i = dict.__getitem__(self, k)
-        if i: return '%s-%d' % (k, i)
-        else: return k
-
-    def __setitem__(self, k, v):
-        if k not in self:
-            n = len([x for x, y in self.iteritems() if y[0] == v])
-            dict.__setitem__(self, k, (v, n))
-
-    # Yes, we must. Le sigh.
-    def setdefault(self, key, failobj=None):
-        if not self.has_key(key): self[key] = failobj
-        return self[key]
-
 class BaseEntry:
     """Base class for all entries. Initialized with an open file object, so it
     may be passed to maildir.Maildir as a factory class. Parses the file's
@@ -343,6 +327,22 @@ class Message(email.Message.Message):
             return ' '.join(decoded)
         else:
             raise KeyError
+
+class SingletonMemoizer(dict):
+    def __getitem__(self, k):
+        k, i = dict.__getitem__(self, k)
+        if i: return '%s-%d' % (k, i)
+        else: return k
+
+    def __setitem__(self, k, v):
+        if k not in self:
+            n = len([x for x, y in self.iteritems() if y[0] == v])
+            dict.__setitem__(self, k, (v, n))
+
+    # Yes, we must. Le sigh.
+    def setdefault(self, key, failobj=None):
+        if not self.has_key(key): self[key] = failobj
+        return self[key]
 
 def clean(s, maxwords=None):
     """Split the given string into words, lowercase and strip all
