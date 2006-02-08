@@ -33,48 +33,19 @@ class Muse:
                 },
             }
 
-        if not os.path.exists(config):
-            raise RuntimeError("config %s does not exist" % config)
+        for d in ('entry_dir', 'layout_dir', 'style_dir', 'output_dir'):
+            if not os.path.exists(self.conf[d]):
+                raise RuntimeError("%s %s does not exist" % (d, self.conf[d]))
 
         try:
             exec file(config) in self.conf
         except Exception, e:
             raise RuntimeError("Error running config: %s" % e)
 
-        for d in ('entry_dir', 'layout_dir', 'style_dir', 'output_dir'):
-            if not os.path.exists(self.conf[d]):
-                raise RuntimeError("%s %s does not exist" % (d, self.conf[d]))
-
-        class NoMixin: pass
-        Mixin = self.conf.get('EntryMixin', NoMixin)
-
-        class Entry(Mixin, BaseEntry):
-            """Actual entry class. Will search the user-provided mixin class
-            and then BaseEntry for methods of the form make_*, and set the
-            appropriate attribute on initialization, and also search for
-            methods of the form get_* to provide lazily-evaluated attributes
-            at runtime."""
-
-            def __init__(self, fp):
-                for c in (Mixin, BaseEntry):
-                    try:
-                        c.__init__(self, fp)
-                    except AttributeError:
-                        pass
-                    for n, method in c.__dict__.iteritems():
-                        if n.startswith('make_'):
-                            setattr(self, n[5:], method(self))
-
-            def __getattr__(self, a):
-                for c in (Mixin, BaseEntry):
-                    try:
-                        method = getattr(c, 'get_'+a)
-                        self.__dict__[a] = method(self)
-                        return self.__dict__[a]
-                    except AttributeError:
-                        pass
-                else:
-                    return getattr(BaseEntry, a)
+        try:
+            Entry.__bases__ += (self.conf['EntryMixin'],)
+        except KeyError:
+            pass
 
         # XXX: Should just pass in Entry as the factory; doesn't work
         # XXX: still?
@@ -86,7 +57,7 @@ class Muse:
         """From the contents of spath, build output in dpath, based on the
         provided entries. For each entry in spath, will be called recursively
         with a tuple what representing the source and dest file. For any
-        source files starting with __attr___ will recur several times based on
+        source files starting with __attr__ will recur several times based on
         which entries match each value of that attribute. For regularly named
         files, evaluate them as layout scripts if they are executable and
         simply copy them if they are not."""
@@ -160,7 +131,7 @@ class Muse:
 
         inst = {}
         for e in entries:
-            mv = getattr(e, name, None)
+            mv = getattr(e, name)
             for m in cheapiter(mv):
                 inst.setdefault(repr(m), []).append(e)
 
@@ -220,9 +191,7 @@ class BaseEntry:
     def __cmp__(self, other):
         return cmp(time.mktime(self.date), time.mktime(other.date))
 
-    # Remember, get_* are lazy, make_* are not
-
-    def get_content(self):
+    def _init_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
@@ -232,7 +201,7 @@ class BaseEntry:
 
         return magic_attr(publish_content(s), s[:100])
 
-    def make_subject(self):
+    def _prop_subject(self):
         """Provide the contents of the Subject: header and a cleaned, uniq'd
         version of same."""
 
@@ -246,7 +215,7 @@ class BaseEntry:
         u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
         return magic_attr(subject, u)
 
-    def get_id(self):
+    def _prop_id(self):
         """Provide the Message-ID and a globally unique tag: URL based on it,
         for use in feeds."""
 
@@ -257,11 +226,11 @@ class BaseEntry:
         except KeyError, ValueError:
             return None
 
-    def get_author(self):
+    def _prop_author(self):
         author, addr = email.Utils.parseaddr(self.msg.get('From'))
         return magic_attr(author, clean(author))
 
-    def get_email(self):
+    def _prop_email(self):
         """Provide the author's email address and a trivially spam-protected
         version of same."""
         try:
@@ -273,7 +242,7 @@ class BaseEntry:
         except KeyError:
             return None
 
-    def get_tags(self):
+    def _prop_tags(self):
         """Provide a list of tags from the comma-delimited X-Tags: header."""
         try:
             tags = [t.strip() for t in self.msg['X-Tags'].split(',')]
@@ -281,14 +250,32 @@ class BaseEntry:
         except KeyError:
             return []
 
-    def get_year(self):
+    def _prop_year(self):
         return magic_attr(self.date[0], time.strftime('%Y', self.date))
 
-    def get_month(self):
+    def _prop_month(self):
         return magic_attr(self.date[1], time.strftime('%m', self.date))
 
-    def get_day(self):
+    def _prop_day(self):
         return magic_attr(self.date[2], time.strftime('%d', self.date))
+
+class Entry(BaseEntry):
+    """Actual entry class. Will search the user-provided mixin class
+    and then BaseEntry for methods of the form _init_*, and set the
+    appropriate attribute on initialization, and also search for
+    methods of the form _prop_* to provide properties to be evaluated on
+    demand."""
+
+    def __init__(self, fp):
+        for _class in self.__class__.__bases__:
+            try: _class.__init__(self, fp)
+            except AttributeError: pass
+
+            for k, v in _class.__dict__.iteritems():
+                if k.startswith('_init_'):
+                    setattr(self, k[6:], v(self))
+                if k.startswith('_prop_'):
+                    setattr(self.__class__, k[6:], property(v, None))
 
 class Message(email.Message.Message):
     """Non-broken version of email's Message class. Returns unicode headers
