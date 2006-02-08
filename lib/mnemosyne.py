@@ -19,7 +19,7 @@ class Muse:
         self.where = []
 
         default_dir = os.path.join(os.environ['HOME'], 'Mnemosyne')
-        self.conf = conf = {
+        self.conf = {
             'entry_dir': os.path.join(default_dir, 'entries'),
             'layout_dir': os.path.join(default_dir, 'layout'),
             'style_dir': os.path.join(default_dir, 'style'),
@@ -43,46 +43,30 @@ class Muse:
         except Exception, e:
             raise RuntimeError("Error running config: %s" % e)
 
+        def magic(obj, rep):
+            """Make obj into something suitable for passing to a layout.
+            Returns an object exactly like obj, except its repr() is rep and
+            both are encoded if they were unicode (layouts must serialize as a
+            str, so giving them unicode data is not recommended). If you are
+            not passing something that might be a unicode string, and do not
+            care about using its repr() in your layout, you are not required
+            to use this function."""
+
+            if type(obj) is unicode: obj = obj.encode(self.conf['charset'])
+            if type(rep) is unicode: rep = rep.encode(self.conf['charset'])
+
+            _class = type("Magic", (type(obj),), {'__repr__': lambda self: rep})
+            return _class(obj)
+
+        Entry.magic = lambda self, obj, rep: magic(obj, rep)
+
+        try: Entry.__bases__ += (self.conf['EntryMixin'],)
+        except KeyError: pass
+
         # It would be nice if the factory could decide whether it needs to
         # open the file or not. All we need to know here is mtime, and all we
         # need for that is the filename/inode itself. But either way we need
         # to grab everything from the iterator up front so we can sort.
-
-        class Entry(BaseEntry):
-            """Actual entry class. Will search the user-provided mixin class
-            and then BaseEntry for methods of the form _init_*, and set the
-            appropriate attribute on initialization, and also search for
-            methods of the form _prop_* to provide properties to be evaluated
-            on demand."""
-
-            def __init__(self, fp):
-                for _class in self.__class__.__bases__:
-                    try: _class.__init__(self, fp)
-                    except AttributeError: pass
-
-                    for k, v in _class.__dict__.iteritems():
-                        if k.startswith('_init_'):
-                            setattr(self, k[6:], v(self))
-                        if k.startswith('_prop_'):
-                            setattr(self.__class__, k[6:], property(v, None))
-
-            def magic(self, obj, rep):
-                """Make obj into something suitable for passing to a layout.
-                Returns an object exactly like obj, except its repr() is rep
-                and both are encoded if they were unicode (layouts must
-                serialize as a str, so giving them unicode data is not
-                recommended). If you are not passing something that might be a
-                unicode string, and do not care about using its repr() in your
-                layout, you are not required to use this function."""
-
-                if type(obj) is unicode: obj = obj.encode(conf['charset'])
-                if type(rep) is unicode: rep = rep.encode(conf['charset'])
-
-                _class = type("Magic", (type(obj),), {'__repr__': lambda self: rep})
-                return _class(obj)
-
-        try: Entry.__bases__ += (self.conf['EntryMixin'],)
-        except KeyError: pass
 
         self.box = mailbox.Maildir(self.conf['entry_dir'], Entry)
         self.entries = [e for e in self.box]
@@ -308,6 +292,23 @@ class BaseEntry:
 
     def _init_day(self):
         return self.magic(self.date[2], time.strftime('%d', self.date))
+
+class Entry(BaseEntry):
+    """Actual entry class. Will search the user-provided mixin class and then
+    BaseEntry for methods of the form _init_*, and set the appropriate
+    attribute on initialization, and also search for methods of the form
+    _prop_* to provide properties to be evaluated on demand."""
+
+    def __init__(self, fp):
+        for _class in self.__class__.__bases__:
+            try: _class.__init__(self, fp)
+            except AttributeError: pass
+
+            for k, v in _class.__dict__.iteritems():
+                if k.startswith('_init_'):
+                    setattr(self, k[6:], v(self))
+                if k.startswith('_prop_'):
+                    setattr(self.__class__, k[6:], property(v, None))
 
 class Message(email.Message.Message):
     """Non-broken version of email's Message class. Returns unicode headers
