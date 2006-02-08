@@ -47,10 +47,13 @@ class Muse:
         except KeyError:
             pass
 
-        # XXX: Should just pass in Entry as the factory; doesn't work
-        # XXX: still?
-        box = mailbox.Maildir(self.conf['entry_dir'], lambda fp: fp)
-        self.entries = [Entry(fp) for fp in box]
+        # It would be nice if the factory could decide whether it needs to
+        # open the file or not. All we need to do here is sort by mtime, and
+        # all we need for that is the filename/inode itself. But either way we
+        # need to grab everything from the iterator up front.
+
+        self.box = mailbox.Maildir(self.conf['entry_dir'], Entry)
+        self.entries = [e for e in self.box]
         self.entries.sort()
 
     def sing(self, entries=None, spath=None, dpath=None, what=None):
@@ -189,7 +192,10 @@ class BaseEntry:
         self.mtime = time.localtime(getstamp(fp.name))
 
     def __cmp__(self, other):
-        return cmp(time.mktime(self.date), time.mktime(other.date))
+        if other:
+            return cmp(time.mktime(self.date), time.mktime(other.date))
+        else:
+            return 1
 
     def _init_content(self):
         """Read in the message's body, strip any signature, and format using
