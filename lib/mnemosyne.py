@@ -201,8 +201,8 @@ class Muse:
 class BaseEntry:
     """Base class for all entries. Initialized with an open file object, so it
     may be passed to maildir.Maildir as a factory class. Parses the file's
-    contents as an email.Message object, setting a date attribute from the
-    parsed date and an mtime attribute from the Maildir filename."""
+    contents as a Message object, setting a date attribute from the parsed
+    date and an mtime attribute from the Maildir filename."""
 
     def __init__(self, fp):
         def fixdate(d):
@@ -310,14 +310,18 @@ class Message(email.Message.Message):
             raise KeyError
 
 def magic_attr(obj, rep):
-    """Return a subclassed version of obj with its repr() overridden to return
-    rep."""
+    """Make obj into something suitable for passing to a layout. Returns an
+    object exactly like obj, except its repr() is rep and both are encoded if
+    they were unicode (layouts must serialize as a str, so giving them unicode
+    data is not recommended). If you are not passing something that might be a
+    unicode string, and do not care about using its repr() in your layout, you
+    are not required to use this function."""
 
     if type(obj) is unicode: obj = obj.encode('utf-8')
     if type(rep) is unicode: rep = rep.encode('utf-8')
 
-    c = type("Magic", (type(obj),), {'__repr__': lambda self: rep})
-    return c(obj)
+    _class = type("Magic", (type(obj),), {'__repr__': lambda self: rep})
+    return _class(obj)
 
 def clean(s, maxwords=None):
     """Split the given string into words, lowercase and strip all
