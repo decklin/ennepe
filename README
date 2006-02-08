@@ -51,15 +51,13 @@ variables defined in the blog's configuration, they will be given the
 following:
 
 * ``muse``: a ``mnemosyne.Muse`` object, the thing that generates the
-  blog. This contains many useful attributes, most importantly:
+  blog. It contains these attributes (among others, of course, but you
+  can safely ignore the rest):
 
   - ``muse.entries``: the list of all entries in the blog.
 
   - ``muse.expand(style, locals)``: a callback function which opens an
     EmPy style and expands it with the provided local variables.
-
-  - ``muse.escape``: a callback function which escapes HTML characters,
-    for use in RSS or non-XHTML Atom feeds.
 
 * ``entries``: the subset of entries that apply to the particular file
   being generated. In an archive page, for example, this would be only
@@ -78,28 +76,42 @@ evaluated with only the entries for that year.
 
 You can do the same thing for attributes which have multiple values, as
 well: for example, a directory named ``__tags__`` will be evaluated for each
-tag that appears on an entry, even if the tags are stored as a list.
+tag that appears on an entry, even if the tags are stored as a list. The
+directory tree in ``examples/layout`` illustrates how to do each of
+these, and a simple feed; you can of course be more creative.
 
 The values for all these expansions come from the attributes of
 mnemosyne's Entry class. Several useful ones, such as ``subject`` and
 ``tags``, are provided by default: if you wish to define more, you may
 add a mixin class to your configuration, with some specially-named
 methods. Attributes may be calculated at initialization or only when
-needed. When generating file or directory names, the attributes' repr()
-is used, so that dates, subject lines, and so on may be appropriately
-formatted.
+needed.
 
-Please refer to ``example/layout`` to see how this might all come
-together.
+When generating file or directory names, the attributes' repr() is used,
+so that dates, subject lines, and so on may be appropriately formatted
+and linked to. The ``mnemosyne`` module provides the functions ``clean``
+and ``magic``, to make creating suitable values easier.
+
+The default set of attributes are always encoded into your
+configuration's character set before being sent to the layout. If you
+define your own; take care not to send Unicode data to ``expand`` or
+``write``, as they both must output a stream of bytes and won't
+necessarily know the correct encoding to use. The best place to handle
+this is probably in your configuration itself, unless you need to use
+different encodings in different parts of your layout.
 
 Styles
 ======
 
 It would be quite cumbersome for layout scripts to generate an entire
 page by themselves, so ``mnemosyne.Muse``'s ``expand`` method allows you
-to use styles to do the hard work. Styles are EmPy templates; to get an
-idea of what you can do with them (which is far beyond the scope of this
-document), refer to EmPy's documentation or look in ``example/style``.
+to use styles to do the hard work. Styles are EmPy templates, which are
+plain text with embedded expressions, statements, control flow, etc.
+marked by the '@' sign. Expressions in backticks are converted to text
+using repr(), otherwise, they are converted with str(). A summary
+of all EmPy's features is far beyond the scope of this document; you can
+follow along with ``example/style`` to get an idea of the basics, or
+refer to EmPy's documentation for a comprehensive explanation.
 
 Writing Layouts and Styles
 ==========================
@@ -107,7 +119,7 @@ Writing Layouts and Styles
 For each entry ``e``, the following attributes (plus any you define) are
 available:
 
-* ``m``: the message that the entry was created from. Initially, only
+* ``msg``: the message that the entry was created from. Initially, only
   the headers have been read; the rest is read when you access
   ``e.content``.
 
@@ -148,15 +160,15 @@ available:
 Future and Caveats
 ==================
 
-I fully intend to write an SQLite backend once someone complains that it
-takes too long to load their 100,000 entries. Be loquacious. At the
-moment, however, Mnemosyne depends on the Maildir really being a Maildir
-(for reliable modification times) and the standard ``email`` and
-``mailbox`` modules, which could stand to be a little more generic.
+I intend to write an SQLite backend once someone complains that it takes
+too long to load their 10,000 entries. Be loquacious. At the moment,
+however, Mnemosyne depends on the Maildir really being a Maildir (for
+reliable modification times) and the standard ``email`` and ``mailbox``
+modules, which could stand to be a little more generic.
 
-All of the custom-lazy-attribute, underscored-directories, and
-DWIM-key-inversion deep magic may or may not be good Python style.
-Comments and suggestions are welcome.
+A lot of the more magic stuff may not be particularly good style; where
+some clarity or brevity in Mnemosyne itself could be sacrificed to make
+the layout and styles easier to work with, it has been.
 
 About the Name
 ==============
