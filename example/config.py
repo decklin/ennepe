@@ -26,8 +26,10 @@
 # This defaults to ('.svn', 'CVS').
 #
 # You can also define a class ``EntryMixin`` here. Any methods named
-# ``get_ATTRIBUTE`` will be used to provide ``e.ATTRIBUTE`` for each entry
-# ``e``. (``ATTRIBUTE``, of course, can be whatever you want).
+# ``_init_ATTRIBUTE`` or ``_prop_ATTRIBUTE`` will be used to provide
+# ``e.ATTRIBUTE`` for each entry ``e``, and will be evaluated at
+# initialization or on demand, respectively. (``ATTRIBUTE``, of course, can be
+# whatever you want).
 #
 # The convention used in the example layout and styles is that the repr() of
 # each attribute is used when putting it in a URL. For example, if you had a
@@ -37,10 +39,12 @@
 # using repr, which is: ``<a href="http://blog/tag/@`tag`/">@tag</a>``.
 #
 # To easily create objects that work like this, the ``mnemosyne`` module
-# includes a function ``magic_attr`` which takes two arguments: the value
-# itself, and the value to use for its repr(). It then takes care of defining
-# a new class and overriding its ``__repr__`` method for you. Of course, if
-# you do not need to define a special repr(), this is not required.
+# includes a function ``magic`` which takes two arguments: the value itself,
+# and the value to use for its repr(). It then takes care of defining a new
+# class and overriding its ``__repr__`` method for you. Of course, if you do
+# not need to define a special repr(), this is not required. However, magic
+# values also handle encoding themselves into the output character set; if you
+# want to return a regular value, make sure to encode it yourself.
 
 import mnemosyne
 
@@ -49,7 +53,7 @@ locals['base'] = 'http://example.invalid'
 
 class EntryMixin:
     # Pull anything you want out of the message (self.msg, an email.Message
-    # object), and use it to provide a new attribute
+    # object), and use it to provide a new attribute:
 
     def _init_foobar(self):
         foobar = self.msg['X-Foobar']
@@ -59,6 +63,9 @@ class EntryMixin:
     ## You could use Markdown instead of ReST to write entries; I'll comment
     ## this out since you'd need to install it from http://err.no/pymarkdown/
     ## and ``import pymarkdown``.
+    #
+    ## The formatting process may take a second, so rather than evaluating it
+    ## at startup, will wait until the result is needed.
     #
     #def _prop_content(self):
     #    s = self.msg.get_payload(decode=True)
