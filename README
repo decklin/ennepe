@@ -4,7 +4,8 @@ Introduction
 Mnemosyne is a simple blogging system which generates static files. You
 provide it with some entries, which are stored in an ordinary Maildir, a
 layout, which is a directory tree indicating where these entries should
-go, and some styles, which are EmPy templates.
+go, and some styles, which are EmPy templates that the layout can use to
+put pages together.
 
 The layout tree may contain ordinary files, such as images, stylesheets,
 or constant pages, and Python scripts, which will be used to generate
@@ -13,12 +14,11 @@ variable pages, XML feeds, or anything else you wish.
 Requirements
 ============
 
-* Python, probably at least version 2.3. I suspect 2.2 would work, but I
-  have not tried it.
+* Python, probably at least version 2.2. I use 2.3.
 
-* If you wish to use reStructuredText to format entries as HTML, as the
-  default configuration does, docutils. You could also replace this with
-  PyMarkdown, PyTextile, or nothing at all.
+* If you want to use reStructuredText to format entries as HTML,
+  docutils. This is the default configuration, but you could also
+  replace this with PyMarkdown, PyTextile, or nothing at all.
 
 * EmPy, available at http://www.alcyone.com/pyos/empy/.
 
@@ -46,9 +46,10 @@ override this and rebuild the entire blog with the ``--force`` option.
 Layout
 ======
 
-Layout scripts are also written in Python. Apart from any local
-variables defined in the blog's configuration, they will be given the
-following:
+Layout scripts are also written in Python; any file with the executable
+bit set will be executed to produce the corresponding output file. Apart
+from any local variables defined in the blog's configuration, layouts
+will be given the following:
 
 * ``muse``: a ``mnemosyne.Muse`` object, the thing that generates the
   blog. It contains these attributes (among others, of course, but you
@@ -57,28 +58,33 @@ following:
   - ``muse.entries``: the list of all entries in the blog.
 
   - ``muse.expand(style, locals)``: a callback function which opens an
-    EmPy style and expands it with the provided local variables.
+    EmPy style and expands it with the provided local variables. In
+    almost all cases, you'll use the builtin Python function
+    ``locals()`` here.
 
 * ``entries``: the subset of entries that apply to the particular file
   being generated. In an archive page, for example, this would be only
   the entries in that particular year, week, or whatever.
 
 * ``write(s)``: Another callback function, which will take the provided
-  data (a string) and actually write it out to the file being generated.
-  Generally, this will be the last thing you call once you put the rest
-  of the page together.
+  data (a string) and actually write it out to the appropriate output
+  file. Generally, this will be the last thing you call once you put the
+  rest of the page together.
 
 Files in the top level directory of your layout will be evaluated with
 all the entries in the blog. However, you can create files or
-directories with a name like ``__year__``, and it will create files (or,
+directories with a name like ``__year__``, and it will produce files (or,
 in this case, directories) named ``2006``, ``2007``, etc, which will be
-evaluated with only the entries for that year.
+evaluated in turn with only the entries for that year.
 
 You can do the same thing for attributes which have multiple values, as
 well: for example, a directory named ``__tags__`` will be evaluated for each
 tag that appears on an entry, even if the tags are stored as a list. The
 directory tree in ``examples/layout`` illustrates how to do each of
 these, and a simple feed; you can of course be more creative.
+
+Entries
+=======
 
 The values for all these expansions come from the attributes of
 mnemosyne's Entry class. Several useful ones, such as ``subject`` and
@@ -90,7 +96,7 @@ needed.
 When generating file or directory names, the attributes' repr() is used,
 so that dates, subject lines, and so on may be appropriately formatted
 and linked to. The ``mnemosyne`` module provides the functions ``clean``
-and ``magic``, to make creating suitable values easier.
+and ``magic``, to make creating useful values easier.
 
 The default set of attributes are always encoded into your
 configuration's character set before being sent to the layout. If you
@@ -103,18 +109,18 @@ different encodings in different parts of your layout.
 Styles
 ======
 
-It would be quite cumbersome for layout scripts to generate an entire
-page by themselves, so ``mnemosyne.Muse``'s ``expand`` method allows you
-to use styles to do the hard work. Styles are EmPy templates, which are
-plain text with embedded expressions, statements, control flow, etc.
-marked by the '@' sign. Expressions in backticks are converted to text
-using repr(), otherwise, they are converted with str(). A summary
-of all EmPy's features is far beyond the scope of this document; you can
-follow along with ``example/style`` to get an idea of the basics, or
-refer to EmPy's documentation for a comprehensive explanation.
+It would be tedious for layout scripts to generate an entire page by
+themselves, so ``mnemosyne.Muse``'s ``expand`` method allows you to use
+styles to do the hard work. Styles are EmPy templates, which are plain
+text with embedded expressions, statements, control flow, etc. marked by
+the '@' sign. Expressions in backticks are converted to text using
+repr(); otherwise, they are converted with str(). A summary of all of
+EmPy's features is beyond the scope of this document; you can follow
+along with ``example/style`` to get an idea of the basics, or refer to
+EmPy's documentation for a comprehensive explanation.
 
-Writing Layouts and Styles
-==========================
+Entry Details
+=============
 
 For each entry ``e``, the following attributes (plus any you define) are
 available:
@@ -157,6 +163,15 @@ available:
 * ``year``, ``month``, ``day``: What the names imply. The values are
   ints; the repr()s are formatted with ``time.strftime``.
 
+Updating
+========
+
+The ``contrib`` directory contains some small scripts to facilitate
+updating your blog, and an example of how to put them together so that
+your blog can pick up PGP-signed mail at a public email address (or
+perhaps ordinary mail at an address internal to your own network) and
+automatically rebuild itself upon receipt.
+
 Future and Caveats
 ==================
 
@@ -164,7 +179,7 @@ I intend to write an SQLite backend once someone complains that it takes
 too long to load their 10,000 entries. Be loquacious. At the moment,
 however, Mnemosyne depends on the Maildir really being a Maildir (for
 reliable modification times) and the standard ``email`` and ``mailbox``
-modules, which could stand to be a little more generic.
+modules, which are not perfect.
 
 A lot of the more magic stuff may not be particularly good style; where
 some clarity or brevity in Mnemosyne itself could be sacrificed to make
