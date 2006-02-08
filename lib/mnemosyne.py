@@ -47,9 +47,9 @@ class Muse:
         except KeyError: pass
 
         # It would be nice if the factory could decide whether it needs to
-        # open the file or not. All we need to do here is sort by mtime, and
-        # all we need for that is the filename/inode itself. But either way we
-        # need to grab everything from the iterator up front.
+        # open the file or not. All we need to know here is mtime, and all we
+        # need for that is the filename/inode itself. But either way we need
+        # to grab everything from the iterator up front so we can sort.
 
         def factory(fp):
             return Entry(fp, self.conf['charset'])
@@ -174,6 +174,22 @@ class Muse:
         except Exception, e:
             raise RuntimeError("Error running layout %s: %s" % (spath, e))
 
+class Disambigifier(dict):
+    def __getitem__(self, k):
+        k, i = dict.__getitem__(self, k)
+        if i: return '%s-%d' % (k, i)
+        else: return k
+
+    def __setitem__(self, k, v):
+        if k not in self:
+            n = len([x for x, y in self.iteritems() if y[0] == v])
+            dict.__setitem__(self, k, (v, n))
+
+    # Yes, we must. Le sigh.
+    def setdefault(self, key, failobj=None):
+        if not self.has_key(key): self[key] = failobj
+        return self[key]
+
 class BaseEntry:
     """Base class for all entries. Initialized with an open file object, so it
     may be passed to maildir.Maildir as a factory class. Parses the file's
@@ -190,6 +206,7 @@ class BaseEntry:
             return int(stamp)
 
         self.msg = email.message_from_file(fp, Message)
+        self._id = self.msg['Message-Id'][1:-1]
         self.date = fixdate(email.Utils.parsedate(self.msg['Date']))
         self.mtime = time.localtime(getstamp(fp.name))
         self.magic = lambda obj, rep: magic(obj, rep, enc)
@@ -200,13 +217,18 @@ class BaseEntry:
         else:
             return 1
 
-    pub_cache = {}
+    ucache = {}
+    def umem(self, k):
+        return self.ucache.setdefault(k, Disambigifier())
+
     def _prop_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
+        cache = self.umem(self._id)
+
         try:
-            return self.pub_cache[self.id]
+            return cache['rst']
         except KeyError:
             s = self.msg.get_payload(decode=True)
             if not s: return ''
@@ -215,8 +237,7 @@ class BaseEntry:
             except ValueError: pass
 
             pub = self.magic(publish_content(s), s[:100])
-            if self.id: self.pub_cache.setdefault(self.id, pub)
-            return pub
+            return cache.setdefault('rst', pub)
 
     def _init_subject(self):
         """Provide the contents of the Subject: header and a cleaned, uniq'd
@@ -229,20 +250,18 @@ class BaseEntry:
             subject = ''
             cleaned = 'entry'
 
-        u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
-        return self.magic(subject, u)
+        day = self.umem(self.date[0:3])
+        slug = day.setdefault(self._id, cleaned)
+        return self.magic(subject, slug)
 
     def _init_id(self):
         """Provide the Message-ID and a globally unique tag: URL based on it,
         for use in feeds."""
 
-        try:
-            id = self.msg['Message-Id'][1:-1]
-            local, host = id.split('@')
-            date = time.strftime('%Y-%m-%d', self.date)
-            return self.magic(id, 'tag:%s,%s:%s' % (host, date, local))
-        except KeyError, ValueError:
-            return ''
+        id = self.msg['Message-Id'][1:-1]
+        local, host = self._id.split('@')
+        date = time.strftime('%Y-%m-%d', self.date)
+        return self.magic(self._id, 'tag:%s,%s:%s' % (host, date, local))
 
     def _init_author(self):
         author, addr = email.Utils.parseaddr(self.msg.get('From'))
@@ -341,22 +360,3 @@ def clean(s, maxwords=None):
         return '-'.join(words)
     except AttributeError:
         return None
-
-namespaces = {}
-def uniq(ns, k, tag):
-    """For the given key k, which may come from a group of many keys with the
-    same value 'foo', return a string like 'foo', 'foo-1', 'foo-2', etc,
-    based on the provided namespace ns (must be a valid dict index) and unique
-    identifer tag."""
-
-    ns = namespaces.setdefault(ns, {})
-    ns.setdefault(k, {})
-
-    def qual(s, n):
-        if n == 0: return s
-        else: return '%s-%d' % (s, n)
-
-    if tag not in ns[k].keys():
-        ns[k][tag] = qual(k, len(ns[k].keys()))
-
-    return ns[k][tag]
