@@ -200,7 +200,7 @@ class BaseEntry:
         else:
             return 1
 
-    def _init_content(self):
+    def _get_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
@@ -210,7 +210,7 @@ class BaseEntry:
 
         return self.magic(publish_content(s), s[:100])
 
-    def _prop_subject(self):
+    def _init_subject(self):
         """Provide the contents of the Subject: header and a cleaned, uniq'd
         version of same."""
 
@@ -224,7 +224,7 @@ class BaseEntry:
         u = uniq(self.date[0:3], cleaned, time.mktime(self.date))
         return self.magic(subject, u)
 
-    def _prop_id(self):
+    def _init_id(self):
         """Provide the Message-ID and a globally unique tag: URL based on it,
         for use in feeds."""
 
@@ -235,11 +235,11 @@ class BaseEntry:
         except KeyError, ValueError:
             return None
 
-    def _prop_author(self):
+    def _init_author(self):
         author, addr = email.Utils.parseaddr(self.msg.get('From'))
         return self.magic(author, clean(author))
 
-    def _prop_email(self):
+    def _init_email(self):
         """Provide the author's email address and a trivially spam-protected
         version of same."""
         try:
@@ -251,7 +251,7 @@ class BaseEntry:
         except KeyError:
             return None
 
-    def _prop_tags(self):
+    def _init_tags(self):
         """Provide a list of tags from the comma-delimited X-Tags: header."""
         try:
             tags = [t.strip() for t in self.msg['X-Tags'].split(',')]
@@ -259,13 +259,13 @@ class BaseEntry:
         except KeyError:
             return []
 
-    def _prop_year(self):
+    def _init_year(self):
         return self.magic(self.date[0], time.strftime('%Y', self.date))
 
-    def _prop_month(self):
+    def _init_month(self):
         return self.magic(self.date[1], time.strftime('%m', self.date))
 
-    def _prop_day(self):
+    def _init_day(self):
         return self.magic(self.date[2], time.strftime('%d', self.date))
 
 class Entry(BaseEntry):

@@ -51,7 +51,7 @@ class EntryMixin:
     # Pull anything you want out of the message (self.msg, an email.Message
     # object), and use it to provide a new attribute
 
-    def _prop_foobar(self):
+    def _init_foobar(self):
         foobar = self.msg['X-Foobar']
         cleaned = mnemosyne.clean(foobar, 3)
         return mnemosyne.magic(foobar, cleaned)
@@ -60,7 +60,7 @@ class EntryMixin:
     ## this out since you'd need to install it from http://err.no/pymarkdown/
     ## and ``import pymarkdown``.
     #
-    #def _init_content(self):
+    #def _prop_content(self):
     #    s = self.msg.get_payload(decode=True)
     #    try: s = s[:s.rindex('-- \n')]
     #    except ValueError: pass
