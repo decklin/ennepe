@@ -43,25 +43,11 @@ class Muse:
         except Exception, e:
             raise RuntimeError("Error running config: %s" % e)
 
-        def magic(obj, rep):
-            """Make obj into something suitable for passing to a layout.
-            Returns an object exactly like obj, except its repr() is rep and
-            both are encoded if they were unicode (layouts must serialize as a
-            str, so giving them unicode data is not recommended). If you are
-            not passing something that might be a unicode string, and do not
-            care about using its repr() in your layout, you are not required
-            to use this function."""
-
-            if type(obj) is unicode: obj = obj.encode(self.conf['charset'])
-            if type(rep) is unicode: rep = rep.encode(self.conf['charset'])
-
-            _class = type("Magic", (type(obj),), {'__repr__': lambda self: rep})
-            return _class(obj)
-
-        Entry.magic = lambda self, obj, rep: magic(obj, rep)
-
         try: Entry.__bases__ += (self.conf['EntryMixin'],)
         except KeyError: pass
+
+        method = lambda _self, obj, rep: magic(obj, rep, self.conf['charset'])
+        Entry.magic = method
 
         # It would be nice if the factory could decide whether it needs to
         # open the file or not. All we need to know here is mtime, and all we
@@ -329,9 +315,11 @@ class Message(email.Message.Message):
             raise KeyError
 
 class UniqueDict(dict):
-    """A dict which munges its values so that they are unique. If an existing
-    key has the value 'foo', attempting to set another key to 'foo' will cause
-    it to become 'foo-1', then 'foo-2', etc."""
+    """A read-only dict which munges its values so that they are unique. If an
+    existing key has the value 'foo', attempting to set another key to 'foo'
+    will cause it to become 'foo-1', then 'foo-2', etc. These numberings are
+    stable as long as each key is assigned to in the same order; attempting to
+    set an existing key will cause a ValueError. """
 
     def __getitem__(self, k):
         k, i = dict.__getitem__(self, k)
@@ -339,14 +327,28 @@ class UniqueDict(dict):
         else: return k
 
     def __setitem__(self, k, v):
-        if k not in self:
-            n = len([x for x, y in self.iteritems() if y[0] == v])
-            dict.__setitem__(self, k, (v, n))
+        if k in self: raise ValueError
+        n = len([x for x, y in self.iteritems() if y[0] == v])
+        dict.__setitem__(self, k, (v, n))
 
     # Yes, we must. Le sigh.
     def setdefault(self, key, failobj=None):
         if not self.has_key(key): self[key] = failobj
         return self[key]
+
+def magic(obj, rep, enc):
+    """Make obj into something suitable for passing to a layout. Returns an
+    object exactly like obj, except its repr() is rep and both are encoded if
+    they were unicode (layouts must serialize as a str, so giving them unicode
+    data is not recommended). If you are not passing something that might be a
+    unicode string, and do not care about using its repr() in your layout, you
+    are not required to use this function."""
+
+    if type(obj) is unicode: obj = obj.encode(enc)
+    if type(rep) is unicode: rep = rep.encode(enc)
+
+    _class = type("Magic", (type(obj),), {'__repr__': lambda self: rep})
+    return _class(obj)
 
 def clean(s, maxwords=None):
     """Split the given string into words, lowercase and strip all
