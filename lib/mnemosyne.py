@@ -217,11 +217,8 @@ class BaseEntry:
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
-        # XXX: use something better
-        key = self.msg.fp.name
-
         try:
-            return self.rendered[key]
+            return self.rendered[hash(self.msg)]
         except KeyError:
             s = self.msg.get_payload(decode=True)
             if not s: return ''
@@ -230,15 +227,12 @@ class BaseEntry:
             except ValueError: pass
 
             html = self.magic(publish_content(s), s[:100])
-            return self.rendered.setdefault(key, html)
+            return self.rendered.setdefault(hash(self.msg), html)
 
     byday = {}
     def _init_subject(self):
         """Provide the contents of the Subject: header and a cleaned, uniq'd
         version of same."""
-
-        # XXX: use something better
-        key = self.msg.fp.name
 
         try:
             subject = self.msg['Subject']
@@ -250,7 +244,7 @@ class BaseEntry:
         # Grab the namespace for the day of this entry
         day = self.byday.setdefault(self.date[0:3], UniqueDict())
 
-        slug = day.setdefault(key, cleaned)
+        slug = day.setdefault(hash(self.msg), cleaned)
         return self.magic(subject, slug)
 
     def _init_id(self):
