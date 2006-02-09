@@ -52,8 +52,8 @@ locals['blogname'] = 'Example Blog'
 locals['base'] = 'http://example.invalid'
 
 class EntryMixin:
-    # Pull anything you want out of the message (self.msg, an email.Message
-    # object), and use it to provide a new attribute:
+    # Pull anything you want out of the message (self.msg, an
+    # email.Message.Message object), and use it to provide a new attribute:
 
     def _init_foobar(self):
         foobar = self.msg['X-Foobar']
