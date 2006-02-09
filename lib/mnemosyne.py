@@ -217,7 +217,7 @@ class BaseEntry:
 
     byday = {}
     def _init_subject(self):
-        """Provide the contents of the Subject: header and a cleaned, uniq'd
+        """Get the contents of the Subject: header and a cleaned, uniq'd
         version of same."""
 
         try:
@@ -234,8 +234,8 @@ class BaseEntry:
         return self.magic(subject, slug)
 
     def _init_id(self):
-        """Provide the Message-ID and a globally unique tag: URL based on it,
-        for use in feeds."""
+        """Get the Message-ID and a globally unique tag: URL based on it, for
+        use in feeds."""
 
         try:
             id = self.msg['Message-Id'][1:-1]
@@ -246,11 +246,12 @@ class BaseEntry:
             return ''
 
     def _init_author(self):
+        """Get the real name portion of the From: address."""
         author, addr = email.Utils.parseaddr(self.msg.get('From'))
         return self.magic(author, clean(author))
 
     def _init_email(self):
-        """Provide the author's email address and a trivially spam-protected
+        """Get the author's email address and a trivially spam-protected
         version of same."""
         try:
             author, addr = email.Utils.parseaddr(self.msg['From'])
@@ -262,7 +263,7 @@ class BaseEntry:
             return ''
 
     def _init_tags(self):
-        """Provide a list of tags from the comma-delimited X-Tags: header."""
+        """Get a list of tags from the comma-delimited X-Tags: header."""
         try:
             tags = [t.strip() for t in self.msg['X-Tags'].split(',')]
             return [self.magic(t, clean(t)) for t in tags]
@@ -270,12 +271,15 @@ class BaseEntry:
             return []
 
     def _init_year(self):
+        """Get the year from the Date: header."""
         return self.magic(self.date[0], time.strftime('%Y', self.date))
 
     def _init_month(self):
+        """Get the month from the Date: header."""
         return self.magic(self.date[1], time.strftime('%m', self.date))
 
     def _init_day(self):
+        """Get the day of the month from the Date: header."""
         return self.magic(self.date[2], time.strftime('%d', self.date))
 
 class Entry(BaseEntry):
@@ -297,7 +301,7 @@ class Entry(BaseEntry):
 
 class Message(email.Message.Message):
     """Non-broken version of email's Message class. Returns unicode headers
-    when necessary and raises KeyError."""
+    when necessary and raises KeyError when appropriate."""
 
     def __getitem__(self, item):
         header = email.Message.Message.__getitem__(self, item)
