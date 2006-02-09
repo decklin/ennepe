@@ -25,7 +25,7 @@ class Muse:
             'style_dir': os.path.join(default_dir, 'style'),
             'output_dir': os.path.join(default_dir, 'htdocs'),
             'ignore': ('.svn', 'CVS'),
-            'charset': None,
+            'charset': locale.getpreferredencoding(),
             'locals': {
                 '__version__': __version__,
                 '__author__': __author__,

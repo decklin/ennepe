@@ -58,17 +58,17 @@ class EntryMixin:
     def _init_foobar(self):
         foobar = self.msg['X-Foobar']
         cleaned = mnemosyne.clean(foobar, 3)
-        return mnemosyne.magic(foobar, cleaned)
+        return mnemosyne.magic(foobar, cleaned, charset)
 
     ## You could use Markdown instead of ReST to write entries; I'll comment
     ## this out since you'd need to install it from http://err.no/pymarkdown/
     ## and ``import pymarkdown``.
     #
     ## The formatting process may take a second, so rather than evaluating it
-    ## at startup, will wait until the result is needed.
+    ## at startup, we will wait until the result is needed. You can apply
+    ## other transformations here, or cache the output of your preprocessor;
+    ## see mnemosyne.BaseEntry._prop_content for a more involved example.
     #
     #def _prop_content(self):
     #    s = self.msg.get_payload(decode=True)
-    #    try: s = s[:s.rindex('-- \n')]
-    #    except ValueError: pass
-    #    return magic_attr(pymarkdown.Markdown(s), s[:100])
+    #    return mnemosyne.magic(pymarkdown.Markdown(s), s[:100], charset)
