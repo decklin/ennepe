@@ -1,3 +1,6 @@
+0.5 (2006-02-08):
+=================
+
 * Switch back to ``email`` for parsing messages, so we can support
   encoded messages (quoted-printable, charset RFC 2047 headers, whatever),
   and add a ``charset`` option in the configuration to specify the
@@ -5,14 +8,14 @@
 
 * Make ``mime-gpg-decode`` actually decode the message body in the same
   manner, rather than merely pulling the literal signed data out. This
-  is not necessary, but very convenient if you want to edit messages
+  is not required, but is very convenient if you want to edit messages
   later. This also makes it congruous with ``mimedecode``, which you
   could use on unsigned mail.
 
 * Renamed the EntryMixin interfaces to ``_prop_*`` and ``_init_*``, to
   better reflect what they really mean. In particular, ``_prop_*``
-  attributes are now implemented as real properties. This means caching
-  is up to the individual method.
+  attributes are now implemented as real properties. This means it is up
+  to each method to decide when and how to cache property values.
 
 0.4 (2006-02-04):
 =================
