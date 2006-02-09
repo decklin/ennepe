@@ -131,8 +131,7 @@ class Muse:
         value so encountered, evaluate the source file given all entries in
         entries that match that value."""
 
-        magic = what[:what.rindex('__')+2]
-        name = magic[2:-2]
+        subst = what[:what.rindex('__')+2]
 
         def cheapiter(x):
             """DWIM-style iterator which, if given a sequence, will iterate
@@ -150,13 +149,13 @@ class Muse:
 
         inst = {}
         for e in entries:
-            mv = getattr(e, name)
+            mv = getattr(e, subst[2:-2])
             for m in cheapiter(mv):
                 inst.setdefault(repr(m), []).append(e)
 
         for k, entries in inst.iteritems():
             self.where.append(k)
-            self.sing(entries, spath, dpath, (what, what.replace(magic, k)))
+            self.sing(entries, spath, dpath, (what, what.replace(subst, k)))
             self.where.pop()
 
     def expand(self, style, locals):
@@ -204,7 +203,6 @@ class BaseEntry:
             return int(stamp)
 
         self.msg = email.message_from_file(fp, Message)
-        self._id = self.msg['Message-Id'][1:-1]
         self.date = fixdate(email.Utils.parsedate(self.msg['Date']))
         self.mtime = time.localtime(getstamp(fp.name))
 
@@ -214,18 +212,16 @@ class BaseEntry:
         else:
             return 1
 
-    caches = {}
-    def getmem(self, k):
-        return self.caches.setdefault(k, SingletonMemoizer())
-
+    rendered = {}
     def _prop_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
-        cache = self.getmem(self._id)
+        # XXX: use something better
+        key = self.msg.fp.name
 
         try:
-            return cache['rst']
+            return self.rendered[key]
         except KeyError:
             s = self.msg.get_payload(decode=True)
             if not s: return ''
@@ -233,12 +229,16 @@ class BaseEntry:
             try: s = s[:s.rindex('-- \n')]
             except ValueError: pass
 
-            pub = self.magic(publish_content(s), s[:100])
-            return cache.setdefault('rst', pub)
+            html = self.magic(publish_content(s), s[:100])
+            return self.rendered.setdefault(key, html)
 
+    byday = {}
     def _init_subject(self):
         """Provide the contents of the Subject: header and a cleaned, uniq'd
         version of same."""
+
+        # XXX: use something better
+        key = self.msg.fp.name
 
         try:
             subject = self.msg['Subject']
@@ -247,18 +247,23 @@ class BaseEntry:
             subject = ''
             cleaned = 'entry'
 
-        day = self.getmem(self.date[0:3])
-        slug = day.setdefault(self._id, cleaned)
+        # Grab the namespace for the day of this entry
+        day = self.byday.setdefault(self.date[0:3], UniqueDict())
+
+        slug = day.setdefault(key, cleaned)
         return self.magic(subject, slug)
 
     def _init_id(self):
         """Provide the Message-ID and a globally unique tag: URL based on it,
         for use in feeds."""
 
-        id = self.msg['Message-Id'][1:-1]
-        local, host = self._id.split('@')
-        date = time.strftime('%Y-%m-%d', self.date)
-        return self.magic(self._id, 'tag:%s,%s:%s' % (host, date, local))
+        try:
+            id = self.msg['Message-Id'][1:-1]
+            local, host = id.split('@')
+            date = time.strftime('%Y-%m-%d', self.date)
+            return self.magic(id, 'tag:%s,%s:%s' % (host, date, local))
+        except KeyError:
+            return ''
 
     def _init_author(self):
         author, addr = email.Utils.parseaddr(self.msg.get('From'))
@@ -329,7 +334,11 @@ class Message(email.Message.Message):
         else:
             raise KeyError
 
-class SingletonMemoizer(dict):
+class UniqueDict(dict):
+    """A dict which munges its values so that they are unique. If an existing
+    key has the value 'foo', attempting to set another key to 'foo' will cause
+    it to become 'foo-1', then 'foo-2', etc."""
+
     def __getitem__(self, k):
         k, i = dict.__getitem__(self, k)
         if i: return '%s-%d' % (k, i)
