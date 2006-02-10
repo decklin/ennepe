@@ -30,9 +30,9 @@ Configuration
 =============
 
 A Mnemosyne blog starts with a configuration file, which is a Python
-script. The example provided in ``example/config.py`` explains what it
-can do and what variables can be set. By default, Mnemosyne looks for
-this file in ``~/Mnemosyne/config.py``.
+script. The example provided in ``examples/boring/config.py`` explains
+what it can do and what variables can be set. By default, Mnemosyne
+looks for this file in ``~/Mnemosyne/config.py``.
 
 Usage
 =====
@@ -78,10 +78,11 @@ in this case, directories) named ``2006``, ``2007``, etc, which will be
 evaluated in turn with only the entries for that year.
 
 You can do the same thing for attributes which have multiple values, as
-well: for example, a directory named ``__tags__`` will be evaluated for each
-tag that appears on an entry, even if the tags are stored as a list. The
-directory tree in ``examples/layout`` illustrates how to do each of
-these, and a simple feed; you can of course be more creative.
+well: for example, a directory named ``__tags__`` will be evaluated for
+each tag that appears on an entry, even if the tags are stored as a
+list. The directory tree in ``examples/boring/layout`` illustrates how
+to do each of these, and a simple feed; you can of course be more
+creative.
 
 Entries
 =======
