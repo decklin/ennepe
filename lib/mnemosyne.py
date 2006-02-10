@@ -10,9 +10,9 @@ import email, email.Message, email.Header
 import time
 import stat
 import shutil
+import docutils.core
 import kid
 import StringIO
-import docutils.core
 
 class Muse:
     def __init__(self, config, force):
@@ -134,15 +134,15 @@ class Muse:
     def template(self, name, **kwargs):
         """Open a Kid template in the configuration's style directory, and
         initialize it with any given keyword arguments."""
+
         path = os.path.join(self.conf['style_dir'], '%s.kid' % name)
         module = kid.load_template(path)
         return module.Template(assume_encoding='utf-8', **kwargs)
 
     def sing_file(self, entries, spath, dpath):
-        """Given an actual source and dest file, where the source is a layout
-        script, evaluate it given the locals from config plus muse (ourself),
-        write (a callback which actually writes the file), and entries (the
-        given entries)."""
+        """Given an source layout and and dest file, exec it with the locals
+        from config plus muse (ourself) and entries (the ones we're actually
+        looking at)."""
 
         locals = self.conf['locals'].copy()
         locals['muse'] = self
