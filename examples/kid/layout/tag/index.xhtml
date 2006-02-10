@@ -9,7 +9,7 @@ for e in entries:
         tags[t] = tags.get(t, 0) + 1
 
 title = 'Tags - %s' % blogname
-mainpart = muse.template(name='taglist', **locals())
+body = muse.template(name='taglist', **locals())
 page = muse.template(name='page', **locals())
 
 write(page.serialize())

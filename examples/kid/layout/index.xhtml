@@ -7,7 +7,7 @@ entries = entries[-10:]
 entries.reverse()
 
 title = blogname
-mainpart = muse.template(name='entries-full', full=True, **locals())
+body = muse.template(name='entries-full', **locals())
 page = muse.template(name='page', **locals())
 
 write(page.serialize())

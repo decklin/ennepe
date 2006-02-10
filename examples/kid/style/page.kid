@@ -15,7 +15,7 @@ import mnemosyne
 
     <h1><a href="${base}/">${blogname}</a></h1>
 
-    <div class="main" py:content="mainpart.body()" />
+    <div class="main" py:content="body.contents()" />
 
     <hr />
 

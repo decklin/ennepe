@@ -3,7 +3,7 @@ __layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
 __layoutdescription__ = "Calendar of all dates in a given year."
 
 title = 'Year %s - %s' % (muse.where[-2], blogname)
-mainpart = muse.template(name='calendar', full=True, grr=entries, **locals())
+body = muse.template(name='calendar', grr=entries, **locals())
 page = muse.template(name='page', **locals())
 
 write(page.serialize())
