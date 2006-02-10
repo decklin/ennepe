@@ -1,3 +1,10 @@
+* Removed EmPy entirely. While we could still plug something else in
+  with not too much hassle, I don't think it's worth keeping if we have
+  to work around broken Unicode support.
+
+* Layouts now just print their serialized pages; we capture sys.stdout
+  and save it.
+
 0.6 (2006-02-10):
 =================
 

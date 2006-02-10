@@ -4,12 +4,12 @@ Introduction
 Mnemosyne is a simple blogging system which generates static files. You
 provide it with some entries, which are stored in an ordinary Maildir, a
 layout, which is a directory tree indicating where these entries should
-go, and some styles, which are EmPy templates that the layout can use to
+go, and some styles, which are Kid templates that the layout can use to
 put pages together.
 
 The layout tree may contain ordinary files, such as images, stylesheets,
 or constant pages, and Python scripts, which will be used to generate
-variable pages, XML feeds, or anything else you wish.
+variable pages, XML feeds, or anything else you want.
 
 Requirements
 ============
@@ -20,7 +20,8 @@ Requirements
   docutils. This is the default configuration, but you could also
   replace this with PyMarkdown, PyTextile, or nothing at all.
 
-* EmPy, available at http://www.alcyone.com/pyos/empy/.
+* Kid, available at http://kid.lesscode.org/. This could probably be
+  replaced as well, but it would be more work than swapping out reST.
 
 * Something that will allow you to create, add to and edit your Maildir.
   I use procmail and Mutt.
@@ -47,29 +48,28 @@ Layout
 ======
 
 Layout scripts are also written in Python; any file with the executable
-bit set will be executed to produce the corresponding output file. Apart
-from any local variables defined in the blog's configuration, layouts
-will be given the following:
+bit set will be executed and its output will be used to produce the
+corresponding output file. Apart from any local variables defined in the
+blog's configuration, layouts will be given the following:
 
 * ``muse``: a ``mnemosyne.Muse`` object, the thing that generates the
   blog. It contains these attributes (among others, of course, but you
   can safely ignore the rest):
 
-  - ``muse.entries``: the list of all entries in the blog.
+  - ``muse.entries``: the list of all entries in the blog, not just the
+    ones you are considering for this page.
 
-  - ``muse.expand(style, locals)``: a callback function which opens an
-    EmPy style and expands it with the provided local variables. In
-    almost all cases, you'll use the builtin Python function
-    ``locals()`` here.
+  - ``muse.template(name, ...)``: a method that will look up the
+    style ``name.kid`` in your configuration's style directory and
+    initialize it for you with any keyword arguments provided; in almost
+    all cases, you will want to give the style all your local variables
+    by specifying ``**locals()``.
 
 * ``entries``: the subset of entries that apply to the particular file
   being generated. In an archive page, for example, this would be only
-  the entries in that particular year, week, or whatever.
-
-* ``write(s)``: Another callback function, which will take the provided
-  data (a string) and actually write it out to the appropriate output
-  file. Generally, this will be the last thing you call once you put the
-  rest of the page together.
+  the entries in that particular year, week, or whatever. This means all
+  such entries, so you will want to choose a subset of them in most
+  cases.
 
 Files in the top level directory of your layout will be evaluated with
 all the entries in the blog. However, you can create files or
@@ -96,28 +96,9 @@ needed.
 When generating file or directory names, the attributes' repr() is used,
 so that dates, subject lines, and so on may be appropriately formatted
 and linked to. The ``mnemosyne`` module provides the functions ``clean``
-and ``magic``, to make creating useful values easier.
-
-The default set of attributes are always encoded into your
-configuration's character set before being sent to the layout. If you
-define your own; take care not to send Unicode data to ``expand`` or
-``write``, as they both must output a stream of bytes and won't
-necessarily know the correct encoding to use. The best place to handle
-this is probably in your configuration itself, unless you need to use
-different encodings in different parts of your layout.
-
-Styles
-======
-
-It would be tedious for layout scripts to generate an entire page by
-themselves, so ``mnemosyne.Muse``'s ``expand`` method allows you to use
-styles to do the hard work. Styles are EmPy templates, which are plain
-text with embedded expressions, statements, control flow, etc. marked by
-the '@' sign. Expressions in backticks are converted to text using
-repr(); otherwise, they are converted with str(). A summary of all of
-EmPy's features is beyond the scope of this document; you can follow
-along with ``example/style`` to get an idea of the basics, or refer to
-EmPy's documentation for a comprehensive explanation.
+and ``cook``, to make creating useful values easier. This is just a
+matter of convention; it is not required, but it does ensure that all
+the formatting logic is in one place.
 
 Entry Details
 =============

@@ -17,10 +17,6 @@
 # own name, email, etc, and any other information you want to use in
 # your layout. The example layout's styles use ``blogname`` and ``base``.
 #
-#   * ``charset``: the encoding to write generated files in.
-#
-# This defaults to whatever your locale uses.
-#
 #   * ``ignore``: a list of file names in the layout tree to ignore.
 #
 # This defaults to ('.svn', 'CVS').
@@ -39,12 +35,10 @@
 # using repr, which is: ``<a href="http://blog/tag/@`tag`/">@tag</a>``.
 #
 # To easily create objects that work like this, the ``mnemosyne`` module
-# includes a function ``magic`` which takes two arguments: the value itself,
+# includes a function ``cook`` which takes two arguments: the value itself,
 # and the value to use for its repr(). It then takes care of defining a new
 # class and overriding its ``__repr__`` method for you. Of course, if you do
-# not need to define a special repr(), this is not required. However, magic
-# values also handle encoding themselves into the output character set; if you
-# want to return a regular value, make sure to encode it yourself.
+# not need to define a special repr(), this is not required.
 
 import mnemosyne
 
@@ -58,7 +52,7 @@ class EntryMixin:
     def _init_foobar(self):
         foobar = self.msg['X-Foobar']
         cleaned = mnemosyne.clean(foobar, 3)
-        return mnemosyne.magic(foobar, cleaned, charset)
+        return mnemosyne.cook(foobar, cleaned)
 
     ## You could use Markdown instead of ReST to write entries; I'll comment
     ## this out since you'd need to install it from http://err.no/pymarkdown/
@@ -71,4 +65,4 @@ class EntryMixin:
     #
     #def _prop_content(self):
     #    s = self.msg.get_payload(decode=True)
-    #    return mnemosyne.magic(pymarkdown.Markdown(s), s[:100], charset)
+    #    return mnemosyne.cook(pymarkdown.Markdown(s), s[:100])
