@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:py="http://purl.org/kid/ns#">
 
   <head>
-    <title py:content="title or blogname" />
+    <title py:content="title" />
     <link rel="alternate" type="application/atom+xml" title="Atom"
     href="${base}/feed/atom.xml" />
   </head>
