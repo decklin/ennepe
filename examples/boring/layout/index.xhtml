@@ -3,11 +3,11 @@ __layoutauthor__ = "Decklin Foster"
 __layoutemail__ = "decklin@red-bean.com"
 __layoutdescription__ = "Contents of recent entries."
 
+title = blogname
 entries = entries[-10:]
 entries.reverse()
 
-title = blogname
-body = muse.template(name='entries-full', **locals())
-page = muse.template(name='page', **locals())
+body = muse.template('econtent', **locals())
+page = muse.template('xhtml', **locals())
 
 write(page.serialize())

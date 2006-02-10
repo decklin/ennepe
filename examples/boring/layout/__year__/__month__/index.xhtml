@@ -3,7 +3,8 @@ __layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
 __layoutdescription__ = "Subjects of all entries from a given month."
 
 title = 'Month %s - %s' % (muse.where[-2], blogname)
-body = muse.template('entries-subj', **locals())
-page = muse.template(name='page', **locals())
+
+body = muse.template('esummary', **locals())
+page = muse.template('xhtml', **locals())
 
 write(page.serialize())

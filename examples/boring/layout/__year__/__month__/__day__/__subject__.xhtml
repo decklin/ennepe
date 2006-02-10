@@ -3,7 +3,8 @@ __layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
 __layoutdescription__ = "Permalinkable page for a single entry."
 
 title = '%s - %s' % (entries[0].subject, blogname)
-body = muse.template(name='entries-full', **locals())
-page = muse.template(name='page', **locals())
+
+body = muse.template('econtent', **locals())
+page = muse.template('xhtml', **locals())
 
 write(page.serialize())
