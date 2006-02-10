@@ -12,4 +12,4 @@ entries.reverse()
 
 atom = muse.template(name='atom', **locals())
 
-write(atom.serialize())
+print atom.serialize()

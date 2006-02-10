@@ -4,13 +4,14 @@ __email__ = 'decklin@red-bean.com'
 __url__ = 'http://www.red-bean.com/~decklin/software/mnemosyne/'
 
 import os
-import locale
+import sys
 import mailbox
 import email, email.Message, email.Header
 import time
 import stat
 import shutil
 import kid
+import StringIO
 import docutils.core
 
 class Muse:
@@ -86,8 +87,8 @@ class Muse:
                             self.sing_file(entries, spath, dpath)
                     else:
                         if stale(dpath, spath):
-                            print 'Copied %s' % dpath
                             shutil.copyfile(spath, dpath)
+                            print 'Copied %s' % dpath
                 elif os.path.isdir(spath):
                     self.sing(entries, spath, dpath)
         else:
@@ -148,19 +149,22 @@ class Muse:
         write (a callback which actually writes the file), and entries (the
         given entries)."""
 
-        def write(data):
-            file(dpath, 'w').write(data)
-            print 'Wrote %s' % dpath
-
         locals = self.conf['locals'].copy()
         locals['muse'] = self
-        locals['write'] = write
         locals['entries'] = entries
 
+        oldstdout = sys.stdout
+        sys.stdout = StringIO.StringIO()
+
         try:
-            exec file(spath) in locals
+            exec file(spath) in globals(), locals
         except Exception, e:
             raise RuntimeError("Error running layout %s: %s" % (spath, e))
+
+        file(dpath, 'w').write(sys.stdout.getvalue())
+        sys.stdout = oldstdout
+
+        print 'Wrote %s' % dpath
 
 class BaseEntry:
     """Base class for all entries. Initialized with an open file object, so it

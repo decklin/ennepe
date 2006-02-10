@@ -10,4 +10,4 @@ entries.reverse()
 body = muse.template('econtent', **locals())
 page = muse.template('xhtml', **locals())
 
-write(page.serialize())
+print page.serialize()

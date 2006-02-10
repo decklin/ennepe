@@ -8,4 +8,4 @@ title = 'Tags - %s' % blogname
 body = muse.template('taglist', **locals())
 page = muse.template('xhtml', **locals())
 
-write(page.serialize())
+print page.serialize()
