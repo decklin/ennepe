@@ -12,7 +12,7 @@ import stat
 import shutil
 import em
 import kid
-from rsthtml import publish_content
+import docutils.core
 
 class Muse:
     def __init__(self, config, force):
@@ -211,10 +211,11 @@ class BaseEntry:
         try: s = s[:s.rindex('-- \n')]
         except ValueError: pass
 
-        html = self.magic(publish_content(s), s[:100])
-        self.cache('content', html)
+        parts = docutils.core.publish_parts(s, writer_name='html')
+        body = parts['body']
 
-        return html
+        self.cache('content', body)
+        return body
 
     byday = {}
     def _init_subject(self):
