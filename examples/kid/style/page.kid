@@ -15,26 +15,7 @@ import mnemosyne
 
     <h1><a href="${base}/">${blogname}</a></h1>
 
-    <div py:def="entrylist(full)">
-      <div py:for="e in entries">
-        <h2><a
-          href="${base}/${repr(e.year)}/${repr(e.month)}/${repr(e.day)}/${repr(e.subject)}.xhtml">${e.subject}</a></h2>
-        <div py:replace="XML(e.content)" />
-        <p>Posted at
-          <a href="${base}/${repr(e.year)}/">${repr(e.year)}</a>-<a
-            href="${base}/${repr(e.year)}/${repr(e.month)}/">${repr(e.month)}</a>-<a
-            href="${base}/${repr(e.year)}/${repr(e.month)}/${repr(e.day)}">${time.strftime('%H:%M:%S', e.date)}</a>
-          by <a href="mailto:${e.email}">${e.author}</a><br />
-          Tags:
-          <span py:for="i, t in enumerate(e.tags)" py:strip="True">
-            <a href="${base}/tag/${repr(t)}" py:content="t" /><span py:if="i
-              != (len(e.tags)-1)" py:strip="True">,</span>
-          </span>
-        </p>
-      </div>
-    </div>
-
-    <div class="main" py:content="entrylist(full=True)" />
+    <div class="main" py:content="mainpart.body()" />
 
     <hr />
 

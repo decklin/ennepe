@@ -6,8 +6,7 @@ __layoutdescription__ = "List of all tags."
 tags = {}
 for e in entries:
     for t in e.tags:
-        tags.setdefault(t, 0)
-        tags[t] += 1
+        tags[t] = tags.get(t, 0) + 1
 
 title = 'Tags - %s' % blogname
 body = '\n'.join(['<p><a href="%s">%s</a></p>' % (repr(t), t) for t in tags])

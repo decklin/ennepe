@@ -6,5 +6,8 @@ __layoutdescription__ = "Contents of recent entries."
 entries = entries[-10:]
 entries.reverse()
 
-page = muse.template(name='page', full=True, title='shutup', **locals())
-write(page.serialize(encoding='utf-8'))
+title = blogname
+mainpart = muse.template(name='entries-full', full=True, **locals())
+page = muse.template(name='page', **locals())
+
+write(page.serialize())
