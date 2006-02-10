@@ -356,7 +356,7 @@ def clean(s, maxwords=None):
 
     try:
         words = s.strip().lower().split()[:maxwords]
-        words = [''.join([c for c in w if c.isalnum()]) for w in words]
+        words = [filter(str.isalnum, w) for w in words]
         return '-'.join(words)
     except AttributeError:
         return None
