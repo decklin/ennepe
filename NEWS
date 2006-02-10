@@ -1,3 +1,6 @@
+0.7 (2006-02-10):
+=================
+
 * Removed EmPy entirely. While we could still plug something else in
   with not too much hassle, I don't think it's worth keeping if we have
   to work around broken Unicode support.
