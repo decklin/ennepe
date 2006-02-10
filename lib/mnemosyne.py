@@ -290,14 +290,27 @@ class Entry(BaseEntry):
 
     def __init__(self, fp):
         for _class in self.__class__.__bases__:
-            try: _class.__init__(self, fp)
-            except AttributeError: pass
-
+            try:
+                _class.__init__(self, fp)
+            except AttributeError:
+                pass
             for k, v in _class.__dict__.iteritems():
                 if k.startswith('_init_'):
                     setattr(self, k[6:], v(self))
-                if k.startswith('_prop_'):
-                    setattr(self.__class__, k[6:], property(v, None))
+
+    propcache = {}
+    def __getattr__(self, a):
+            cache = self.propcache.setdefault(hash(self.msg), {})
+            try:
+                return cache[a]
+            except KeyError:
+                for _class in self.__class__.__bases__:
+                    try:
+                        method = getattr(_class, '_prop_'+a)
+                        return cache.setdefault(a, method(self))
+                    except AttributeError:
+                        pass
+            return getattr(BaseEntry, a)
 
 class Message(email.Message.Message):
     """Non-broken version of email's Message class. Returns unicode headers
