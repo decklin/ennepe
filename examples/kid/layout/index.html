@@ -1,0 +1,10 @@
+__layoutname__ = "Recent View"
+__layoutauthor__ = "Decklin Foster"
+__layoutemail__ = "decklin@red-bean.com"
+__layoutdescription__ = "Contents of recent entries."
+
+entries = entries[-10:]
+entries.reverse()
+
+page = muse.template(name='page', full=True, title='shutup', **locals())
+write(page.serialize(encoding='utf-8'))
