@@ -296,10 +296,9 @@ class Entry(BaseEntry):
 
     def __init__(self, fp):
         for _class in self.__class__.__bases__:
-            try:
-                _class.__init__(self, fp)
-            except AttributeError:
-                pass
+            try: _class.__init__(self, fp)
+            except AttributeError: pass
+
             for k, v in _class.__dict__.iteritems():
                 if k.startswith('_init_'):
                     setattr(self, k[6:], v(self))
