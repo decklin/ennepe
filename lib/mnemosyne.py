@@ -11,6 +11,7 @@ import time
 import stat
 import shutil
 import em
+import kid
 from rsthtml import publish_content
 
 class Muse:
@@ -143,6 +144,13 @@ class Muse:
             self.where.append(k)
             self.sing(entries, spath, dpath, (what, what.replace(subst, k)))
             self.where.pop()
+
+    def template(self, name, **kwargs):
+        """Open a Kid template in the configuration's style directory, and
+        initialize it with any given keyword arguments."""
+        path = os.path.join(self.conf['style_dir'], '%s.kid' % name)
+        module = kid.load_template(path)
+        return module.Template(assume_encoding='utf-8', **kwargs)
 
     def expand(self, style, locals):
         """Open an EmPy file in the configuration's style directory, and
@@ -296,9 +304,9 @@ class Entry(BaseEntry):
                 if k.startswith('_init_'):
                     setattr(self, k[6:], v(self))
 
-    saved = {}
+    attrcache = {}
     def __getattr__(self, a):
-        cache = Entry.saved.setdefault(hash(self.msg), {})
+        cache = self.attrcache.setdefault(hash(self.msg), {})
         try:
             return cache[a]
         except KeyError:
@@ -311,7 +319,7 @@ class Entry(BaseEntry):
         return getattr(BaseEntry, a)
 
     def cache(self, attr, val):
-        cache = Entry.saved.setdefault(hash(self.msg), {})
+        cache = self.attrcache.setdefault(hash(self.msg), {})
         cache[attr] = val
 
 class Message(email.Message.Message):
