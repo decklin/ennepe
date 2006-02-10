@@ -308,18 +308,14 @@ class Message(email.Message.Message):
 
     def __getitem__(self, item):
         header = email.Message.Message.__getitem__(self, item)
-        if header:
-            # worst. interface. ever.
-            parts = email.Header.decode_header(header)
-            decoded = []
-            for p, enc in parts:
-                if enc:
-                    decoded.append(unicode(p, enc))
-                else:
-                    decoded.append(p)
-            return ' '.join(decoded)
-        else:
+        if not header:
             raise KeyError
+        def actually_decode(s, e):
+            if e: return s.decode(e)
+            else: return s
+        parts = email.Header.decode_header(header)
+        parts = [actually_decode(s, encoding) for s, encoding in parts]
+        return ' '.join(parts)
 
 class UniqueDict(dict):
     """A read-only dict which munges its values so that they are unique. If an
