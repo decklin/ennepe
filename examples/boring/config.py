@@ -12,10 +12,8 @@
 #
 #   * ``locals``: a dict of default local variables passed to all templates.
 #
-# This initially contains the keys __version__, __url__, __author__, and
-# __email__ from Mnemosyne itself. You can of course add keys for your
-# own name, email, etc, and any other information you want to use in
-# your layout. The example layout's styles use ``blogname`` and ``base``.
+# This is initially empty; add anything you want to use in all layouts. This
+# example uses ``blogname`` and ``base``.
 #
 #   * ``ignore``: a list of file names in the layout tree to ignore.
 #
