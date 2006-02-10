@@ -1,7 +1,3 @@
-__layoutname__ = "Feed"
-__layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
-__layoutdescription__ = "Feed of all entries in the last week."
-
 import time
 
 def newer(e, ago):
