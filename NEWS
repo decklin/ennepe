@@ -1,3 +1,17 @@
+0.6 (2006-02-10):
+=================
+
+* Added a cache interface so that any different properties that want to
+  cache themselves can do so in a consistent way. We may also want to
+  save this cache to disk at some point in the futre.
+
+* Added a method to expand Kid templates from your layout instead of
+  EmPy. At the moment, both work, but the Kid examples are really clunky
+  since they are just a straight port. Instead of building pages in the
+  same way, we could make use of Kid's much greater capabilities. I will
+  have to consider if EmPy should stay or go first. (Thanks to Erich
+  Schubert for the suggestion!)
+
 0.5 (2006-02-08):
 =================
 
