@@ -5,8 +5,6 @@
 import time
 import calendar
 
-assert grr
-
 year = entries[0].date[0]
 months = {}
 for e in entries:

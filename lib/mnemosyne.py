@@ -344,7 +344,7 @@ class UniqueDict(dict):
         if not self.has_key(key): self[key] = failobj
         return self[key]
 
-def cook(obj, rep, enc):
+def cook(obj, rep):
     """Create an object exactly like obj, except its repr() is rep. This will
     allow layouts to use the "cooked" rep (by convention, this is how we
     format stuff for URLs etc.) without caring how or when or why it was
