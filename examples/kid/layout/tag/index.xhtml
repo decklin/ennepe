@@ -1,0 +1,15 @@
+__layoutname__ = "Tag List"
+__layoutauthor__ = "Decklin Foster"
+__layoutemail__ = "decklin@red-bean.com"
+__layoutdescription__ = "List of all tags."
+
+tags = {}
+for e in entries:
+    for t in e.tags:
+        tags[t] = tags.get(t, 0) + 1
+
+title = 'Tags - %s' % blogname
+mainpart = muse.template(name='taglist', **locals())
+page = muse.template(name='page', **locals())
+
+write(page.serialize())

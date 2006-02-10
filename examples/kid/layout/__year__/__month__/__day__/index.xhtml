@@ -1,0 +1,9 @@
+__layoutname__ = "Day View"
+__layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
+__layoutdescription__ = "Chronological list of all entries for a given day."
+
+title = 'Day %s - %s' % (muse.where[-2], blogname)
+mainpart = muse.template(name='entries-full', full=True, **locals())
+page = muse.template(name='page', **locals())
+
+write(page.serialize())

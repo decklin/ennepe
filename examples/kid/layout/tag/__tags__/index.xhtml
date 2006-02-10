@@ -1,0 +1,12 @@
+__layoutname__ = "Tag View"
+__layoutauthor__ = "Decklin Foster <decklin@red-bean.com>"
+__layoutdescription__ = "Contents of entries matching a given tag."
+
+entries = entries[-50:]
+entries.reverse()
+
+title = 'Tag "%s" - %s' % (muse.where[-2], blogname)
+mainpart = muse.template(name='entries-full', full=True, **locals())
+page = muse.template(name='page', **locals())
+
+write(page.serialize())
