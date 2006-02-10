@@ -35,14 +35,14 @@ class Muse:
                 },
             }
 
-        for d in ('entry_dir', 'layout_dir', 'style_dir', 'output_dir'):
-            if not os.path.exists(self.conf[d]):
-                raise RuntimeError("%s %s does not exist" % (d, self.conf[d]))
-
         try:
             exec file(config) in self.conf
         except Exception, e:
             raise RuntimeError("Error running config: %s" % e)
+
+        for d in ('entry_dir', 'layout_dir', 'style_dir', 'output_dir'):
+            if not os.path.exists(self.conf[d]):
+                raise RuntimeError("%s %s does not exist" % (d, self.conf[d]))
 
         try: Entry.__bases__ += (self.conf['EntryMixin'],)
         except KeyError: pass
