@@ -198,22 +198,20 @@ class BaseEntry:
         else:
             return 1
 
-    rendered = {}
     def _prop_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
-        try:
-            return self.rendered[hash(self.msg)]
-        except KeyError:
-            s = self.msg.get_payload(decode=True)
-            if not s: return ''
+        s = self.msg.get_payload(decode=True)
+        if not s: return ''
 
-            try: s = s[:s.rindex('-- \n')]
-            except ValueError: pass
+        try: s = s[:s.rindex('-- \n')]
+        except ValueError: pass
 
-            html = self.magic(publish_content(s), s[:100])
-            return self.rendered.setdefault(hash(self.msg), html)
+        html = self.magic(publish_content(s), s[:100])
+        self.cache('content', html)
+
+        return html
 
     byday = {}
     def _init_subject(self):
@@ -298,19 +296,23 @@ class Entry(BaseEntry):
                 if k.startswith('_init_'):
                     setattr(self, k[6:], v(self))
 
-    propcache = {}
+    saved = {}
     def __getattr__(self, a):
-            cache = self.propcache.setdefault(hash(self.msg), {})
-            try:
-                return cache[a]
-            except KeyError:
-                for _class in self.__class__.__bases__:
-                    try:
-                        method = getattr(_class, '_prop_'+a)
-                        return cache.setdefault(a, method(self))
-                    except AttributeError:
-                        pass
-            return getattr(BaseEntry, a)
+        cache = Entry.saved.setdefault(hash(self.msg), {})
+        try:
+            return cache[a]
+        except KeyError:
+            for _class in self.__class__.__bases__:
+                try:
+                    method = getattr(_class, '_prop_'+a)
+                    return cache.setdefault(a, method(self))
+                except AttributeError:
+                    pass
+        return getattr(BaseEntry, a)
+
+    def cache(self, attr, val):
+        cache = Entry.saved.setdefault(hash(self.msg), {})
+        cache[attr] = val
 
 class Message(email.Message.Message):
     """Non-broken version of email's Message class. Returns unicode headers
