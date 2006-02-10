@@ -10,7 +10,6 @@ import email, email.Message, email.Header
 import time
 import stat
 import shutil
-import em
 import kid
 import docutils.core
 
@@ -26,7 +25,6 @@ class Muse:
             'style_dir': os.path.join(default_dir, 'style'),
             'output_dir': os.path.join(default_dir, 'htdocs'),
             'ignore': ('.svn', 'CVS'),
-            'charset': locale.getpreferredencoding(),
             'locals': {
                 '__version__': __version__,
                 '__author__': __author__,
@@ -46,9 +44,6 @@ class Muse:
 
         try: Entry.__bases__ += (self.conf['EntryMixin'],)
         except KeyError: pass
-
-        method = lambda _self, obj, rep: magic(obj, rep, self.conf['charset'])
-        Entry.magic = method
 
         self.box = mailbox.Maildir(self.conf['entry_dir'], Entry)
         self.entries = [e for e in self.box]
@@ -147,15 +142,6 @@ class Muse:
         module = kid.load_template(path)
         return module.Template(assume_encoding='utf-8', **kwargs)
 
-    def expand(self, style, locals):
-        """Open an EmPy file in the configuration's style directory, and
-        evaluate it with the given locals."""
-        style = os.path.join(self.conf['style_dir'], '%s.empy' % style)
-        try:
-            return em.expand(file(style).read(), locals)
-        except Exception, e:
-            raise RuntimeError("Error running style %s: %s" % (style, e))
-
     def sing_file(self, entries, spath, dpath):
         """Given an actual source and dest file, where the source is a layout
         script, evaluate it given the locals from config plus muse (ourself),
@@ -233,7 +219,7 @@ class BaseEntry:
         day = self.byday.setdefault(self.date[0:3], UniqueDict())
 
         slug = day.setdefault(hash(self.msg), cleaned)
-        return self.magic(subject, slug)
+        return cook(subject, slug)
 
     def _init_id(self):
         """Get the Message-ID and a globally unique tag: URL based on it, for
@@ -243,14 +229,14 @@ class BaseEntry:
             id = self.msg['Message-Id'][1:-1]
             local, host = id.split('@')
             date = time.strftime('%Y-%m-%d', self.date)
-            return self.magic(id, 'tag:%s,%s:%s' % (host, date, local))
+            return cook(id, 'tag:%s,%s:%s' % (host, date, local))
         except KeyError:
             return ''
 
     def _init_author(self):
         """Get the real name portion of the From: address."""
         author, addr = email.Utils.parseaddr(self.msg.get('From'))
-        return self.magic(author, clean(author))
+        return cook(author, clean(author))
 
     def _init_email(self):
         """Get the author's email address and a trivially spam-protected
@@ -260,7 +246,7 @@ class BaseEntry:
             cleaned = addr.replace('@', ' at ')
             cleaned = cleaned.replace('.', ' dot ')
             cleaned = cleaned.replace('-', ' dash ')
-            return self.magic(addr, cleaned)
+            return cook(addr, cleaned)
         except KeyError:
             return ''
 
@@ -268,21 +254,21 @@ class BaseEntry:
         """Get a list of tags from the comma-delimited X-Tags: header."""
         try:
             tags = [t.strip() for t in self.msg['X-Tags'].split(',')]
-            return [self.magic(t, clean(t)) for t in tags]
+            return [cook(t, clean(t)) for t in tags]
         except KeyError:
             return []
 
     def _init_year(self):
         """Get the year from the Date: header."""
-        return self.magic(self.date[0], time.strftime('%Y', self.date))
+        return cook(self.date[0], time.strftime('%Y', self.date))
 
     def _init_month(self):
         """Get the month from the Date: header."""
-        return self.magic(self.date[1], time.strftime('%m', self.date))
+        return cook(self.date[1], time.strftime('%m', self.date))
 
     def _init_day(self):
         """Get the day of the month from the Date: header."""
-        return self.magic(self.date[2], time.strftime('%d', self.date))
+        return cook(self.date[2], time.strftime('%d', self.date))
 
 class Entry(BaseEntry):
     """Actual entry class. Will search the user-provided mixin class and then
@@ -358,18 +344,13 @@ class UniqueDict(dict):
         if not self.has_key(key): self[key] = failobj
         return self[key]
 
-def magic(obj, rep, enc):
-    """Make obj into something suitable for passing to a layout. Returns an
-    object exactly like obj, except its repr() is rep and both are encoded if
-    they were unicode (layouts must serialize as a str, so giving them unicode
-    data is not recommended). If you are not passing something that might be a
-    unicode string, and do not care about using its repr() in your layout, you
-    are not required to use this function."""
+def cook(obj, rep, enc):
+    """Create an object exactly like obj, except its repr() is rep. This will
+    allow layouts to use the "cooked" rep (by convention, this is how we
+    format stuff for URLs etc.) without caring how or when or why it was
+    set."""
 
-    if type(obj) is unicode: obj = obj.encode(enc)
-    if type(rep) is unicode: rep = rep.encode(enc)
-
-    _class = type("Magic", (type(obj),), {'__repr__': lambda self: rep})
+    _class = type("Cooked", (type(obj),), {'__repr__': lambda self: rep})
     return _class(obj)
 
 def clean(s, maxwords=None):
