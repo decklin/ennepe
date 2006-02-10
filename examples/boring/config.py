@@ -29,8 +29,7 @@
 # each attribute is used when putting it in a URL. For example, if you had a
 # tag called 'My Tag', you would return that value, but add a ``__repr__``
 # method that returned 'my-tag', so that you could use it in a link such as
-# ``<a href="http://blog/tag/my-tag/">My Tag</a>``. EmPy has a nice syntax for
-# using repr, which is: ``<a href="http://blog/tag/@`tag`/">@tag</a>``.
+# ``<a href="http://blog/tag/my-tag/">My Tag</a>``.
 #
 # To easily create objects that work like this, the ``mnemosyne`` module
 # includes a function ``cook`` which takes two arguments: the value itself,
