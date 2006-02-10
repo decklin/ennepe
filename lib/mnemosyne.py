@@ -50,11 +50,6 @@ class Muse:
         method = lambda _self, obj, rep: magic(obj, rep, self.conf['charset'])
         Entry.magic = method
 
-        # It would be nice if the factory could decide whether it needs to
-        # open the file or not. All we need to know here is mtime, and all we
-        # need for that is the filename/inode itself. But either way we need
-        # to grab everything from the iterator up front so we can sort.
-
         self.box = mailbox.Maildir(self.conf['entry_dir'], Entry)
         self.entries = [e for e in self.box]
         self.entries.sort()
