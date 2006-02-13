@@ -13,7 +13,7 @@ def rfc3339(date):
   <title py:content="blogname" />
   <id py:content="base" />
   <link rel="self" type="application/atom+xml" href="${'/'.join([base]+muse.where)}" />
-  <link rel="alternate" type="text/html" href="${base}/" />
+  <link rel="alternate" type="application/xhtml+xml" href="${base}/" />
   <updated>${rfc3339(muse.entries[-1].date)}</updated>
   <generator uri="${mnemosyne.__url__}" version="${mnemosyne.__version__}">
     Mnemosyne
@@ -26,7 +26,7 @@ def rfc3339(date):
   <entry py:for="e in entries">
     <title type="text" py:content="e.subject" />
     <link rel="alternate" type="application/xhtml+xml"
-      href="${base}/${repr(e.year)}/${repr(e.month)}/${repr(e.day)}/${repr(e.subject)}.html" />
+      href="${base}/${repr(e.year)}/${repr(e.month)}/${repr(e.day)}/${repr(e.subject)}.xhtml" />
     <id py:content="repr(e.id)" />
     <published py:content="rfc3339(e.date)" />
     <updated py:content="rfc3339(e.mtime)" />
