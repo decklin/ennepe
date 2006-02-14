@@ -3,7 +3,8 @@
 import sys
 import os
 import getopt
-import mnemosyne
+
+import mnemosyne.muse
 
 if __name__ == '__main__':
     shortopts = 'fh'
@@ -29,7 +30,7 @@ if __name__ == '__main__':
         config = os.path.join(os.environ['HOME'], 'Mnemosyne', 'config.py')
 
     try:
-        muse = mnemosyne.Muse(config, force)
+        muse = mnemosyne.muse.Muse(config, force)
         muse.sing()
     except RuntimeError, e:
         print >>sys.stderr, e

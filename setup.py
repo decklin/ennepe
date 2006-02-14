@@ -19,7 +19,7 @@ setup(
         'Programming Language :: Python',
         ],
     package_dir = {'': 'lib'},
-    py_modules = ['mnemosyne', 'rsthtml'],
+    packages = ['mnemosyne'],
     scripts = ['mnemosyne'],
     data_files=[
         # ('share/man1', ['mnemosyne.1', 'etc...']),

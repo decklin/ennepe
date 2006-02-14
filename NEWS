@@ -1,3 +1,6 @@
+* Split the module into a package. If you have an old version installed
+  you'll want to remove it from site-packages.
+
 0.7 (2006-02-10):
 =================
 
