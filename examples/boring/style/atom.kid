@@ -31,7 +31,7 @@ def rfc3339(date):
     <published py:content="rfc3339(e.date)" />
     <updated py:content="rfc3339(e.mtime)" />
     <content type="xhtml">
-      <div xmlns="http://www.w3.org/1999/xhtml" py:replace="XML(e.content)" />
+      <div xmlns="http://www.w3.org/1999/xhtml" py:content="XML(e.content)" />
     </content>
   </entry>
 </feed>
