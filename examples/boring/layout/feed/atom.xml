@@ -6,6 +6,6 @@ def newer(e, ago):
 entries = [e for e in entries if newer(e, 86400*7)][-10:]
 entries.reverse()
 
-atom = muse.template(name='atom', **locals())
+atom = muse.template('atom', locals())
 
-print atom.serialize()
+print atom

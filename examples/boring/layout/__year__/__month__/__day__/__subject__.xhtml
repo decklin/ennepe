@@ -1,6 +1,6 @@
 title = '%s - %s' % (entries[0].subject, blogname)
 
-body = muse.template('econtent', **locals())
-page = muse.template('xhtml', **locals())
+body = muse.template('econtent', locals())
+page = muse.template('xhtml', locals())
 
-print page.serialize()
+print page

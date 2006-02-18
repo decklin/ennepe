@@ -113,13 +113,12 @@ class Muse:
             self.sing(entries, spath, dpath, (what, what.replace(subst, k)))
             self.where.pop()
 
-    def template(self, name, **kwargs):
+    def template(self, name, kwargs):
         """Open a Kid template in the configuration's style directory, and
         initialize it with any given keyword arguments."""
 
         path = os.path.join(self.conf['style_dir'], '%s.kid' % name)
-        module = kid.load_template(path)
-        return module.Template(assume_encoding='utf-8', **kwargs)
+        return KidTemplate(path, kwargs)
 
     def sing_file(self, entries, spath, dpath):
         """Given an source layout and and dest file, exec it with the locals
@@ -142,3 +141,12 @@ class Muse:
         sys.stdout = oldstdout
 
         print 'Wrote %s' % dpath
+
+class KidTemplate:
+    def __init__(self, filename, kwargs):
+        module = kid.load_template(filename)
+        self.template = module.Template(assume_encoding='utf-8', **kwargs)
+    def __str__(self):
+        return self.template.serialize(output='xhtml-strict')
+    def __getattr__(self, attr):
+        return getattr(self.template, attr)

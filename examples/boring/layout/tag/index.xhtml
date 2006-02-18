@@ -1,6 +1,6 @@
 title = 'Tags - %s' % blogname
 
-body = muse.template('taglist', **locals())
-page = muse.template('xhtml', **locals())
+body = muse.template('taglist', locals())
+page = muse.template('xhtml', locals())
 
-print page.serialize()
+print page

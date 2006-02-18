@@ -2,7 +2,7 @@ title = blogname
 entries = entries[-10:]
 entries.reverse()
 
-body = muse.template('econtent', **locals())
-page = muse.template('xhtml', **locals())
+body = muse.template('econtent', locals())
+page = muse.template('xhtml', locals())
 
-print page.serialize()
+print page

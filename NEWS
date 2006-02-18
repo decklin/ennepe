@@ -1,3 +1,7 @@
+* Use Kid's xhtml-strict serializer so that we get the correct XHTML
+  doctype. Layouts should now simply print the template object rather
+  than calling serialize directly.
+
 * Split the module into a package. If you have an old version installed
   you'll want to remove it from site-packages.
 
