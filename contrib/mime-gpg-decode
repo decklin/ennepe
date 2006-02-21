@@ -61,5 +61,5 @@ if __name__ == '__main__':
     set_header(parent, 'Content-Transfer-Encoding', '8bit')
     parent.set_payload(body.get_payload(decode=True), body.get_charset())
 
-    print str(parent),
+    print parent,
     sys.exit(os.WEXITSTATUS(status))
