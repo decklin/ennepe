@@ -41,15 +41,18 @@ def cheapiter(x):
     """DWIM-style iterator which, if given a sequence, will iterate over that
     sequence, unless it is a string type. For a string or any other atomic
     type, create an iterator which will return the given value once and then
-    stop. This is a horrible kludge."""
+    stop. Unless it's None. This is a horrible, horrible kludge."""
 
     try:
-        assert not isinstance((x), (str, unicode))
-        for e in x: return iter(x)
-        else: return iter(())
-    except (AssertionError, TypeError):
-        if x: return iter((x,))
-        else: return iter(())
+        if isinstance(x, basestring):
+            return iter((x,))
+        else:
+            return iter(x)
+    except TypeError:
+        if x != None:
+            return iter((x,))
+        else:
+            return iter(())
 
 def cook(obj, rep):
     """Create an object exactly like obj, except its repr() is rep. This will

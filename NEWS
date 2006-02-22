@@ -1,3 +1,6 @@
+* Don't skip entries with empty subjects when deciding what pages to
+  output.
+
 * Use Kid's xhtml-strict serializer so that we get the correct XHTML
   doctype. Layouts should now simply print the template object rather
   than calling serialize directly.
