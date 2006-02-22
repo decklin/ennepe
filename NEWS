@@ -1,3 +1,6 @@
+0.8 (2006-02-21):
+=================
+
 * Don't skip entries with empty subjects when deciding what pages to
   output.
 
