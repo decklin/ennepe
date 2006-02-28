@@ -15,7 +15,6 @@ class Muse:
         self.force = force
         self.where = []
 
-        default_dir = os.path.join(os.environ['HOME'], 'Mnemosyne')
         self.conf = {
             'entry_dir': os.path.expanduser('~/Mnemosyne/entries'),
             'layout_dir': os.path.expanduser('~/Mnemosyne/layout'),
