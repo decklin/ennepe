@@ -30,7 +30,7 @@ Configuration
 =============
 
 A Mnemosyne blog starts with a configuration file, which is a Python
-script. The example provided in ``examples/boring/config.py`` explains
+script. The example provided in ``examples/simple/config.py`` explains
 what it can do and what variables can be set. By default, Mnemosyne
 looks for this file in ``~/Mnemosyne/config.py``.
 
@@ -80,8 +80,8 @@ evaluated in turn with only the entries for that year.
 You can do the same thing for attributes which have multiple values, as
 well: for example, a directory named ``__tags__`` will be evaluated for
 each tag that appears on an entry, even if the tags are stored as a
-list. The directory tree in ``examples/boring/layout`` illustrates how
-to do each of these, and a simple feed; you can of course be more
+list. The directory tree in ``examples/simple/layout`` illustrates how
+to do each of these, and a basic Atom feed; you can of course be more
 creative.
 
 Entries
@@ -96,10 +96,10 @@ needed.
 
 When generating file or directory names, the attributes' repr() is used,
 so that dates, subject lines, and so on may be appropriately formatted
-and linked to. The ``mnemosyne`` module provides the functions ``clean``
-and ``cook``, to make creating useful values easier. This is just a
-matter of convention; it is not required, but it does ensure that all
-the formatting logic is in one place.
+and linked to. The ``mnemosyne.utils`` module provides the functions
+``clean`` and ``cook``, to make creating useful values easier. This is
+just a matter of convention; it is not required, but it does ensure that
+all the formatting logic is in one place.
 
 Entry Details
 =============
