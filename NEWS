@@ -1,3 +1,8 @@
+* Fixed the "simple" example, which has a new name, some better default
+  variables, and an updated mixin demo. Its ``config.py`` also lists the
+  default values in a hopefully more readable way. (Thanks to Aigars
+  Mahinovs for reporting this, and writing the Expat formatter.)
+
 0.8 (2006-02-21):
 =================
 

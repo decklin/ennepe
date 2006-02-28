@@ -34,17 +34,10 @@ class BaseEntry:
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
-        s = self.msg.get_payload(decode=True)
-        if not s: return ''
-
-        try: s = s[:s.rindex('-- \n')]
-        except ValueError: pass
-
+        s = self.msg.get_body()
         parts = docutils.core.publish_parts(s, writer_name='html')
         body = parts['body']
-
-        self.cache('content', body)
-        return body
+        return self.cache('content', body)
 
     byday = {}
     def _init_subject(self):
@@ -144,4 +137,4 @@ class Entry(BaseEntry):
 
     def cache(self, attr, val):
         cache = self.attrcache.setdefault(hash(self.msg), {})
-        cache[attr] = val
+        return cache.setdefault(attr, val)

@@ -15,6 +15,15 @@ class Message(email.Message.Message):
         parts = [actually_decode(s, encoding) for s, encoding in parts]
         return ' '.join(parts)
 
+    def get_body(self):
+        """Returns the message payload with any signature stripped."""
+
+        s = self.get_payload(decode=True)
+        try:
+            return s[:s.rindex('-- \n')]
+        except ValueError:
+            return s
+
 class UniqueDict(dict):
     """A read-only dict which munges its values so that they are unique. If an
     existing key has the value 'foo', attempting to set another key to 'foo'
