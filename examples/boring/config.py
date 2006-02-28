@@ -1,29 +1,52 @@
-# Mnemosyne configuration
-# =======================
+# Example Mnemosyne configuration
+# ===============================
 #
-# This file is a Python script. You can set the following variables here:
+# This file is a Python script. 
+
+import mnemosyne
+
+# File locations
+# --------------
 #
-#   * ``entries_dir``: a Maildir containing all the blog entries.
+#   * ``entry_dir``: a Maildir containing all the blog entries.
 #   * ``layout_dir``: the blog's layout, as a skeleton directory tree.
-#   * ``style_dir``: EmPy templates used for filling the layouts.
+#   * ``style_dir``: Kid templates used for filling the layouts.
 #   * ``output_dir``: location where we will write the generated pages.
 #
-# These default to $HOME/Mnemosyne/{entries,layout,style,htdocs} respectively.
+# These default to:
+
+entry_dir = os.path.expanduser('~/Mnemosyne/entries')
+layout_dir = os.path.expanduser('~/Mnemosyne/layout')
+style_dir = os.path.expanduser('~/Mnemosyne/style')
+output_dir = os.path.expanduser('~/Mnemosyne/htdocs')
+
+# Custom Variables
+# ----------------
 #
 #   * ``locals``: a dict of default local variables passed to all templates.
 #
 # This is initially empty; add anything you want to use in all layouts. This
 # example uses ``blogname`` and ``base``.
+
+locals['blogname'] = 'Example Blog'
+locals['base'] = 'http://example.invalid'
+
+# Ignore list
+# -----------
 #
 #   * ``ignore``: a list of file names in the layout tree to ignore.
 #
-# This defaults to ('.svn', 'CVS').
+# This defaults to:
+
+ignore = ('.svn', 'CVS', 'MT')
+
+# Creating and redefining attributes
+# ----------------------------------
 #
-# You can also define a class ``EntryMixin`` here. Any methods named
+# You can define a class ``EntryMixin`` in this file. Any methods named
 # ``_init_ATTRIBUTE`` or ``_prop_ATTRIBUTE`` will be used to provide
-# ``e.ATTRIBUTE`` for each entry ``e``, and will be evaluated at
-# initialization or on demand, respectively. (``ATTRIBUTE``, of course, can be
-# whatever you want).
+# ``entry.ATTRIBUTE``, and will be evaluated at startup or on demand,
+# respectively. (``ATTRIBUTE``, of course, can be whatever you want).
 #
 # The convention used in the example layout and styles is that the repr() of
 # each attribute is used when putting it in a URL. For example, if you had a
@@ -36,16 +59,12 @@
 # and the value to use for its repr(). It then takes care of defining a new
 # class and overriding its ``__repr__`` method for you. Of course, if you do
 # not need to define a special repr(), this is not required.
-
-import mnemosyne
-
-locals['blogname'] = 'Example Blog'
-locals['base'] = 'http://example.invalid'
+#
+# By default, this is not defined.
 
 class EntryMixin:
     # Pull anything you want out of the message (self.msg, an
     # email.Message.Message object), and use it to provide a new attribute:
-
     def _init_foobar(self):
         foobar = self.msg['X-Foobar']
         cleaned = mnemosyne.clean(foobar, 3)

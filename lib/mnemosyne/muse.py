@@ -17,11 +17,11 @@ class Muse:
 
         default_dir = os.path.join(os.environ['HOME'], 'Mnemosyne')
         self.conf = {
-            'entry_dir': os.path.join(default_dir, 'entries'),
-            'layout_dir': os.path.join(default_dir, 'layout'),
-            'style_dir': os.path.join(default_dir, 'style'),
-            'output_dir': os.path.join(default_dir, 'htdocs'),
-            'ignore': ('.svn', 'CVS'),
+            'entry_dir': os.path.expanduser('~/Mnemosyne/entries'),
+            'layout_dir': os.path.expanduser('~/Mnemosyne/layout'),
+            'style_dir': os.path.expanduser('~/Mnemosyne/style'),
+            'output_dir': os.path.expanduser('~/Mnemosyne/htdocs'),
+            'ignore': ('.svn', 'CVS', 'MT'),
             'locals': {},
             }
 
