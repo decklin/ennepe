@@ -1,3 +1,6 @@
+0.9 (2006-02-28):
+=================
+
 * Fixed the "simple" example, which has a new name, some better default
   variables, and an updated mixin demo. Its ``config.py`` also lists the
   default values in a hopefully more readable way. (Thanks to Aigars
