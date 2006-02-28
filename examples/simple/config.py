@@ -68,6 +68,8 @@ ignore = ('.svn', 'CVS', 'MT')
 # By default, this class is not defined.
 
 class EntryMixin:
+    """User-defined mixin class for Entry objects."""
+
     ## Pull anything you want out of self.msg (an email.Message.Message
     ## object), and use it to provide a new attribute. If there is no usable
     ## value, make sure there is some default for the repr() so that we don't
