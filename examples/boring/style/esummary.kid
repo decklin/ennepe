@@ -6,7 +6,7 @@ import time
 <div py:def="contents()">
   <p py:for="e in entries">
     ${time.strftime('%a %d %b, %H:%M:%S', e.date)}:
-    <a href="${base}/${repr(e.year)}/${repr(e.month)}/${repr(e.day)}/${repr(e.subject)}.xhtml">${e.subject}</a>
+    <a href="${blogroot}/${repr(e.year)}/${repr(e.month)}/${repr(e.day)}/${repr(e.subject)}.xhtml">${e.subject}</a>
   </p>
 </div>
 </html>

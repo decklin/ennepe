@@ -3,6 +3,7 @@
 #
 # This file is a Python script. 
 
+import os
 import mnemosyne
 
 # File locations
@@ -13,7 +14,7 @@ import mnemosyne
 #   * ``style_dir``: Kid templates used for filling the layouts.
 #   * ``output_dir``: location where we will write the generated pages.
 #
-# These default to:
+# All these directories must exist. They default to:
 
 entry_dir = os.path.expanduser('~/Mnemosyne/entries')
 layout_dir = os.path.expanduser('~/Mnemosyne/layout')
@@ -26,10 +27,13 @@ output_dir = os.path.expanduser('~/Mnemosyne/htdocs')
 #   * ``locals``: a dict of default local variables passed to all templates.
 #
 # This is initially empty; add anything you want to use in all layouts. This
-# example uses ``blogname`` and ``base``.
+# example uses:
 
-locals['blogname'] = 'Example Blog'
-locals['base'] = 'http://example.invalid'
+locals['blogname'] = 'Boring Example'
+locals['blogroot'] = 'http://blog.example.invalid'
+locals['authname'] = 'Melete'
+locals['authemail'] = 'melete@example.invalid'
+locals['authhome'] = 'http://www.example.invalid/~melete/'
 
 # Ignore list
 # -----------
@@ -63,12 +67,20 @@ ignore = ('.svn', 'CVS', 'MT')
 # By default, this is not defined.
 
 class EntryMixin:
-    # Pull anything you want out of the message (self.msg, an
-    # email.Message.Message object), and use it to provide a new attribute:
+    # Pull anything you want out of self.msg (an email.Message.Message
+    # object), and use it to provide a new attribute. If there is no usable
+    # value, make sure there is some default for the repr() so that we don't
+    # accidentally create an invalid URL when we use it.
+
     def _init_foobar(self):
-        foobar = self.msg['X-Foobar']
-        cleaned = mnemosyne.clean(foobar, 3)
-        return mnemosyne.cook(foobar, cleaned)
+        try:
+            foobar = self.msg['X-Foobar']
+            cleaned = mnemosyne.utils.clean(foobar, 3)
+        except KeyError:
+            foobar = ''
+            cleaned = 'nofoo'
+
+        return mnemosyne.utils.cook(foobar, cleaned)
 
     ## You could use Markdown instead of ReST to write entries; I'll comment
     ## this out since you'd need to install it from http://err.no/pymarkdown/

@@ -5,12 +5,12 @@
   <head>
     <title py:content="title" />
     <link rel="alternate" type="application/atom+xml" title="Atom"
-    href="${base}/feed/atom.xml" />
+    href="${blogroot}/feed/atom.xml" />
   </head>
 
   <body>
 
-    <h1><a href="${base}/">${blogname}</a></h1>
+    <h1><a href="${blogroot}/">${blogname}</a></h1>
 
     <div class="main" py:content="body.contents()" />
 
