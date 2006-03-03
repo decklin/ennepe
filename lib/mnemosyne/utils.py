@@ -80,7 +80,7 @@ def clean(s, maxwords=None):
 
     try:
         words = s.strip().lower().split()[:maxwords]
-        words = [filter(str.isalnum, w) for w in words]
+        words = [filter(lambda c: c.isalnum(), w) for w in words]
         return '-'.join(words)
     except AttributeError:
         return None
