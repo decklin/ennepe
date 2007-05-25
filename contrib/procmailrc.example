@@ -13,10 +13,10 @@
     :0a
     {
         :0c
-        $HOME/Mnemosyne/entries/
+        $HOME/.mnemosyne/entries/
 
         :0
-        | automnemosyne >>$HOME/Mnemosyne/automnemosyne.log
+        | automnemosyne >>$HOME/.mnemosyne/automnemosyne.log
     }
 
     :0E

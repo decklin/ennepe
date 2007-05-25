@@ -1,10 +1,10 @@
 #!/usr/bin/python
 
 import sys
-import os
 import getopt
 
 import mnemosyne.muse
+import mnemosyne.utils
 
 if __name__ == '__main__':
     shortopts = 'fh'
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     try:
         config = args[0]
     except IndexError:
-        config = os.path.join(os.environ['HOME'], 'Mnemosyne', 'config.py')
+        config = mnemosyne.utils.get_conf('config.py')
 
     try:
         muse = mnemosyne.muse.Muse(config, force)

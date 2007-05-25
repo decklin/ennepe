@@ -1,3 +1,4 @@
+import os
 import email, email.Message, email.Header
 
 class Message(email.Message.Message):
@@ -84,3 +85,6 @@ def clean(s, maxwords=None):
         return '-'.join(words)
     except AttributeError:
         return None
+
+def get_conf(s):
+    return os.path.expanduser('~/.mnemosyne/%s' % s)

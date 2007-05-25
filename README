@@ -32,7 +32,7 @@ Configuration
 A Mnemosyne blog starts with a configuration file, which is a Python
 script. The example provided in ``examples/simple/config.py`` explains
 what it can do and what variables can be set. By default, Mnemosyne
-looks for this file in ``~/Mnemosyne/config.py``.
+looks for this file in ``~/.mnemosyne/config.py``.
 
 Usage
 =====

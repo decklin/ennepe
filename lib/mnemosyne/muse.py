@@ -16,11 +16,11 @@ class Muse:
         self.where = []
 
         self.conf = {
-            'entry_dir': os.path.expanduser('~/Mnemosyne/entries'),
-            'layout_dir': os.path.expanduser('~/Mnemosyne/layout'),
-            'style_dir': os.path.expanduser('~/Mnemosyne/style'),
-            'output_dir': os.path.expanduser('~/Mnemosyne/htdocs'),
-            'ignore': ('.svn', 'CVS', 'MT'),
+            'entry_dir': utils.get_conf('entries'),
+            'layout_dir': utils.get_conf('layout'),
+            'style_dir': utils.get_conf('style'),
+            'output_dir': utils.get_conf('htdocs'),
+            'ignore': ('CVS', '.svn', 'MT', '.git'),
             'locals': {},
             }
 
