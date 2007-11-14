@@ -20,7 +20,7 @@ class Muse:
             'layout_dir': utils.get_conf('layout'),
             'style_dir': utils.get_conf('style'),
             'output_dir': utils.get_conf('htdocs'),
-            'ignore': ('CVS', '.svn', 'MT', '.git'),
+            'ignore': ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS'),
             'locals': {},
             }
 
