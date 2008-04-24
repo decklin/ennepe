@@ -16,8 +16,7 @@ class BaseEntry:
             # For some bizarre reason, parsedate doesn't set wday/yday/isdst.
             return time.localtime(time.mktime(d))
         def getstamp(mpath):
-            # djb says you're not supposed to do this. djb can bite me.
-            stamp, id, host = os.path.split(mpath)[1].split('.')
+            stamp, id, host = os.path.split(mpath)[1].split('.', 2)
             return int(stamp)
 
         self.msg = email.message_from_file(fp, utils.Message)
