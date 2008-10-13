@@ -1,3 +1,5 @@
+* Switch to ISC license (33% less fat!)
+
 * Changed default config dir to ~/.mnemosyne.
 
 * Fixed cleaning of Unicode subjects.
