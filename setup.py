@@ -8,7 +8,7 @@ setup(
     description='Static blog generation system',
     author='Decklin Foster',
     author_email='decklin@red-bean.com',
-    url='http://www.red-bean.com/~decklin/software/mnemosyne/',
+    url='http://www.red-bean.com/decklin/mnemosyne/',
     classifiers=[
         'Intended Audience :: Advanced End Users',
         'Development Status :: 4 - Beta',
