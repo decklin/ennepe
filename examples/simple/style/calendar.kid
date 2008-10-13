@@ -22,7 +22,7 @@ for e in entries:
       <tr class="week" py:for="week in cal">
         <td class="day" py:for="day in week">
           <p>
-            <a py:if="days.has_key(day)" href="${blogroot}/${repr(e.year)}/${repr(e.month)}/${repr(e.day)}/">${day}</a>
+            <a py:if="days.has_key(day)" href="${blogroot}/${`e.year`}/${`e.month`}/${`e.day`}/">${day}</a>
             <span py:if="not days.has_key(day)" py:strip="True">
               <span py:if="day" py:strip="True">${day}</span>
             </span>

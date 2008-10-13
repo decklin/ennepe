@@ -26,8 +26,8 @@ def rfc3339(date):
   <entry py:for="e in entries">
     <title type="text" py:content="e.subject" />
     <link rel="alternate" type="application/xhtml+xml"
-      href="${blogroot}/${repr(e.year)}/${repr(e.month)}/${repr(e.day)}/${repr(e.subject)}.xhtml" />
-    <id py:content="repr(e.id)" />
+      href="${blogroot}/${`e.year`}/${`e.month`}/${`e.day`}/${`e.subject`}.xhtml" />
+    <id py:content="`e.id`" />
     <published py:content="rfc3339(e.date)" />
     <updated py:content="rfc3339(e.mtime)" />
     <content type="xhtml">

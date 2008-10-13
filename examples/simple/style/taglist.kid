@@ -9,7 +9,7 @@
           tags[t] = tags.get(t, 0) + 1
   ?>
   <p py:for="t, n in tags.iteritems()">
-    <a href="${repr(t)}">${t} (${n})</a>
+    <a href="${`t`}">${t} (${n})</a>
   </p>
 </div>
 
