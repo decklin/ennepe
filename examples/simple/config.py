@@ -43,7 +43,7 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 #
 # This defaults to:
 
-# ignore = ('CVS', '.svn', 'MT', '.git')
+# ignore = ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS')
 
 # Creating and redefining attributes
 # ----------------------------------
