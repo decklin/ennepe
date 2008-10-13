@@ -4,8 +4,7 @@
 # This file is a Python script. The configuration defined here will generate a
 # very simple blog, somewhat like PyBlosxom's defaults.
 
-import mnemosyne
-import mnemosyne.utils
+from mnemosyne import get_conf, cook, clean
 
 # File locations
 # --------------
@@ -17,10 +16,10 @@ import mnemosyne.utils
 #
 # All these directories must exist. They default to:
 
-# entry_dir = mnemosyne.utils.get_conf('entries')
-# layout_dir = mnemosyne.utils.get_conf('layout')
-# style_dir = mnemosyne.utils.get_conf('style')
-# output_dir = mnemosyne.utils.get_conf('htdocs')
+# entry_dir = get_conf('entries')
+# layout_dir = get_conf('layout')
+# style_dir = get_conf('style')
+# output_dir = get_conf('htdocs')
 
 # Custom Variables
 # ----------------
@@ -77,12 +76,12 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 #    def get_foobar(self):
 #        try:
 #            foobar = self.msg['X-Foobar']
-#            cleaned = mnemosyne.utils.clean(foobar, 3)
+#            cleaned = clean(foo, 3)
 #        except KeyError:
 #            foobar = ''
 #            cleaned = 'nofoo'
 #
-#        return mnemosyne.utils.cook(foobar, cleaned)
+#        return cook(foobar, cleaned)
 #
 #    # You could use Markdown instead of ReST to write entries; you'll need
 #    # to install it from http://err.no/pymarkdown/.
@@ -91,7 +90,7 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 #
 #    def get_content(self):
 #        s = self.msg.get_body()
-#        return mnemosyne.utils.cook(pymarkdown.Markdown(s), s[:80])
+#        return cook(pymarkdown.Markdown(s), s[:80])
 #
 #    # If you would occasionally like to paste a chunk of HTML or XML from
 #    # elsewhere into a message, you could use a different formatter depending

@@ -8,7 +8,7 @@ import kid
 import StringIO
 
 import entry
-import utils
+from mnemosyne import get_conf, cheapiter
 
 class Muse:
     def __init__(self, config, force):
@@ -16,10 +16,10 @@ class Muse:
         self.where = []
 
         self.conf = {
-            'entry_dir': utils.get_conf('entries'),
-            'layout_dir': utils.get_conf('layout'),
-            'style_dir': utils.get_conf('style'),
-            'output_dir': utils.get_conf('htdocs'),
+            'entry_dir': get_conf('entries'),
+            'layout_dir': get_conf('layout'),
+            'style_dir': get_conf('style'),
+            'output_dir': get_conf('htdocs'),
             'ignore': ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS'),
             'locals': {},
             }
@@ -104,7 +104,7 @@ class Muse:
         inst = {}
         for e in entries:
             mv = getattr(e, subst[2:-2])
-            for m in utils.cheapiter(mv):
+            for m in cheapiter(mv):
                 inst.setdefault(repr(m), []).append(e)
 
         for k, entries in inst.iteritems():
