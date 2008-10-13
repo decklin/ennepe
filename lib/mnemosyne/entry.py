@@ -29,17 +29,16 @@ class BaseEntry:
         else:
             return 1
 
-    def _prop_content(self):
+    def get_content(self):
         """Read in the message's body, strip any signature, and format using
         reStructedText."""
 
         s = self.msg.get_body()
         parts = docutils.core.publish_parts(s, writer_name='html')
-        body = parts['body']
-        return self.cache('content', body)
+        return parts['body']
 
     byday = {}
-    def _init_subject(self):
+    def get_subject(self):
         """Get the contents of the Subject: header and a cleaned, uniq'd
         version of same."""
 
@@ -56,7 +55,7 @@ class BaseEntry:
         slug = day.setdefault(hash(self.msg), cleaned)
         return utils.cook(subject, slug)
 
-    def _init_id(self):
+    def get_id(self):
         """Get the Message-ID and a globally unique tag: URL based on it, for
         use in feeds."""
 
@@ -68,12 +67,12 @@ class BaseEntry:
         except KeyError:
             return ''
 
-    def _init_author(self):
+    def get_author(self):
         """Get the real name portion of the From: address."""
         author, addr = email.Utils.parseaddr(self.msg.get('From'))
         return utils.cook(author, utils.clean(author))
 
-    def _init_email(self):
+    def get_email(self):
         """Get the author's email address and a trivially spam-protected
         version of same."""
         try:
@@ -85,7 +84,7 @@ class BaseEntry:
         except KeyError:
             return ''
 
-    def _init_tags(self):
+    def get_tags(self):
         """Get a list of tags from the comma-delimited X-Tags: header."""
         try:
             tags = [t.strip() for t in self.msg['X-Tags'].split(',')]
@@ -93,47 +92,40 @@ class BaseEntry:
         except KeyError:
             return []
 
-    def _init_year(self):
-        """Get the year from the Date: header."""
+    def get_year(self):
+        """Extract the year from the Date: header."""
         return utils.cook(self.date[0], time.strftime('%Y', self.date))
 
-    def _init_month(self):
-        """Get the month from the Date: header."""
+    def get_month(self):
+        """Extract the month from the Date: header."""
         return utils.cook(self.date[1], time.strftime('%m', self.date))
 
-    def _init_day(self):
-        """Get the day of the month from the Date: header."""
+    def get_day(self):
+        """Extract the day of the month from the Date: header."""
         return utils.cook(self.date[2], time.strftime('%d', self.date))
 
 class Entry(BaseEntry):
-    """Actual entry class. Will search the user-provided mixin class and then
-    BaseEntry for methods of the form _init_*, and set the appropriate
-    attribute on initialization, and also search for methods of the form
-    _prop_* to provide properties to be evaluated on demand."""
+    """Actual entry class. To look up an attribute, will search the
+    user-provided mixin classes and then BaseEntry for methods of the
+    form get_*, caching the results (we assume that values are
+    referentially transparent)."""
 
     def __init__(self, fp):
+        # might want to load this from disk, keyed on hash(self.msg)
+        self.cache = {}
         for _class in self.__class__.__bases__:
             try: _class.__init__(self, fp)
             except AttributeError: pass
 
-            for k, v in _class.__dict__.iteritems():
-                if k.startswith('_init_'):
-                    setattr(self, k[6:], v(self))
-
-    attrcache = {}
-    def __getattr__(self, a):
-        cache = self.attrcache.setdefault(hash(self.msg), {})
+    def __getattr__(self, attr):
         try:
-            return cache[a]
+            return self.cache[attr]
         except KeyError:
             for _class in self.__class__.__bases__:
                 try:
-                    method = getattr(_class, '_prop_'+a)
-                    return cache.setdefault(a, method(self))
+                    method = getattr(_class, 'get_'+attr)
+                    return self.cache.setdefault(attr, method(self))
                 except AttributeError:
                     pass
-        return getattr(BaseEntry, a)
-
-    def cache(self, attr, val):
-        cache = self.attrcache.setdefault(hash(self.msg), {})
-        return cache.setdefault(attr, val)
+            else:
+                raise AttributeError("Entry has no attribute '%s'" % attr)

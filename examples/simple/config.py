@@ -49,9 +49,8 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 # ----------------------------------
 #
 # You can define a class ``EntryMixin`` in this file. Any methods named
-# ``_init_ATTRIBUTE`` or ``_prop_ATTRIBUTE`` will be used to provide
-# ``entry.ATTRIBUTE``, and will be evaluated at startup or on demand,
-# respectively. (``ATTRIBUTE``, of course, can be whatever you want).
+# ``get_ATTRIBUTE`` will be used to provide ``entry.ATTRIBUTE``, and that
+# value will be automatically cached.
 #
 # The convention used in the example layout and styles is that the repr() of
 # each attribute is used when putting it in a URL. For example, if you had a
@@ -75,7 +74,7 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 #    # value, make sure there is some default for the repr() so that we don't
 #    # accidentally create an invalid URL when we use it.
 #
-#    def _init_foobar(self):
+#    def get_foobar(self):
 #        try:
 #            foobar = self.msg['X-Foobar']
 #            cleaned = mnemosyne.utils.clean(foobar, 3)
@@ -88,15 +87,11 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 #    # You could use Markdown instead of ReST to write entries; you'll need
 #    # to install it from http://err.no/pymarkdown/.
 #
-#    # The formatting process may take a second, so rather than evaluating it
-#    # at startup, we will wait until the result is needed.
-#
 #    import pymarkdown
 #
-#    def _prop_content(self):
+#    def get_content(self):
 #        s = self.msg.get_body()
-#        body = mnemosyne.utils.cook(pymarkdown.Markdown(s), s[:100])
-#        return self.cache('content', body)
+#        return mnemosyne.utils.cook(pymarkdown.Markdown(s), s[:80])
 #
 #    # If you would occasionally like to paste a chunk of HTML or XML from
 #    # elsewhere into a message, you could use a different formatter depending
@@ -107,7 +102,7 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 #    import xml.dom
 #    import xml.parsers.expat
 #
-#    def _prop_content(self):
+#    def get_content(self):
 #        """Read in the message's body, strip any signature, and format using
 #        reStructedText unless X-Format=='html'."""
 #
@@ -133,4 +128,4 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 #            parts = docutils.core.publish_parts(s, writer_name='html')
 #            body = parts['body']
 #
-#        return self.cache('content', body)
+#        return body

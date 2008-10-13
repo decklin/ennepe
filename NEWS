@@ -1,3 +1,7 @@
+* Greatly simplify attribute caching stuff. All attribute methods in your
+  mixins should be renamed to get_ATTR, and just return a value (no more
+  cache() method).
+
 0.10 (2008-10-12):
 ==================
 
