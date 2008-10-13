@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='Mnemosyne',
-    version='0.1',
+    version='0.10',
     description='Static blog generation system',
     author='Decklin Foster',
     author_email='decklin@red-bean.com',

@@ -1,3 +1,6 @@
+0.10 (2008-10-12):
+==================
+
 * Switch to ISC license (33% less fat!)
 
 * Changed default config dir to ~/.mnemosyne.
