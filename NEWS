@@ -4,6 +4,9 @@
 
 * Update our URL.
 
+* Hack around lossage in the 2.5 mailbox module (which wraps the file object
+  for no good reason).
+
 0.10 (2008-10-12):
 ==================
 

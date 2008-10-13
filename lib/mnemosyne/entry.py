@@ -15,13 +15,16 @@ class BaseEntry:
         def fixdate(d):
             # For some bizarre reason, parsedate doesn't set wday/yday/isdst.
             return time.localtime(time.mktime(d))
-        def getstamp(mpath):
-            stamp, id, host = os.path.split(mpath)[1].split('.', 2)
+        def getstamp(fp):
+            # _ProxyFile is a disgusting kludge. I take no responsibility.
+            try: path = fp.name # 2.4 or earlier
+            except AttributeError: path = fp._file.name
+            stamp, id, host = os.path.split(path)[1].split('.', 2)
             return int(stamp)
 
         self.msg = email.message_from_file(fp, Message)
         self.date = fixdate(email.Utils.parsedate(self.msg['Date']))
-        self.mtime = time.localtime(getstamp(fp.name))
+        self.mtime = time.localtime(getstamp(fp))
 
     def __cmp__(self, other):
         if other:
