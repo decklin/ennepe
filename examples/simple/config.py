@@ -1,8 +1,8 @@
 # Example Mnemosyne configuration
 # ===============================
 #
-# This file is a Python script. The configuration defined here will generate a
-# very simple blog, somewhat like PyBlosxom's defaults.
+# This file is a Python script. The configuration defined here will
+# generate a very simple blog, somewhat like PyBlosxom's defaults.
 
 from mnemosyne import get_conf, cook, clean
 
@@ -14,20 +14,21 @@ from mnemosyne import get_conf, cook, clean
 #   * ``style_dir``: Kid templates used for filling the layouts.
 #   * ``output_dir``: location where we will write the generated pages.
 #
-# All these directories must exist. They default to:
+# All these directories must already exist. They default to the following
+# subdirectories of ~/.mnemosyne:
 
-# entry_dir = get_conf('entries')
-# layout_dir = get_conf('layout')
-# style_dir = get_conf('style')
-# output_dir = get_conf('htdocs')
+entry_dir = get_conf('entries')
+layout_dir = get_conf('layout')
+style_dir = get_conf('style')
+output_dir = get_conf('htdocs')
 
 # Custom Variables
 # ----------------
 #
-#   * ``locals``: a dict of default local variables passed to all templates.
+#   * ``locals``: a dict of local variables passed to all templates.
 #
-# This is initially empty; add anything you want to use in all layouts. This
-# example uses:
+# This is initially empty; add anything you want to use in all layouts.
+# Our example uses:
 
 locals['blogname'] = 'Simple Example'
 locals['blogroot'] = 'http://blog.example.invalid'
@@ -42,26 +43,24 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 #
 # This defaults to:
 
-# ignore = ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS')
+ignore = ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS')
 
 # Creating and redefining attributes
 # ----------------------------------
 #
 # You can define a class ``EntryMixin`` in this file. Any methods named
-# ``get_ATTRIBUTE`` will be used to provide ``entry.ATTRIBUTE``, and that
-# value will be automatically cached.
+# ``get_ATTRIBUTE`` will be used to provide ``entry.ATTRIBUTE``, and
+# that value will be automatically cached.
 #
-# The convention used in the example layout and styles is that the repr() of
-# each attribute is used when putting it in a URL. For example, if you had a
-# tag called 'My Tag', you would return that value, but add a ``__repr__``
-# method that returned 'my-tag', so that you could use it in a link such as
-# ``<a href="http://blog/tag/my-tag/">My Tag</a>``.
+# We use the repr() of each attribute when putting it in a URL. For
+# example, if you wanted to have a tag called 'My Tag', you would add a
+# ``__repr__`` method that returned 'my-tag', so that you could use it
+# in a link such as ``<a href="http://blog/tag/my-tag/">My Tag</a>``.
 #
-# To easily create objects that work like this, the ``mnemosyne.utils`` module
-# includes a function ``cook`` which takes two arguments: the value itself,
-# and the value to use for its repr(). It then takes care of defining a new
-# class and overriding its ``__repr__`` method for you. Of course, if you do
-# not need to define a special repr(), this is not required.
+# To easily create objects that work like this, we import ``cook``,
+# which takes two arguments: a object and a value to override its
+# repr(). It does this by defining a new singleton class behind the
+# scenes.
 #
 # By default, this class is not defined.
 
@@ -73,15 +72,12 @@ locals['authhome'] = 'http://www.example.invalid/~melete/'
 #    # value, make sure there is some default for the repr() so that we don't
 #    # accidentally create an invalid URL when we use it.
 #
-#    def get_foobar(self):
+#    def get_foo(self):
 #        try:
-#            foobar = self.msg['X-Foobar']
-#            cleaned = clean(foo, 3)
+#            foo = self.msg['X-Foo']
+#            return cook(foo, clean(foo, 3))
 #        except KeyError:
-#            foobar = ''
-#            cleaned = 'nofoo'
-#
-#        return cook(foobar, cleaned)
+#            return cook('', 'xxx-foo-missing')
 #
 #    # You could use Markdown instead of ReST to write entries; you'll need
 #    # to install it from http://err.no/pymarkdown/.
