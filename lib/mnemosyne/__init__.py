@@ -2,7 +2,7 @@
 
 import os
 
-__version__ = '0.10'
+__version__ = '0.11'
 __author__ = 'Decklin Foster'
 __email__ = 'decklin@red-bean.com'
 __url__ = 'http://www.red-bean.com/decklin/mnemosyne/'
