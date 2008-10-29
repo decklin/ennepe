@@ -7,7 +7,7 @@ import shutil
 import kid
 import StringIO
 
-import entry
+from entry import Entry
 from mnemosyne import get_conf, cheapiter
 
 class Muse:
@@ -22,6 +22,7 @@ class Muse:
             'output_dir': get_conf('htdocs'),
             'ignore': ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS'),
             'locals': {},
+            'mixins': [],
             }
 
         try:
@@ -29,14 +30,13 @@ class Muse:
         except Exception, e:
             raise RuntimeError("Error running config: %s" % e)
 
+        Entry.__bases__ = tuple(self.conf['mixins']) + Entry.__bases__
+
         for d in ('entry_dir', 'layout_dir', 'style_dir', 'output_dir'):
             if not os.path.exists(self.conf[d]):
                 raise RuntimeError("%s %s does not exist" % (d, self.conf[d]))
 
-        try: entry.Entry.__bases__ += (self.conf['EntryMixin'],)
-        except KeyError: pass
-
-        self.box = mailbox.Maildir(self.conf['entry_dir'], entry.Entry)
+        self.box = mailbox.Maildir(self.conf['entry_dir'], Entry)
         self.entries = [e for e in self.box]
         self.entries.sort()
 

@@ -48,9 +48,13 @@ ignore = ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS')
 # Creating and redefining attributes
 # ----------------------------------
 #
-# You can define a class ``EntryMixin`` in this file. Any methods named
-# ``get_ATTRIBUTE`` will be used to provide ``entry.ATTRIBUTE``, and
-# that value will be automatically cached.
+#   * ``mixins``: a list of classes to search for attribute methods.
+#
+# You can add attributes to the Entry class by defining your own classes
+# here. Any methods named ``get_ATTRIBUTE`` will be used to provide
+# ``entry.ATTRIBUTE``, and that value will be automatically cached. To
+# use one of these example classes, uncomment it and then add its name to
+# the list at the end.
 #
 # We use the repr() of each attribute when putting it in a URL. For
 # example, if you wanted to have a tag called 'My Tag', you would add a
@@ -61,16 +65,12 @@ ignore = ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS')
 # which takes two arguments: a object and a value to override its
 # repr(). It does this by defining a new singleton class behind the
 # scenes.
-#
-# By default, this class is not defined.
 
-#class EntryMixin:
-#    """User-defined mixin class for Entry objects."""
-#
+#class FooMixin:
 #    # Pull anything you want out of self.msg (an email.Message.Message
-#    # object), and use it to provide a new attribute. If there is no usable
-#    # value, make sure there is some default for the repr() so that we don't
-#    # accidentally create an invalid URL when we use it.
+#    # object), and use it to provide a new attribute. If there is no
+#    # usable value, make sure there is some default for the repr() so
+#    # that we don't accidentally create an invalid URL when we use it.
 #
 #    def get_foo(self):
 #        try:
@@ -78,21 +78,23 @@ ignore = ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS')
 #            return cook(foo, clean(foo, 3))
 #        except KeyError:
 #            return cook('', 'xxx-foo-missing')
-#
-#    # You could use Markdown instead of ReST to write entries; you'll need
-#    # to install it from http://err.no/pymarkdown/.
+
+#class MarkdownMixin:
+#    # You could use Markdown instead of ReST to write entries; you'll
+#    # need to install it from http://err.no/pymarkdown/.
 #
 #    import pymarkdown
 #
 #    def get_content(self):
 #        s = self.msg.get_body()
 #        return cook(pymarkdown.Markdown(s), s[:80])
-#
-#    # If you would occasionally like to paste a chunk of HTML or XML from
-#    # elsewhere into a message, you could use a different formatter depending
-#    # on the value of an ``X-Format:`` header. This uses Expat to ensure that
-#    # the output is valid XHTML; you could also use Tidy. Contributed by
-#    # Aigars Mahinovs.
+
+#class RawMarkupMixin:
+#    # If you would occasionally like to paste a chunk of HTML or
+#    # XML from elsewhere into a message, you could use a different
+#    # formatter depending on the value of an ``X-Format:`` header. This
+#    # uses Expat to ensure that the output is valid XHTML; you could
+#    # also use Tidy. Contributed by Aigars Mahinovs.
 #
 #    import xml.dom
 #    import xml.parsers.expat
@@ -124,3 +126,5 @@ ignore = ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS')
 #            body = parts['body']
 #
 #        return body
+
+mixins = []
