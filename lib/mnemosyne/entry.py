@@ -55,8 +55,10 @@ class BaseEntry:
         # Grab the namespace for the day of this entry
         day = self.byday.setdefault(self.date[0:3], UniqueDict())
 
+        # This is not quite right. I think maybe it should be cook's
+        # reponsibility to encode things.
         slug = day.setdefault(hash(self.msg), cleaned)
-        return cook(subject, slug)
+        return cook(subject, slug.encode('utf-8', 'replace'))
 
     def get_id(self):
         """Get the Message-ID and a globally unique tag: URL based on it, for
