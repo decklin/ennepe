@@ -128,18 +128,17 @@ class Muse:
         locals['muse'] = self
         locals['entries'] = entries
 
-        oldstdout = sys.stdout
+        stdout = sys.stdout
         sys.stdout = StringIO.StringIO()
 
         try:
             exec file(spath) in globals(), locals
+            file(dpath, 'w').write(sys.stdout.getvalue())
+            print >>stdout, 'Wrote %s' % dpath
         except Exception, e:
-            raise RuntimeError("Error running layout %s: %s" % (spath, e))
+            print >>sys.stderr, "Error running layout %s: %s" % (spath, e)
 
-        file(dpath, 'w').write(sys.stdout.getvalue())
-        sys.stdout = oldstdout
-
-        print 'Wrote %s' % dpath
+        sys.stdout = stdout
 
 class KidTemplate:
     def __init__(self, filename, kwargs):
