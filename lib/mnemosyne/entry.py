@@ -127,9 +127,9 @@ class Entry(BaseEntry):
             for _class in self.__class__.__bases__:
                 try:
                     method = getattr(_class, 'get_'+attr)
-                    return self.cache.setdefault(attr, method(self))
                 except AttributeError:
-                    pass
+                    continue
+                return self.cache.setdefault(attr, method(self))
             else:
                 raise AttributeError("Entry has no attribute '%s'" % attr)
 
