@@ -142,20 +142,20 @@ class Message(email.Message.Message):
         if not header:
             raise KeyError
         def actually_decode(s, e):
-            if e: return s.decode(e)
-            else: return s
+            try: return s.decode(e)
+            except: return s.decode('utf-8', 'replace')
         parts = email.Header.decode_header(header)
         parts = [actually_decode(s, encoding) for s, encoding in parts]
         return ' '.join(parts)
 
     def get_body(self):
         """Returns the message payload with any signature stripped."""
+        body = self.get_payload(decode=True) or self.get_payload(decode=False)
 
-        s = self.get_payload(decode=True)
-        try:
-            return s[:s.rindex('-- \n')]
-        except ValueError:
-            return s
+        if isinstance(body, list):
+            return ''.join([payload.get_body() for payload in body])
+        else:
+            return body[:body.rfind('-- \n')].decode('utf-8', 'replace')
 
 class UniqueDict(dict):
     """A read-only dict which munges its values so that they are unique. If an
