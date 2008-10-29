@@ -30,7 +30,7 @@ def clean(s, maxwords=None):
     try:
         words = s.strip().lower().split()[:maxwords]
         words = [filter(lambda c: c.isalnum(), w) for w in words]
-        return '-'.join(words)
+        return '-'.join(words) or '-'
     except AttributeError:
         return None
 
