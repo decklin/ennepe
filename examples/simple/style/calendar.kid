@@ -5,25 +5,27 @@
 import time
 import calendar
 
-year = entries[0].date[0]
 months = {}
+stub = {}
 for e in entries:
-    months.setdefault(e.month, {})
-    months[e.month].setdefault(e.day, [])
-    months[e.month][e.day].append(e)
+    months.setdefault(e.month, {}).setdefault(e.day, []).append(e)
+    stub[e.month] = e
+keys = months.keys()
+keys.sort()
 ?>
-  <div py:strip="True" py:for="m, days in months.iteritems()">
+  <div py:strip="True" py:for="m in keys">
     <?python
-      monthname = time.strftime('%B', days.values()[0][0].date)
-      cal = calendar.monthcalendar(year, m)
+      monthname = time.strftime('%B', months[m].values()[0][0].date)
+      cal = calendar.monthcalendar(entries[0].year, m)
     ?>
-    <h3 py:content="monthname" />
+    <h3><a href="${blogroot}/${`stub[m].year`}/${`stub[m].month`}/">${time.strftime('%B', stub[m].date)}</a></h3>
     <table class="cal">
       <tr class="week" py:for="week in cal">
         <td class="day" py:for="day in week">
           <p>
-            <a py:if="days.has_key(day)" href="${blogroot}/${`e.year`}/${`e.month`}/${`e.day`}/">${day}</a>
-            <span py:if="not days.has_key(day)" py:strip="True">
+            <?python e = months[m].get(day, [None])[0] ?>
+            <a py:if="months[m].has_key(day)" href="${blogroot}/${`e.year`}/${`e.month`}/${`e.day`}/">${day}</a>
+            <span py:if="not months[m].has_key(day)" py:strip="True">
               <span py:if="day" py:strip="True">${day}</span>
             </span>
           </p>
