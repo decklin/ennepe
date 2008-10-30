@@ -134,10 +134,14 @@ class Muse:
 
         try:
             exec file(spath) in globals(), locals
-            file(dpath, 'w').write(sys.stdout.getvalue())
-            print >>stdout, 'Wrote %s' % dpath
         except Exception, e:
             print >>sys.stderr, "Error running layout %s: %s" % (spath, e)
+        else:
+            print >>stdout, 'Wrote %s' % dpath
+            try:
+                file(dpath, 'w').write(sys.stdout.getvalue())
+            except Exception, e:
+                print >>sys.stderr, "Error writing file: %s" % e
 
         sys.stdout = stdout
 
