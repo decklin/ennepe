@@ -2,7 +2,7 @@
 <?python
 import time
 import datetime
-import mnemosyne
+from mnemosyne import __url__, __version__
 
 def rfc3339(date):
     date = datetime.datetime.fromtimestamp(time.mktime(date))
@@ -15,7 +15,7 @@ def rfc3339(date):
   <link rel="self" type="application/atom+xml" href="${'/'.join([blogroot]+muse.where)}" />
   <link rel="alternate" type="application/xhtml+xml" href="${blogroot}/" />
   <updated>${rfc3339(muse.entries[-1].date)}</updated>
-  <generator uri="${mnemosyne.__url__}" version="${mnemosyne.__version__}">
+  <generator uri="${__url__}" version="${__version__}">
     Mnemosyne
   </generator>
   <author>
