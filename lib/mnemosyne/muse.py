@@ -38,6 +38,7 @@ class Muse:
 
         self.box = mailbox.Maildir(self.conf['entry_dir'], Entry)
         self.entries = [e for e in self.box]
+        print 'Sorting %d entries...' % len(self.entries)
         self.entries.sort()
 
     def sing(self, entries=None, spath=None, dpath=None, what=None):
