@@ -1,3 +1,19 @@
+0.12 (2008-10-30):
+==================
+
+* Fix mixins. The config interface has changed! You must now define a list
+  ``mixins`` containing your classes (there can be more than one, and they
+  can have any names you want). See the example config.
+
+* When a layout error occurs, continue running (a la make -k). I might make
+  this an option.
+
+* Provide tracebacks for more errors.
+
+* Properly decode (and flatten) multipart text messages.
+
+* Write Unicode subject slugs to the filesystem as UTF-8.
+
 0.11 (2008-10-27):
 ==================
 
