@@ -13,7 +13,7 @@ from mnemosyne import get_conf, dwim_iter
 class Muse:
     def __init__(self, config, force):
         self.force = force
-        self.where = []
+        self.path = []
 
         self.conf = {
             'entry_dir': get_conf('entries'),
@@ -41,10 +41,10 @@ class Muse:
         print 'Sorting %d entries...' % len(self.entries)
         self.entries.sort()
 
-    def sing(self, entries=None, spath=None, dpath=None, what=None):
+    def sing(self, entries=None, spath=None, dpath=None, song=None):
         """From the contents of spath, build output in dpath, based on the
         provided entries. For each entry in spath, will be called recursively
-        with a tuple what representing the source and dest file. For any
+        with a tuple song representing the source and dest file. For any
         source files starting with __attr__ will recur several times based on
         which entries match each value of that attribute. For regularly named
         files, evaluate them as layout scripts if they are executable and
@@ -67,8 +67,8 @@ class Muse:
                 if entries: smtimes += [time.mktime(e.mtime) for e in entries]
                 return dmtime < max(smtimes)
 
-        if what:
-            source, dest = what
+        if song:
+            source, dest = song
             spath = os.path.join(spath, source)
             dpath = os.path.join(dpath, dest)
             if source not in self.conf['ignore']:
@@ -88,19 +88,19 @@ class Muse:
                 if f.startswith('__'):
                     self.sing_instances(entries, spath, dpath, f)
                 else:
-                    self.where.append(f)
+                    self.path.append(f)
                     self.sing(entries, spath, dpath, (f, f))
-                    self.where.pop()
+                    self.path.pop()
 
-    def sing_instances(self, entries, spath, dpath, what):
-        """Given a source and dest file in the tuple what, where the source
+    def sing_instances(self, entries, spath, dpath, song):
+        """Given a source and dest file in the tuple song, where the source
         starts with __attr__, group the provided entries by the values of that
         attribute over all the provided entries. For an entry e and attribute
         attr, e.attr may be an atomic value or a sequence of values. For each
         value so encountered, evaluate the source file given all entries in
         entries that match that value."""
 
-        subst = what[:what.rindex('__')+2]
+        subst = song[:song.rindex('__')+2]
 
         inst = {}
         for e in entries:
@@ -109,9 +109,9 @@ class Muse:
                 inst.setdefault(repr(m), []).append(e)
 
         for k, entries in inst.iteritems():
-            self.where.append(k)
-            self.sing(entries, spath, dpath, (what, what.replace(subst, k)))
-            self.where.pop()
+            self.path.append(k)
+            self.sing(entries, spath, dpath, (song, song.replace(subst, k)))
+            self.path.pop()
 
     def template(self, name, kwargs):
         """Open a Kid template in the configuration's style directory, and

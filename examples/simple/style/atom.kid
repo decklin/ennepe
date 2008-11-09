@@ -12,7 +12,7 @@ def rfc3339(date):
 <feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://purl.org/kid/ns#">
   <title py:content="blogname" />
   <id py:content="blogroot" />
-  <link rel="self" type="application/atom+xml" href="${'/'.join([blogroot]+muse.where)}" />
+  <link rel="self" type="application/atom+xml" href="${'/'.join([blogroot]+muse.path)}" />
   <link rel="alternate" type="application/xhtml+xml" href="${blogroot}/" />
   <updated>${rfc3339(muse.entries[-1].date)}</updated>
   <generator uri="${__url__}" version="${__version__}">
