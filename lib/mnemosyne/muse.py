@@ -6,6 +6,7 @@ import stat
 import shutil
 import kid
 import StringIO
+import fnmatch
 
 from entry import Entry
 from mnemosyne import get_conf, dwim_iter
@@ -20,7 +21,7 @@ class Muse:
             'layout_dir': get_conf('layout'),
             'style_dir': get_conf('style'),
             'output_dir': get_conf('htdocs'),
-            'ignore': ('.hg', '_darcs', '.git', 'MT', '.svn', 'CVS'),
+            'ignore': ('*.pyc', '.hg', '.git', '.svn'),
             'locals': {},
             'mixins': [],
             }
@@ -69,9 +70,12 @@ class Muse:
 
         if song:
             source, dest = song
-            spath = os.path.join(spath, source)
-            dpath = os.path.join(dpath, dest)
-            if source not in self.conf['ignore']:
+            for pattern in self.conf['ignore']:
+                if fnmatch.fnmatch(source, pattern):
+                    return
+            else:
+                spath = os.path.join(spath, source)
+                dpath = os.path.join(dpath, dest)
                 if os.path.isfile(spath):
                     if os.stat(spath).st_mode & stat.S_IXUSR:
                         if stale(dpath, spath, entries):
@@ -83,7 +87,8 @@ class Muse:
                 elif os.path.isdir(spath):
                     self.sing(entries, spath, dpath)
         else:
-            if not os.path.isdir(dpath): os.makedirs(dpath)
+            if not os.path.isdir(dpath):
+                os.makedirs(dpath)
             for f in os.listdir(spath):
                 if f.startswith('__'):
                     self.sing_instances(entries, spath, dpath, f)
