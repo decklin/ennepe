@@ -13,19 +13,17 @@ def get_conf(s):
     return os.path.expanduser('~/.mnemosyne/%s' % s)
 
 def cook(obj, rep):
-    """Create an object exactly like obj, except its repr() is rep. This will
-    allow layouts to use the "cooked" rep (by convention, this is how we
-    format stuff for URLs etc.) without caring how or when or why it was
-    set."""
+    """Create an object exactly like obj, except its repr() is rep. This
+    lets us easily use repr() for URLs."""
 
     _class = type("Cooked", (type(obj),), {'__repr__': lambda self: rep})
     return _class(obj)
 
 def clean(s, maxwords=None):
     """Split the given string into words, lowercase and strip all
-    non-alphanumerics from them, and join them with '-'. If maxwords is given,
-    limit the returned string to that many words. If the string is None,
-    return None."""
+    non-alphanumerics from them, and join them with '-'. If maxwords is
+    given, limit the returned string to that many words. If the string
+    is None, return None."""
 
     try:
         words = s.strip().lower().split()[:maxwords]
@@ -34,19 +32,19 @@ def clean(s, maxwords=None):
     except AttributeError:
         return None
 
-def cheapiter(x):
-    """DWIM-style iterator which, if given a sequence, will iterate over that
-    sequence, unless it is a string type. For a string or any other atomic
-    type, create an iterator which will return the given value once and then
-    stop. Unless it's None. This is a horrible, horrible kludge."""
+def dwim_iter(x):
+    """Iterate over x, whatever that means. If it's a non-string
+    sequence, this is the same as iter(). If it's a string type, or a
+    non-sequence, create an iter that will yield that value once and
+    then stop. If it's None, do nothing."""
 
-    try:
-        if isinstance(x, basestring):
-            return iter((x,))
-        else:
+    if not isinstance(x, basestring):
+        try:
             return iter(x)
-    except TypeError:
-        if x != None:
-            return iter((x,))
-        else:
-            return iter(())
+        except TypeError:
+            pass
+
+    if x != None:
+        return iter((x,))
+    else:
+        return iter(())

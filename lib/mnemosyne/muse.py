@@ -8,7 +8,7 @@ import kid
 import StringIO
 
 from entry import Entry
-from mnemosyne import get_conf, cheapiter
+from mnemosyne import get_conf, dwim_iter
 
 class Muse:
     def __init__(self, config, force):
@@ -105,7 +105,7 @@ class Muse:
         inst = {}
         for e in entries:
             mv = getattr(e, subst[2:-2])
-            for m in cheapiter(mv):
+            for m in dwim_iter(mv):
                 inst.setdefault(repr(m), []).append(e)
 
         for k, entries in inst.iteritems():
