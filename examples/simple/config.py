@@ -1,10 +1,10 @@
-# Example Mnemosyne configuration
-# ===============================
+# Example Ennepe configuration
+# ============================
 #
 # This file is a Python script. The configuration defined here will
 # generate a very simple blog, somewhat like PyBlosxom's defaults.
 
-from mnemosyne import get_conf, cook, clean
+from ennepe import get_conf, cook, clean
 
 # File locations
 # --------------
@@ -15,7 +15,7 @@ from mnemosyne import get_conf, cook, clean
 #   * ``output_dir``: location where we will write the generated pages.
 #
 # All these directories must already exist. They default to the following
-# subdirectories of ~/.mnemosyne:
+# subdirectories of ~/.ennepe:
 
 entry_dir = get_conf('entries')
 layout_dir = get_conf('layout')
@@ -30,11 +30,11 @@ output_dir = get_conf('htdocs')
 # This is initially empty; add anything you want to use in all layouts.
 # Our example uses:
 
-locals['blogname'] = 'Simple Example'
-locals['blogroot'] = 'http://blog.example.invalid'
-locals['authname'] = 'Melete'
-locals['authemail'] = 'melete@example.invalid'
-locals['authhome'] = 'http://www.example.invalid/~melete/'
+locals['blogname'] = 'Example Blog'
+locals['blogroot'] = 'http://blog.polutropon.example/'
+locals['authname'] = 'Example Author'
+locals['authemail'] = 'blog@polutropon.example'
+locals['authhome'] = 'http://www.polutropon.example/'
 
 # Ignore list
 # -----------

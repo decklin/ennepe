@@ -1,16 +1,16 @@
-"""Mnemosyne -- a static weblog generator."""
+"""Ennepe -- a static weblog generator."""
 
 import os
 
 __version__ = '0.12'
 __author__ = 'Decklin Foster'
 __email__ = 'decklin@red-bean.com'
-__url__ = 'http://www.red-bean.com/decklin/mnemosyne/'
+__url__ = 'http://www.red-bean.com/decklin/ennepe/'
 
 __all__ = ['muse', 'entry']
 
 def get_conf(s):
-    return os.path.expanduser('~/.mnemosyne/%s' % s)
+    return os.path.expanduser('~/.ennepe/%s' % s)
 
 def cook(obj, rep):
     """Create an object exactly like obj, except its repr() is rep. This

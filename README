@@ -1,7 +1,7 @@
 Introduction
 ============
 
-Mnemosyne is a simple blogging system which generates static files. You
+Ennepe is a simple blogging system which generates static files. You
 provide it with some entries, which are stored in an ordinary Maildir, a
 layout, which is a directory tree indicating where these entries should
 go, and some styles, which are Kid templates that the layout can use to
@@ -14,7 +14,9 @@ variable pages, XML feeds, or anything else you want.
 Requirements
 ============
 
-* Python, probably at least version 2.2. I use 2.3.
+* Python, at least version 2.5. Ennepe was originally written using 2.3
+  and is currently being developed on 2.7. It will be ported to Python 3
+  in the future.
 
 * If you want to use reStructuredText to format entries as HTML,
   docutils. This is the default configuration, but you could also
@@ -29,20 +31,20 @@ Requirements
 Configuration
 =============
 
-A Mnemosyne blog starts with a configuration file, which is a Python
+An Ennepe blog starts with a configuration file, which is a Python
 script. The example provided in ``examples/simple/config.py`` explains
-what it can do and what variables can be set. By default, Mnemosyne
-looks for this file in ``~/.mnemosyne/config.py``.
+what it can do and what variables can be set. By default, Ennepe looks
+for this file in ``~/.ennepe/config.py``.
 
 Usage
 =====
 
-To regenerate your blog, simply run ``mnemosyne``, or, if your config
-lives in a different location, ``mnemosyne path/to/config.py``. By
-default, only pages for which the applicable entries or layout have been
-changed since the page was last written will be evaluated; you can
-override this and rebuild the entire blog with the ``--force`` option.
-(At the moment, this is your only recourse if you change your styles.)
+To regenerate your blog, simply run ``ennepe``, or, if your config lives
+in a different location, ``ennepe path/to/config.py``. By default, only
+pages for which the applicable entries or layout have been changed since
+the page was last written will be evaluated; you can override this and
+rebuild the entire blog with the ``--force`` option. (At the moment,
+this is your only recourse if you change your styles.)
 
 Layout
 ======
@@ -52,7 +54,7 @@ bit set will be executed and its output will be used to produce the
 corresponding output file. Apart from any local variables defined in the
 blog's configuration, layouts will be given the following:
 
-* ``muse``: a ``mnemosyne.Muse`` object, the thing that generates the
+* ``muse``: a ``ennepe.mousa.Muse`` object, the thing that generates the
   blog. It contains these attributes (among others, of course, but you
   can safely ignore the rest):
 
@@ -87,16 +89,15 @@ creative.
 Entries
 =======
 
-The values for all these expansions come from the attributes of
-mnemosyne's Entry class. Several useful ones, such as ``subject`` and
-``tags``, are provided by default: if you wish to define more, you may
-add a mixin class to your configuration, with some specially-named
-methods. Attributes may be calculated at initialization or only when
-needed.
+The values for all these expansions come from the attributes of ennepe's
+Entry class. Several useful ones, such as ``subject`` and ``tags``, are
+provided by default: if you wish to define more, you may add a mixin
+class to your configuration, with some specially-named methods.
+Attributes may be calculated at initialization or only when needed.
 
 When generating file or directory names, the attributes' repr() is used,
 so that dates, subject lines, and so on may be appropriately formatted
-and linked to. The ``mnemosyne.utils`` module provides the functions
+and linked to. The ``ennepe.utils`` module provides the functions
 ``clean`` and ``cook``, to make creating useful values easier. This is
 just a matter of convention; it is not required, but it does ensure that
 all the formatting logic is in one place.
@@ -159,23 +160,26 @@ Future and Caveats
 
 I intend to write an SQLite backend once someone complains that it takes
 too long to load their 10,000 entries. Be loquacious. At the moment,
-however, Mnemosyne depends on the Maildir really being a Maildir (for
+however, Ennepe depends on the Maildir really being a Maildir (for
 reliable modification times) and the standard ``email`` and ``mailbox``
 modules, which are not perfect.
 
 A lot of the more magic stuff may not be particularly good style; where
-some clarity or brevity in Mnemosyne itself could be sacrificed to make
-the layout and styles easier to work with, it has been.
+some clarity or brevity in Ennepe itself could be sacrificed to make the
+layout and styles easier to work with, it has been.
 
 About the Name
 ==============
 
-Mnemosyne, in Greek mythology, is the personification of memory and
-mother of the muses, goddesses whom poets would invoke to help them tell
-a story. The metaphor, hopefully, should be obvious.
+The word "ennepe" (ἔννεπε) is Ancient Greek for "tell". In the first
+line of the Odyssey, "moi ennepe Mousa" ("tell me, Muse") is IMHO most
+evocatively translated by Lombardo as "Speak, Memory—"; for this reason,
+Ennepe was originally called Mnemosyne (the muse of memory). However,
+this name was taken by another free software program which proved to be
+more popular.
 
 Author and Copyright
 ====================
 
-Copyright © 2006-2009 Decklin Foster <decklin@red-bean.com>. This program
+Copyright 2006-2012 Decklin Foster <decklin@red-bean.com>. This program
 is free software; please see LICENSE for terms and conditions.

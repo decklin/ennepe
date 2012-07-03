@@ -9,7 +9,7 @@ import StringIO
 import fnmatch
 
 from entry import Entry
-from mnemosyne import get_conf, dwim_iter
+from ennepe import get_conf, dwim_iter
 
 class Muse:
     def __init__(self, config, force):

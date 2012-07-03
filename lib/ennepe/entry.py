@@ -3,7 +3,7 @@ import time
 import docutils.core
 import email, email.Message, email.Header, email.Utils
 
-from mnemosyne import cook, clean
+from ennepe import cook, clean
 
 class BaseEntry:
     """Base class for all entries. Initialized with an open file object, so it

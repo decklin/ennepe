@@ -5,12 +5,12 @@ import os
 import email
 import time
 
-# automnemosyne -- Decklin Foster <decklin@red-bean.com>
+# autoennepe -- Decklin Foster <decklin@red-bean.com>
 #
-# If you deliver messages to your entry_dir via procmail, use a carbon copy
-# recipe for the Maildir and a pipe to this program as the final destination.
-# Your blog will then be updated automatically. Be sure to redirect output to
-# a suitable log file.
+# If you deliver messages to your entry_dir via procmail, use a carbon
+# copy recipe for the Maildir and a pipe to this program as the final
+# destination. Your blog will then be updated automatically. Be sure to
+# redirect output to a suitable log file.
 
 def fmt_time():
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # would be a bad idea, as we want all output files to be world-readable.
     os.umask(022)
 
-    argv = ['mnemosyne'] + sys.argv[1:]
+    argv = ['ennepe'] + sys.argv[1:]
     status = os.spawnvp(os.P_WAIT, argv[0], argv)
 
     print

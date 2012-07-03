@@ -3,8 +3,8 @@
 import sys
 import getopt
 
-from mnemosyne import get_conf
-from mnemosyne.muse import Muse
+from ennepe import get_conf
+from ennepe.mousa import Muse
 
 if __name__ == '__main__':
     shortopts = 'fh'
@@ -21,7 +21,7 @@ if __name__ == '__main__':
         if opt in ('--force', '-f'):
             force = True
         if opt in ('--help', '-h'):
-            print "usage: mnemosyne [--force] [configfile]"
+            print "usage: ennepe [--force] [configfile]"
             sys.exit(0)
 
     try:
