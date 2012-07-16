@@ -155,6 +155,6 @@ class KidTemplate:
         module = kid.load_template(filename)
         self.template = module.Template(assume_encoding='utf-8', **kwargs)
     def __str__(self):
-        return self.template.serialize(output='xhtml-strict')
+        return self.template.serialize()
     def __getattr__(self, attr):
         return getattr(self.template, attr)
